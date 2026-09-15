@@ -1,25 +1,66 @@
-# CODING AGENTS: READ THIS FIRST
+# Best Invest Properties
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+A visual prototype of a European real-estate investment platform, implemented as a
+React + TypeScript single-page app. Investors search and filter analysed properties,
+model returns, and compare them; developers submit projects; back-office screens cover
+approval and the investment-score model.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+**Live:** https://anastasialis-lab.github.io/best-invest-properties/
 
-## What you should do — IMPORTANT
+## Running locally
 
-**Read the chat transcripts first.** There are 2 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+```bash
+npm install
+npm run dev
+```
 
-**Read `project/Best Invest Properties.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+The dev server serves the app under the `/best-invest-properties/` base path (matching
+the GitHub Pages deployment), so open the URL that Vite prints rather than the bare root.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+```bash
+npm run build    # type-check + production build into dist/
+npm run preview  # serve the production build
+```
 
-## About the design files
+## Screens
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+Investor flow — landing, search filters, results, combined search+results, property
+detail, investment analysis, financial calculator, comparison, registration, login,
+dashboard. Developer — marketing page, account application, portal, add project.
+Back office — admin dashboard, investment-score editor, user-journey diagrams. Legal —
+privacy policy, terms of use.
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+Filters, the comparison basket, the calculator and the score-weight editor are
+interactive and share state; the remaining screens are laid out with placeholder data.
 
-## Bundle contents
+## Structure
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `MVP visual prototype mockups` project files (HTML prototypes, assets, components)
+| Path | Contents |
+| --- | --- |
+| `src/pages/` | One component per screen |
+| `src/components/` | Shared UI (header, footer, property card, filter panel, …) |
+| `src/layouts/` | Admin and developer-portal chrome |
+| `src/state/store.ts` | Shared filter / compare / calculator / score-weight state |
+| `src/data/` | Listing data and static page copy |
+| `src/styles/theme.ts` | Colour and type tokens |
+
+## Deployment
+
+Pushing to `main` runs `.github/workflows/deploy.yml`, which builds the app and publishes
+it to GitHub Pages. The repository's Pages source must be set to **GitHub Actions**
+(Settings → Pages → Build and deployment), otherwise Pages serves the unbuilt source and
+the page renders blank.
+
+Because Pages has no server-side rewrites, `public/404.html` redirects deep links back to
+the SPA entry point, which restores the original path before the router mounts.
+
+## Origin
+
+The design was produced in Claude Design and exported as a handoff bundle: the prototype
+lives in `project/`, the design conversations in `chats/`, and the bundle's own notes in
+`DESIGN-HANDOFF.md`. The prototype's screen-rail and desktop/mobile toggle were
+scaffolding for the design tool and are deliberately absent here — real routes and CSS
+breakpoints replace them.
+
+Figures, names and legal copy throughout are placeholders from the prototype and are not
+reviewed for production use.
