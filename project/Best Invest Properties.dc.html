@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&amp;family=Archivo:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#EDEAE3;font-family:Archivo,system-ui,sans-serif;color:#12263D;-webkit-font-smoothing:antialiased}
+  a{color:#0E2A4A;text-decoration:none}
+  a:hover{color:#B8892B}
+  input,select,button,textarea{font-family:inherit;color:inherit}
+  input[type=range]{accent-color:#B8892B}
+  ::placeholder{color:#93A3B4}
+  .bip-scroll::-webkit-scrollbar{width:9px;height:9px}
+  .bip-scroll::-webkit-scrollbar-thumb{background:rgba(14,42,74,.2);border-radius:9px}
+</style>
+<script src="./image-slot.js"></script>
+</helmet>
+
+<div style="display:flex;min-height:100vh;align-items:stretch;background:#EDEAE3">
+
+  <sc-if value="{{ showRail }}" hint-placeholder-val="{{ true }}">
+  <aside style="width:236px;flex:none;background:#0A1F38;color:#E9EEF4;padding:22px 0 30px;position:sticky;top:0;height:100vh;overflow-y:auto" class="bip-scroll">
+    <div style="padding:0 20px 20px">
+      <div style="font-family:Newsreader,Georgia,serif;font-size:20px;letter-spacing:.06em;line-height:1">BEST <span style="color:#E2B558">INVEST</span></div>
+      <div style="font-size:8.5px;letter-spacing:.34em;color:#7E93AB;margin-top:5px">PROPERTIES</div>
+    </div>
+    <div style="height:1px;background:rgba(255,255,255,.1);margin:0 20px 16px"></div>
+
+    <div style="padding:0 12px">
+      <div style="font-size:9px;letter-spacing:.18em;color:#6F859F;padding:0 8px 7px">OVERVIEW</div>
+      <sc-for list="{{ railIntro }}" as="it" hint-placeholder-count="1">
+        <button onClick="{{ it.go }}" style="display:flex;width:100%;gap:9px;align-items:center;text-align:left;border:0;border-radius:7px;padding:8px 9px;margin-bottom:2px;font-size:12.5px;cursor:pointer;background:{{ it.bg }};color:{{ it.fg }}">
+          <span style="font-size:9.5px;font-variant-numeric:tabular-nums;opacity:.6;width:14px;flex:none">{{ it.num }}</span>{{ it.label }}
+        </button>
+      </sc-for>
+
+      <div style="font-size:9px;letter-spacing:.18em;color:#6F859F;padding:16px 8px 7px">INVESTOR FLOW</div>
+      <sc-for list="{{ railInvestor }}" as="it" hint-placeholder-count="9">
+        <button onClick="{{ it.go }}" style="display:flex;width:100%;gap:9px;align-items:center;text-align:left;border:0;border-radius:7px;padding:8px 9px;margin-bottom:2px;font-size:12.5px;cursor:pointer;background:{{ it.bg }};color:{{ it.fg }}">
+          <span style="font-size:9.5px;font-variant-numeric:tabular-nums;opacity:.6;width:14px;flex:none">{{ it.num }}</span>{{ it.label }}
+        </button>
+      </sc-for>
+
+      <div style="font-size:9px;letter-spacing:.18em;color:#6F859F;padding:16px 8px 7px">DEVELOPER</div>
+      <sc-for list="{{ railDeveloper }}" as="it" hint-placeholder-count="2">
+        <button onClick="{{ it.go }}" style="display:flex;width:100%;gap:9px;align-items:center;text-align:left;border:0;border-radius:7px;padding:8px 9px;margin-bottom:2px;font-size:12.5px;cursor:pointer;background:{{ it.bg }};color:{{ it.fg }}">
+          <span style="font-size:9.5px;font-variant-numeric:tabular-nums;opacity:.6;width:14px;flex:none">{{ it.num }}</span>{{ it.label }}
+        </button>
+      </sc-for>
+
+      <div style="font-size:9px;letter-spacing:.18em;color:#6F859F;padding:16px 8px 7px">BACK OFFICE</div>
+      <sc-for list="{{ railAdmin }}" as="it" hint-placeholder-count="3">
+        <button onClick="{{ it.go }}" style="display:flex;width:100%;gap:9px;align-items:center;text-align:left;border:0;border-radius:7px;padding:8px 9px;margin-bottom:2px;font-size:12.5px;cursor:pointer;background:{{ it.bg }};color:{{ it.fg }}">
+          <span style="font-size:9.5px;font-variant-numeric:tabular-nums;opacity:.6;width:14px;flex:none">{{ it.num }}</span>{{ it.label }}
+        </button>
+      </sc-for>
+
+      <div style="font-size:9px;letter-spacing:.18em;color:#6F859F;padding:16px 8px 7px">LEGAL</div>
+      <sc-for list="{{ railLegal }}" as="it" hint-placeholder-count="2">
+        <button onClick="{{ it.go }}" style="display:flex;width:100%;gap:9px;align-items:center;text-align:left;border:0;border-radius:7px;padding:8px 9px;margin-bottom:2px;font-size:12.5px;cursor:pointer;background:{{ it.bg }};color:{{ it.fg }}">
+          <span style="font-size:9.5px;font-variant-numeric:tabular-nums;opacity:.6;width:14px;flex:none">{{ it.num }}</span>{{ it.label }}
+        </button>
+      </sc-for>
+    </div>
+  </aside>
+  </sc-if>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:11px 20px;background:#E3DFD6;border-bottom:1px solid rgba(14,42,74,.1);position:sticky;top:0;z-index:20">
+      <div style="display:flex;align-items:baseline;gap:10px;min-width:0">
+        <span style="font-size:9.5px;letter-spacing:.16em;color:#7A8899">SCREEN {{ screenNum }}</span>
+        <span style="font-family:Newsreader,Georgia,serif;font-size:17px;color:#0E2A4A">{{ screenTitle }}</span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-right:4px">VIEW</span>
+        <button onClick="{{ setDesktop }}" style="border:1px solid rgba(14,42,74,.16);border-radius:6px;padding:5px 11px;font-size:11.5px;cursor:pointer;background:{{ deskBg }};color:{{ deskFg }}">Desktop</button>
+        <button onClick="{{ setMobile }}" style="border:1px solid rgba(14,42,74,.16);border-radius:6px;padding:5px 11px;font-size:11.5px;cursor:pointer;background:{{ mobBg }};color:{{ mobFg }}">Mobile</button>
+      </div>
+    </div>
+
+    <div style="flex:1;padding:22px;display:flex;justify-content:center;align-items:flex-start">
+    <div style="width:100%;background:#FBFAF7;border:1px solid rgba(14,42,74,.12);border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(10,31,56,.07);max-width:{{ frameMax }}">
+
+      <!-- ============ OVERVIEW ============ -->
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:44px 48px 52px;max-width:960px">
+        <div style="font-size:10px;letter-spacing:.2em;color:#B8892B">DESIGN NOTES</div>
+        <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:40px;line-height:1.1;margin:10px 0 16px;color:#0E2A4A;max-width:20ch;text-wrap:pretty">A visual prototype of the investment platform</h1>
+        <p style="font-size:14.5px;line-height:1.65;color:#48596B;max-width:64ch;margin:0 0 30px">Nineteen screens from your specification. The investor path — landing through registration, login and dashboard — is clickable: filters, the calculator, comparison selection and the score editor all respond. Developer, back-office and legal screens are laid out but static; the two legal pages carry draft text for review. Use the rail on the left to jump, or the buttons inside each screen to follow the flow as an investor would.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin-bottom:34px">
+          <div style="background:#fff;border:1px solid rgba(14,42,74,.1);border-radius:8px;padding:18px">
+            <div style="font-size:9.5px;letter-spacing:.16em;color:#7A8899;margin-bottom:10px">PALETTE</div>
+            <div style="display:flex;gap:6px;margin-bottom:12px">
+              <div style="width:30px;height:30px;border-radius:5px;background:#0A1F38"></div>
+              <div style="width:30px;height:30px;border-radius:5px;background:#0E2A4A"></div>
+              <div style="width:30px;height:30px;border-radius:5px;background:#B8892B"></div>
+              <div style="width:30px;height:30px;border-radius:5px;background:#E2B558"></div>
+              <div style="width:30px;height:30px;border-radius:5px;background:#EDEAE3;border:1px solid rgba(14,42,74,.12)"></div>
+            </div>
+            <p style="margin:0;font-size:12.5px;line-height:1.55;color:#48596B">Navy and gold taken from your logo. Warm paper ground instead of white, so financial tables read as documents rather than dashboards.</p>
+          </div>
+          <div style="background:#fff;border:1px solid rgba(14,42,74,.1);border-radius:8px;padding:18px">
+            <div style="font-size:9.5px;letter-spacing:.16em;color:#7A8899;margin-bottom:10px">TYPE</div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:26px;color:#0E2A4A;line-height:1.1">Newsreader</div>
+            <div style="font-size:12px;color:#7A8899;margin-bottom:8px">headlines, prices, scores</div>
+            <div style="font-size:19px;font-weight:600;color:#0E2A4A">Archivo</div>
+            <div style="font-size:12px;color:#7A8899">interface, labels, numbers</div>
+          </div>
+          <div style="background:#fff;border:1px solid rgba(14,42,74,.1);border-radius:8px;padding:18px">
+            <div style="font-size:9.5px;letter-spacing:.16em;color:#7A8899;margin-bottom:10px">ASSUMPTIONS</div>
+            <ul style="margin:0;padding-left:16px;font-size:12.5px;line-height:1.6;color:#48596B">
+              <li>All figures are illustrative placeholders.</li>
+              <li>Score weights sum to 100 and are editable by you.</li>
+              <li>Photography shown as labelled placeholders.</li>
+              <li>The full logo appears on the landing hero; a wordmark is used inside the product.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button onClick="{{ goLanding }}" style="border:0;border-radius:6px;padding:12px 22px;background:#0E2A4A;color:#fff;font-size:13.5px;font-weight:500;cursor:pointer">Start at the landing page</button>
+          <button onClick="{{ goAdmin }}" style="border:1px solid rgba(14,42,74,.2);border-radius:6px;padding:12px 22px;background:transparent;color:#0E2A4A;font-size:13.5px;font-weight:500;cursor:pointer">Jump to admin</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 1 LANDING ============ -->
+      <sc-if value="{{ isLanding }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <header style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:13px 26px;border-bottom:1px solid rgba(14,42,74,.1);background:#fff">
+          <div style="display:flex;align-items:center;gap:11px">
+            
+            <div>
+              <div style="font-family:Newsreader,Georgia,serif;font-size:19px;letter-spacing:.05em;color:#0E2A4A;line-height:1">BEST <span style="color:#B8892B">INVEST</span></div>
+              <div style="font-size:7.5px;letter-spacing:.32em;color:#7A8899;margin-top:4px">PROPERTIES</div>
+            </div>
+          </div>
+          <nav style="display:flex;gap:22px;align-items:center;flex-wrap:wrap;font-size:13px;color:#48596B">
+            <a href="#" onClick="{{ goResults }}">Investment Properties</a>
+            <a href="#">How It Works</a>
+            <a href="#" onClick="{{ goFordev }}">For Developers</a>
+            <a href="#">About</a>
+            <a href="#" onClick="{{ goLogin }}">Login</a>
+            <button onClick="{{ goSearch }}" style="border:0;border-radius:5px;padding:9px 16px;background:#B8892B;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Find My Investment</button>
+          </nav>
+        </header>
+
+        <section style="position:relative;overflow:hidden;background:#0A1F38;color:#fff">
+          <div style="position:absolute;inset:0;filter:blur(18px) saturate(1.08);transform:scale(1.14)">
+            <image-slot id="landing-hero-bg" shape="rect" fit="cover" placeholder="Drop a property photo here — it becomes the blurred hero background"></image-slot>
+          </div>
+          <div style="position:absolute;inset:0;background:linear-gradient(100deg,rgba(8,26,47,.92) 0%,rgba(8,26,47,.8) 38%,rgba(8,26,47,.34) 70%,rgba(8,26,47,.12) 100%);pointer-events:none"></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:120px;background:linear-gradient(to bottom,rgba(8,26,47,0),rgba(8,26,47,.75));pointer-events:none"></div>
+
+          <div style="position:relative;padding:70px 34px 78px;max-width:700px;pointer-events:none">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+              <span style="width:44px;height:1px;background:#E2B558;display:block"></span>
+              <span style="font-size:10px;letter-spacing:.2em;color:#E2B558">CYPRUS · SPAIN</span>
+            </div>
+            <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:56px;line-height:1.05;margin:0 0 20px;text-wrap:pretty;text-shadow:0 2px 24px rgba(4,14,26,.5)">Best European Investment Properties — <em style="color:#E2B558;font-style:italic">Selected for Return</em></h1>
+            <p style="font-size:16px;line-height:1.62;color:#D5DFEA;max-width:48ch;margin:0 0 30px">Discover residential properties analysed for rental income, costs, risks and long-term potential.</p>
+            <div style="display:flex;gap:11px;flex-wrap:wrap;pointer-events:auto">
+              <button onClick="{{ goResults }}" style="border:0;border-radius:6px;padding:15px 28px;background:#B8892B;color:#fff;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 10px 24px rgba(4,14,26,.35)">Explore Investments</button>
+              <button onClick="{{ goSearch }}" style="border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:15px 28px;background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-weight:500;cursor:pointer">Find My Investment</button>
+            </div>
+          </div>
+
+          <div style="position:absolute;right:22px;top:20px;border:1px dashed rgba(226,181,88,.55);border-radius:6px;padding:8px 13px;font-size:10.5px;letter-spacing:.14em;color:#E2B558;background:rgba(8,26,47,.35);pointer-events:none">DRAG A PROPERTY PHOTO ONTO THE HERO</div>
+
+          <div style="position:relative;display:flex;gap:1px;background:rgba(255,255,255,.14);border-top:1px solid rgba(255,255,255,.14);flex-wrap:wrap;margin-bottom:34px">
+            <div style="flex:1 1 180px;min-width:0;background:rgba(8,26,47,.72);padding:18px 26px;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;min-height:96px">
+              <div style="font-family:Newsreader,Georgia,serif;font-size:24px;line-height:1.1;white-space:nowrap">€120k – €600k</div>
+              <div style="font-size:10px;letter-spacing:.16em;color:#9FB3C8">PRICE BAND WE COVER</div>
+            </div>
+            <div style="flex:1 1 180px;min-width:0;background:rgba(8,26,47,.72);padding:18px 26px;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;min-height:96px">
+              <div style="font-family:Newsreader,Georgia,serif;font-size:24px;line-height:1.1;white-space:nowrap">5.9% – 7.4%</div>
+              <div style="font-size:10px;letter-spacing:.16em;color:#9FB3C8">GROSS YIELD RANGE</div>
+            </div>
+            <div style="flex:1 1 180px;min-width:0;background:rgba(8,26,47,.72);padding:18px 26px;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;min-height:96px">
+              <div style="font-family:Newsreader,Georgia,serif;font-size:24px;line-height:1.1;white-space:nowrap">8 criteria</div>
+              <div style="font-size:10px;letter-spacing:.16em;color:#9FB3C8">BEHIND EVERY SCORE</div>
+            </div>
+          </div>
+        </section>
+
+        <section style="margin:-26px 26px 0;position:relative;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:10px;box-shadow:0 12px 30px rgba(10,31,56,.12);padding:24px 26px">
+          <div style="font-family:Newsreader,Georgia,serif;font-size:19px;color:#0E2A4A;margin-bottom:18px">I want to invest in</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;align-items:end">
+            <label style="display:block">
+              <span style="display:block;font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:6px">COUNTRY</span>
+              <select style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#FBFAF7;font-size:13.5px">
+                <option>Spain</option><option>Cyprus</option><option>Greece</option><option>Portugal</option>
+              </select>
+            </label>
+            <label style="display:block">
+              <span style="display:block;font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:6px">BUDGET</span>
+              <select style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#FBFAF7;font-size:13.5px">
+                <option>€100k – €200k</option><option>€200k – €350k</option><option>€350k – €500k+</option>
+              </select>
+            </label>
+            <label style="display:block">
+              <span style="display:block;font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:6px">MINIMUM GROSS YIELD</span>
+              <select style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#FBFAF7;font-size:13.5px">
+                <option>5%</option><option>6%</option><option>7%</option><option>8%+</option>
+              </select>
+            </label>
+            <label style="display:block">
+              <span style="display:block;font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:6px">STRATEGY</span>
+              <select style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#FBFAF7;font-size:13.5px">
+                <option>Long-term rental</option><option>Short-term rental</option><option>Capital growth</option><option>Mixed</option>
+              </select>
+            </label>
+            <button onClick="{{ goResults }}" style="border:0;border-radius:6px;padding:12px 20px;background:#0E2A4A;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;height:41px">Show Investments</button>
+          </div>
+        </section>
+
+        <section style="padding:52px 26px 56px">
+          <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:30px;color:#0E2A4A;margin:0 0 26px">Why invest through us?</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1px;background:rgba(14,42,74,.12);border:1px solid rgba(14,42,74,.12);border-radius:8px;overflow:hidden">
+            <sc-for list="{{ pillars }}" as="p" hint-placeholder-count="4">
+              <div style="background:#fff;padding:26px 22px 28px">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:13px;letter-spacing:.14em;color:#B8892B;margin-bottom:12px">{{ p.num }} — {{ p.title }}</div>
+                <p style="margin:0;font-size:13.5px;line-height:1.6;color:#48596B">{{ p.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <footer style="padding:24px 26px;background:#0A1F38;color:#7E93AB;font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <span>Best Invest Properties — ranking the most profitable properties in Europe</span>
+          <span style="display:flex;gap:16px;flex-wrap:wrap"><a href="#" onClick="{{ goPrivacy }}" style="color:#7E93AB">Privacy Policy</a><a href="#" onClick="{{ goTerms }}" style="color:#7E93AB">Terms of Use</a><a href="#" onClick="{{ goFordev }}" style="color:#7E93AB">For Developers</a></span>
+        </footer>
+      </div>
+      </sc-if>
+
+      <!-- ============ 2 SEARCH FILTERS ============ -->
+      <sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 28px 40px">
+        <div style="margin-bottom:22px">
+          <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:32px;color:#0E2A4A;margin:0 0 6px">Investment Opportunities</h1>
+          <div style="font-size:13.5px;color:#7A8899">{{ matchCount }} properties match your criteria</div>
+        </div>
+        <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1 1 320px;min-width:0;max-width:420px;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:22px">
+            <div style="font-family:Newsreader,Georgia,serif;font-size:20px;color:#0E2A4A;margin-bottom:18px">Filters</div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:9px">COUNTRY</div>
+            <sc-for list="{{ fCountry }}" as="o" hint-placeholder-count="2">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:4px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 8px">LOCATION</div>
+            <input placeholder="City / region" style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#FBFAF7;font-size:13.5px">
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 8px">PRICE</div>
+            <input type="range" min="100000" max="500000" step="5000" value="{{ priceMax }}" onChange="{{ setPrice }}" onInput="{{ setPrice }}" style="width:100%">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#48596B;font-variant-numeric:tabular-nums"><span>€100k</span><span>up to {{ priceMaxLabel }}</span></div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 9px">PROPERTY TYPE</div>
+            <sc-for list="{{ fType }}" as="o" hint-placeholder-count="3">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:4px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 9px">BEDROOMS</div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <sc-for list="{{ fBeds }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ o.toggle }}" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:7px 14px;font-size:13px;cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 8px">MINIMUM GROSS YIELD</div>
+            <input type="range" min="4" max="10" step="0.1" value="{{ minGross }}" onChange="{{ setGross }}" onInput="{{ setGross }}" style="width:100%">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#48596B;font-variant-numeric:tabular-nums"><span>4%</span><span>{{ minGrossLabel }}</span><span>10%</span></div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 8px">MINIMUM NET YIELD</div>
+            <input type="range" min="3" max="8" step="0.1" value="{{ minNet }}" onChange="{{ setNet }}" onInput="{{ setNet }}" style="width:100%">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#48596B;font-variant-numeric:tabular-nums"><span>3%</span><span>{{ minNetLabel }}</span><span>8%</span></div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 9px">INVESTMENT STRATEGY</div>
+            <sc-for list="{{ fStrategy }}" as="o" hint-placeholder-count="3">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:4px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:18px 0 9px">COMPLETION</div>
+            <sc-for list="{{ fCompletion }}" as="o" hint-placeholder-count="3">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:4px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <button onClick="{{ goResults }}" style="width:100%;margin-top:22px;border:0;border-radius:6px;padding:13px;background:#0E2A4A;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer">Apply Filters</button>
+          </div>
+
+          <div style="flex:1 1 300px;min-width:0;background:#F2EFE8;border:1px dashed rgba(14,42,74,.22);border-radius:9px;padding:24px">
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:10px">LIVE PREVIEW</div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:44px;color:#0E2A4A;line-height:1;font-variant-numeric:tabular-nums">{{ matchCount }}</div>
+            <p style="font-size:13.5px;line-height:1.6;color:#48596B;margin:8px 0 18px">properties currently match. The count updates as filters change, so nobody applies filters into an empty result set.</p>
+            <div style="font-size:12.5px;color:#48596B;line-height:1.9">
+              <div>Countries · {{ sumCountry }}</div>
+              <div>Budget · up to {{ priceMaxLabel }}</div>
+              <div>Gross yield · {{ minGrossLabel }} or more</div>
+              <div>Net yield · {{ minNetLabel }} or more</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 3 RESULTS ============ -->
+      <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:26px 28px 40px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+          <div>
+            <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:30px;color:#0E2A4A;margin:0 0 5px">Search Results</h1>
+            <div style="font-size:13px;color:#7A8899">{{ shownCount }} of {{ matchCount }} properties · sorted by investment score</div>
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <button onClick="{{ goSearch }}" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:9px 15px;background:#fff;font-size:12.5px;cursor:pointer">Edit filters</button>
+            <button onClick="{{ goCompare }}" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:9px 15px;background:#fff;font-size:12.5px;cursor:pointer">Compare ({{ compareCount }})</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(278px,1fr));gap:18px">
+          <sc-for list="{{ listings }}" as="p" hint-placeholder-count="6">
+            <div style="background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+              <div style="position:relative;height:168px;background-image:repeating-linear-gradient(135deg,#DFE5EC 0 9px,#EDF1F5 9px 18px);display:flex;align-items:flex-end;justify-content:space-between;padding:10px">
+                <span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#5C7085;background:rgba(251,250,247,.86);padding:3px 7px;border-radius:4px">{{ p.photoLabel }}</span>
+                <span style="position:absolute;top:10px;left:10px;font-size:9px;letter-spacing:.14em;font-weight:700;padding:5px 9px;border-radius:4px;background:#0A1F38;color:#E2B558">{{ p.tag }}</span>
+              </div>
+              <div style="padding:16px 17px 18px;display:flex;flex-direction:column;gap:11px;flex:1">
+                <div>
+                  <div style="font-size:12.5px;color:#7A8899;letter-spacing:.04em">{{ p.location }}</div>
+                  <div style="font-family:Newsreader,Georgia,serif;font-size:27px;color:#0E2A4A;line-height:1.2;font-variant-numeric:tabular-nums">{{ p.price }}</div>
+                  <div style="font-size:12.5px;color:#48596B">{{ p.spec }}</div>
+                </div>
+                <div style="display:flex;gap:10px;border-top:1px solid rgba(14,42,74,.1);border-bottom:1px solid rgba(14,42,74,.1);padding:11px 0">
+                  <div style="flex:1">
+                    <div style="font-family:Newsreader,Georgia,serif;font-size:20px;color:#B8892B;font-variant-numeric:tabular-nums">{{ p.gross }}</div>
+                    <div style="font-size:10px;letter-spacing:.1em;color:#7A8899">GROSS YIELD</div>
+                  </div>
+                  <div style="flex:1">
+                    <div style="font-family:Newsreader,Georgia,serif;font-size:20px;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ p.net }}</div>
+                    <div style="font-size:10px;letter-spacing:.1em;color:#7A8899">EST. NET YIELD</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="font-family:Newsreader,Georgia,serif;width:42px;height:42px;flex:none;border-radius:50%;border:2px solid #B8892B;display:flex;align-items:center;justify-content:center;font-size:16px;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ p.score }}</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:600;color:#0E2A4A">{{ p.verdict }}</div>
+                    <div style="font-size:11.5px;color:#7A8899">{{ p.score }}/100 investment score</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:auto">
+                  <button onClick="{{ p.view }}" style="flex:1;border:0;border-radius:6px;padding:11px;background:#0E2A4A;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">View Investment</button>
+                  <button onClick="{{ p.compare }}" title="Add to compare" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:11px 13px;font-size:12.5px;cursor:pointer;background:{{ p.cmpBg }};color:{{ p.cmpFg }}">{{ p.cmpLabel }}</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 2+3 COMBINED ============ -->
+      <sc-if value="{{ isBrowse }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:26px 28px 40px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px">
+          <div>
+            <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:30px;color:#0E2A4A;margin:0 0 5px">Investment Opportunities</h1>
+            <div style="font-size:13px;color:#7A8899">{{ matchCount }} properties match · sorted by investment score</div>
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+            <select style="padding:9px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:12.5px">
+              <option>Investment score</option><option>Gross yield</option><option>Net yield</option><option>Price — low to high</option>
+            </select>
+            <button onClick="{{ goCompare }}" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:9px 15px;background:#fff;font-size:12.5px;cursor:pointer">Compare ({{ compareCount }})</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:0 1 268px;min-width:236px;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:20px;align-self:flex-start">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px">
+              <span style="font-family:Newsreader,Georgia,serif;font-size:19px;color:#0E2A4A">Filters</span>
+              <span style="font-size:11.5px;color:#7A8899;font-variant-numeric:tabular-nums">{{ matchCount }} results</span>
+            </div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:8px">COUNTRY</div>
+            <sc-for list="{{ fCountry }}" as="o" hint-placeholder-count="2">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13px;padding:3px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:16px 0 7px">PRICE</div>
+            <input type="range" min="100000" max="500000" step="5000" value="{{ priceMax }}" onChange="{{ setPrice }}" onInput="{{ setPrice }}" style="width:100%">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#48596B;font-variant-numeric:tabular-nums"><span>€100k</span><span>up to {{ priceMaxLabel }}</span></div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:16px 0 8px">PROPERTY TYPE</div>
+            <sc-for list="{{ fType }}" as="o" hint-placeholder-count="3">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13px;padding:3px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:16px 0 8px">BEDROOMS</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <sc-for list="{{ fBeds }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ o.toggle }}" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:6px 12px;font-size:12.5px;cursor:pointer;background:{{ o.bg }};color:{{ o.fg }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:16px 0 7px">MINIMUM GROSS YIELD</div>
+            <input type="range" min="4" max="10" step="0.1" value="{{ minGross }}" onChange="{{ setGross }}" onInput="{{ setGross }}" style="width:100%">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#48596B;font-variant-numeric:tabular-nums"><span>4%</span><span>{{ minGrossLabel }}</span><span>10%</span></div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:16px 0 7px">MINIMUM NET YIELD</div>
+            <input type="range" min="3" max="8" step="0.1" value="{{ minNet }}" onChange="{{ setNet }}" onInput="{{ setNet }}" style="width:100%">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#48596B;font-variant-numeric:tabular-nums"><span>3%</span><span>{{ minNetLabel }}</span><span>8%</span></div>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:16px 0 8px">INVESTMENT STRATEGY</div>
+            <sc-for list="{{ fStrategy }}" as="o" hint-placeholder-count="3">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13px;padding:3px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin:16px 0 8px">COMPLETION</div>
+            <sc-for list="{{ fCompletion }}" as="o" hint-placeholder-count="3">
+              <label style="display:flex;gap:9px;align-items:center;font-size:13px;padding:3px 0;cursor:pointer">
+                <input type="checkbox" checked="{{ o.on }}" onChange="{{ o.toggle }}" style="accent-color:#B8892B;width:15px;height:15px">{{ o.label }}
+              </label>
+            </sc-for>
+
+            <div style="font-size:11.5px;line-height:1.55;color:#7A8899;margin-top:16px">Results update as you change a filter. No Apply button.</div>
+          </div>
+
+          <div style="flex:1 1 420px;min-width:0">
+          <sc-if value="{{ browseEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#fff;border:1px dashed rgba(14,42,74,.24);border-radius:9px;padding:40px 26px;text-align:center">
+              <div style="font-family:Newsreader,Georgia,serif;font-size:22px;color:#0E2A4A;margin-bottom:8px">No properties match</div>
+              <p style="font-size:13.5px;line-height:1.6;color:#48596B;margin:0 auto;max-width:44ch">Widen your criteria — lower the minimum yield, raise the budget, or add a country.</p>
+            </div>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:16px">
+            <sc-for list="{{ browseListings }}" as="p" hint-placeholder-count="6">
+              <div style="background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;overflow:hidden;display:flex;flex-direction:column">
+                <div style="position:relative;height:152px;background-image:repeating-linear-gradient(135deg,#DFE5EC 0 9px,#EDF1F5 9px 18px);display:flex;align-items:flex-end;padding:10px">
+                  <span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#5C7085;background:rgba(251,250,247,.86);padding:3px 7px;border-radius:4px">{{ p.photoLabel }}</span>
+                  <span style="position:absolute;top:10px;left:10px;font-size:9px;letter-spacing:.14em;font-weight:700;padding:5px 9px;border-radius:4px;background:#0A1F38;color:#E2B558">{{ p.tag }}</span>
+                </div>
+                <div style="padding:15px 16px 17px;display:flex;flex-direction:column;gap:11px;flex:1">
+                  <div>
+                    <div style="font-size:12px;color:#7A8899;letter-spacing:.04em">{{ p.location }}</div>
+                    <div style="font-family:Newsreader,Georgia,serif;font-size:25px;color:#0E2A4A;line-height:1.2;font-variant-numeric:tabular-nums">{{ p.price }}</div>
+                    <div style="font-size:12.5px;color:#48596B">{{ p.spec }}</div>
+                  </div>
+                  <div style="display:flex;gap:10px;border-top:1px solid rgba(14,42,74,.1);border-bottom:1px solid rgba(14,42,74,.1);padding:10px 0">
+                    <div style="flex:1">
+                      <div style="font-family:Newsreader,Georgia,serif;font-size:19px;color:#B8892B;font-variant-numeric:tabular-nums">{{ p.gross }}</div>
+                      <div style="font-size:9.5px;letter-spacing:.1em;color:#7A8899">GROSS YIELD</div>
+                    </div>
+                    <div style="flex:1">
+                      <div style="font-family:Newsreader,Georgia,serif;font-size:19px;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ p.net }}</div>
+                      <div style="font-size:9.5px;letter-spacing:.1em;color:#7A8899">EST. NET YIELD</div>
+                    </div>
+                    <div style="flex:none;width:38px;height:38px;border-radius:50%;border:2px solid #B8892B;display:flex;align-items:center;justify-content:center;font-size:15px;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ p.score }}</div>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:auto">
+                    <button onClick="{{ p.view }}" style="flex:1;border:0;border-radius:6px;padding:10px;background:#0E2A4A;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">View Investment</button>
+                    <button onClick="{{ p.compare }}" title="Add to compare" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:10px 12px;font-size:12.5px;cursor:pointer;background:{{ p.cmpBg }};color:{{ p.cmpFg }}">{{ p.cmpLabel }}</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 4 PROPERTY DETAIL ============ -->
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="padding:22px 28px 0">
+          <button onClick="{{ goResults }}" style="border:0;background:transparent;font-size:12.5px;color:#7A8899;cursor:pointer;padding:0 0 14px">← Back to results</button>
+        </div>
+        <div style="padding:0 28px 34px">
+          <div style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px">
+            <div>
+              <div style="font-size:13px;letter-spacing:.06em;color:#7A8899">{{ hero.location }}</div>
+              <div style="font-family:Newsreader,Georgia,serif;font-size:42px;color:#0E2A4A;line-height:1.1;font-variant-numeric:tabular-nums">{{ hero.price }}</div>
+              <div style="font-size:14px;color:#48596B;margin-top:4px">1 bedroom · 1 bathroom · 55 m²</div>
+            </div>
+            <span style="font-size:9px;letter-spacing:.16em;font-weight:700;padding:6px 11px;border-radius:4px;background:#0A1F38;color:#E2B558">{{ hero.tag }}</span>
+          </div>
+
+          <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:stretch">
+            <div style="flex:2 1 420px;min-width:0;display:flex;flex-direction:column;gap:10px">
+              <div style="height:330px;border-radius:9px;background-image:repeating-linear-gradient(135deg,#DFE5EC 0 10px,#EDF1F5 10px 20px);display:flex;align-items:flex-end;padding:12px">
+                <span style="font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#5C7085;background:rgba(251,250,247,.86);padding:4px 8px;border-radius:4px">hero shot — exterior, golden hour, 3:2</span>
+              </div>
+              <div style="display:flex;gap:10px">
+                <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="4">
+                  <div style="flex:1;height:76px;border-radius:6px;background-image:repeating-linear-gradient(135deg,#DFE5EC 0 8px,#EDF1F5 8px 16px);display:flex;align-items:center;justify-content:center">
+                    <span style="font-family:ui-monospace,Menlo,monospace;font-size:9px;color:#5C7085;text-align:center">{{ t.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:14px">
+              <div style="background:#0A1F38;color:#fff;border-radius:9px;padding:26px 22px;text-align:center">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:56px;line-height:1;font-variant-numeric:tabular-nums">87<span style="font-size:22px;color:#7E93AB"> / 100</span></div>
+                <div style="font-size:9.5px;letter-spacing:.2em;color:#7E93AB;margin:10px 0 12px">INVESTMENT SCORE</div>
+                <div style="display:inline-block;font-size:12.5px;font-weight:600;color:#0A1F38;background:#E2B558;padding:6px 14px;border-radius:4px">Strong Investment</div>
+              </div>
+              <div style="background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:20px">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:19px;color:#0E2A4A;margin-bottom:14px">Financial Overview</div>
+                <sc-for list="{{ finRows }}" as="r" hint-placeholder-count="6">
+                  <div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(14,42,74,.08);font-size:13.5px">
+                    <span style="color:#48596B">{{ r.k }}</span>
+                    <span style="font-weight:600;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ r.v }}</span>
+                  </div>
+                </sc-for>
+                <button onClick="{{ goAnalysis }}" style="width:100%;margin-top:18px;border:0;border-radius:6px;padding:13px;background:#B8892B;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer">Request Full Investment Analysis</button>
+                <button onClick="{{ goCalc }}" style="width:100%;margin-top:8px;border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:12px;background:transparent;color:#0E2A4A;font-size:13px;font-weight:500;cursor:pointer">Open calculator</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 5 INVESTMENT ANALYSIS ============ -->
+      <sc-if value="{{ isAnalysis }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 28px 40px">
+        <div style="font-size:10px;letter-spacing:.2em;color:#B8892B;margin-bottom:8px">LARNACA, CYPRUS · €175,000</div>
+        <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:34px;color:#0E2A4A;margin:0 0 26px">Why We Selected This Property</h1>
+
+        <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1 1 400px;min-width:0;display:flex;flex-direction:column;gap:1px;background:rgba(14,42,74,.12);border:1px solid rgba(14,42,74,.12);border-radius:9px;overflow:hidden">
+            <sc-for list="{{ reasons }}" as="r" hint-placeholder-count="4">
+              <div style="background:#fff;padding:22px 22px 24px">
+                <div style="display:flex;gap:12px;align-items:baseline;margin-bottom:10px">
+                  <span style="font-family:Newsreader,Georgia,serif;font-size:15px;color:#B8892B">{{ r.num }}</span>
+                  <span style="font-size:16px;font-weight:600;color:#0E2A4A">{{ r.title }}</span>
+                </div>
+                <div style="display:flex;gap:26px;flex-wrap:wrap;margin-bottom:10px">
+                  <div>
+                    <div style="font-size:10px;letter-spacing:.13em;color:#7A8899;margin-bottom:3px">{{ r.metricLabel }}</div>
+                    <div style="font-family:Newsreader,Georgia,serif;font-size:24px;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ r.metric }}</div>
+                  </div>
+                  <div>
+                    <div style="font-size:10px;letter-spacing:.13em;color:#7A8899;margin-bottom:3px">{{ r.subLabel }}</div>
+                    <div style="font-size:13.5px;color:#48596B;padding-top:6px">{{ r.sub }}</div>
+                  </div>
+                </div>
+                <p style="margin:0;font-size:13.5px;line-height:1.65;color:#48596B;max-width:62ch">{{ r.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="flex:1 1 300px;min-width:0;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:22px">
+            <div style="font-family:Newsreader,Georgia,serif;font-size:21px;color:#0E2A4A;margin-bottom:4px">Investment Score</div>
+            <div style="font-size:12.5px;color:#7A8899;margin-bottom:18px">Eight criteria, weighted by our model.</div>
+            <sc-for list="{{ scoreRows }}" as="s" hint-placeholder-count="8">
+              <div style="margin-bottom:13px">
+                <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+                  <span style="color:#48596B">{{ s.label }}</span>
+                  <span style="font-weight:600;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ s.got }}/{{ s.max }}</span>
+                </div>
+                <div style="height:7px;border-radius:4px;background:rgba(14,42,74,.09);overflow:hidden">
+                  <div style="height:100%;border-radius:4px;background:#B8892B;width:{{ s.pct }}"></div>
+                </div>
+              </div>
+            </sc-for>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(14,42,74,.14);margin-top:18px;padding-top:14px">
+              <span style="font-size:10px;letter-spacing:.18em;color:#7A8899">TOTAL</span>
+              <span style="font-family:Newsreader,Georgia,serif;font-size:36px;color:#0E2A4A;font-variant-numeric:tabular-nums">87 / 100</span>
+            </div>
+            <div style="font-size:12px;line-height:1.6;color:#7A8899;margin-top:12px">Risk and liquidity score low: pre-completion purchase in a market with a slower resale cycle. Shown openly rather than averaged away.</div>
+            <button onClick="{{ goCalc }}" style="width:100%;margin-top:18px;border:0;border-radius:6px;padding:13px;background:#0E2A4A;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer">Model my own numbers</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 6 CALCULATOR ============ -->
+      <sc-if value="{{ isCalc }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 28px 40px">
+        <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:32px;color:#0E2A4A;margin:0 0 5px">Financial Calculator</h1>
+        <p style="font-size:13.5px;color:#7A8899;margin:0 0 24px">Larnaca, Cyprus · 1 bedroom. Change any assumption; results recalculate.</p>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1 1 340px;min-width:0;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:22px">
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:10px">PURCHASE</div>
+            <label style="display:block;margin-bottom:18px">
+              <span style="display:block;font-size:12.5px;color:#48596B;margin-bottom:5px">Purchase price</span>
+              <input type="number" value="{{ c.purchase }}" onChange="{{ setPurchase }}" onInput="{{ setPurchase }}" style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#FBFAF7;font-size:14px;font-variant-numeric:tabular-nums">
+            </label>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:9px">FINANCING</div>
+            <div style="display:flex;gap:8px;margin-bottom:16px">
+              <button onClick="{{ setCash }}" style="flex:1;border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:10px;font-size:13px;cursor:pointer;background:{{ cashBg }};color:{{ cashFg }}">Cash</button>
+              <button onClick="{{ setMortgage }}" style="flex:1;border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:10px;font-size:13px;cursor:pointer;background:{{ mortBg }};color:{{ mortFg }}">Mortgage</button>
+            </div>
+
+            <sc-if value="{{ isMortgage }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#F4F1EA;border-radius:7px;padding:16px;margin-bottom:18px">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
+                <label style="display:block">
+                  <span style="display:block;font-size:12px;color:#48596B;margin-bottom:5px">Deposit</span>
+                  <input type="number" value="{{ c.deposit }}" onChange="{{ setDeposit }}" onInput="{{ setDeposit }}" style="width:100%;padding:9px 10px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px;font-variant-numeric:tabular-nums">
+                </label>
+                <div>
+                  <span style="display:block;font-size:12px;color:#48596B;margin-bottom:5px">Mortgage</span>
+                  <div style="padding:9px 10px;border:1px solid rgba(14,42,74,.1);border-radius:6px;background:#EDEAE3;font-size:13.5px;font-variant-numeric:tabular-nums">{{ r.loan }}</div>
+                </div>
+                <label style="display:block">
+                  <span style="display:block;font-size:12px;color:#48596B;margin-bottom:5px">Interest %</span>
+                  <input type="number" step="0.1" value="{{ c.rate }}" onChange="{{ setRate }}" onInput="{{ setRate }}" style="width:100%;padding:9px 10px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px;font-variant-numeric:tabular-nums">
+                </label>
+                <label style="display:block">
+                  <span style="display:block;font-size:12px;color:#48596B;margin-bottom:5px">Term (years)</span>
+                  <input type="number" value="{{ c.term }}" onChange="{{ setTerm }}" onInput="{{ setTerm }}" style="width:100%;padding:9px 10px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px;font-variant-numeric:tabular-nums">
+                </label>
+              </div>
+            </div>
+            </sc-if>
+
+            <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:9px">RENTAL</div>
+            <label style="display:block;margin-bottom:14px">
+              <span style="display:block;font-size:12.5px;color:#48596B;margin-bottom:5px">Monthly rent</span>
+              <input type="number" value="{{ c.rent }}" onChange="{{ setRent }}" onInput="{{ setRent }}" style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#FBFAF7;font-size:14px;font-variant-numeric:tabular-nums">
+            </label>
+            <div style="margin-bottom:14px">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#48596B;margin-bottom:5px"><span>Occupancy</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ c.occupancy }}%</span></div>
+              <input type="range" min="50" max="100" value="{{ c.occupancy }}" onChange="{{ setOcc }}" onInput="{{ setOcc }}" style="width:100%">
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;color:#48596B;margin-bottom:5px"><span>Management fee</span><span style="font-weight:600;font-variant-numeric:tabular-nums">{{ c.mgmt }}%</span></div>
+              <input type="range" min="0" max="25" value="{{ c.mgmt }}" onChange="{{ setMgmt }}" onInput="{{ setMgmt }}" style="width:100%">
+            </div>
+            
+          </div>
+
+          <div style="flex:1 1 300px;min-width:0;background:#0A1F38;color:#fff;border-radius:9px;padding:24px">
+            <div style="font-size:10px;letter-spacing:.18em;color:#7E93AB;margin-bottom:18px">RESULTS</div>
+            <sc-for list="{{ calcRows }}" as="r" hint-placeholder-count="5">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.12);font-size:13.5px">
+                <span style="color:#C3D0DE">{{ r.k }}</span>
+                <span style="font-weight:600;font-variant-numeric:tabular-nums">{{ r.v }}</span>
+              </div>
+            </sc-for>
+            <div style="margin-top:22px;padding:18px;border-radius:7px;background:rgba(226,181,88,.14)">
+              <div style="font-size:10px;letter-spacing:.16em;color:#E2B558;margin-bottom:6px">CASH-ON-CASH RETURN</div>
+              <div style="font-family:Newsreader,Georgia,serif;font-size:44px;line-height:1;font-variant-numeric:tabular-nums">{{ r.coc }}</div>
+              <div style="font-size:12.5px;color:#C3D0DE;margin-top:8px">on {{ r.invested }} of cash invested</div>
+            </div>
+            <button onClick="{{ goCompare }}" style="width:100%;margin-top:20px;border:0;border-radius:6px;padding:13px;background:#B8892B;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer">Compare with other properties</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 7 COMPARE ============ -->
+      <sc-if value="{{ isCompare }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 28px 40px">
+        <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:32px;color:#0E2A4A;margin:0 0 5px">Compare Investments</h1>
+        <p style="font-size:13.5px;color:#7A8899;margin:0 0 24px">Up to three properties side by side. Best value in each row is marked.</p>
+
+        <div style="overflow-x:auto" class="bip-scroll">
+          <table style="width:100%;min-width:560px;border-collapse:collapse;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px">
+            <thead>
+              <tr>
+                <th style="text-align:left;padding:18px 18px 14px;font-size:10px;letter-spacing:.16em;color:#7A8899;font-weight:500;border-bottom:1px solid rgba(14,42,74,.12)">COMPARE</th>
+                <sc-for list="{{ cmpCols }}" as="c" hint-placeholder-count="3">
+                  <th style="text-align:left;padding:18px;border-bottom:1px solid rgba(14,42,74,.12);border-left:1px solid rgba(14,42,74,.08)">
+                    <div style="height:54px;border-radius:5px;margin-bottom:9px;background-image:repeating-linear-gradient(135deg,#DFE5EC 0 8px,#EDF1F5 8px 16px)"></div>
+                    <div style="font-family:Newsreader,Georgia,serif;font-size:19px;color:#0E2A4A">{{ c.name }}</div>
+                    <div style="font-size:11.5px;color:#7A8899;font-weight:400">{{ c.country }}</div>
+                  </th>
+                </sc-for>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ cmpRows }}" as="r" hint-placeholder-count="6">
+                <tr>
+                  <td style="padding:14px 18px;font-size:13px;color:#48596B;border-bottom:1px solid rgba(14,42,74,.07)">{{ r.label }}</td>
+                  <td style="padding:14px 18px;font-size:14.5px;border-bottom:1px solid rgba(14,42,74,.07);border-left:1px solid rgba(14,42,74,.08);font-variant-numeric:tabular-nums;color:{{ r.c0 }};font-weight:{{ r.w0 }}">{{ r.a }}</td>
+                  <td style="padding:14px 18px;font-size:14.5px;border-bottom:1px solid rgba(14,42,74,.07);border-left:1px solid rgba(14,42,74,.08);font-variant-numeric:tabular-nums;color:{{ r.c1 }};font-weight:{{ r.w1 }}">{{ r.b }}</td>
+                  <td style="padding:14px 18px;font-size:14.5px;border-bottom:1px solid rgba(14,42,74,.07);border-left:1px solid rgba(14,42,74,.08);font-variant-numeric:tabular-nums;color:{{ r.c2 }};font-weight:{{ r.w2 }}">{{ r.c }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
+          <button onClick="{{ goRegister }}" style="border:0;border-radius:6px;padding:13px 24px;background:#B8892B;color:#fff;font-size:13.5px;font-weight:600;cursor:pointer">Request Information</button>
+          <button onClick="{{ goResults }}" style="border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:13px 24px;background:transparent;color:#0E2A4A;font-size:13.5px;font-weight:500;cursor:pointer">Add another property</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 8 REGISTRATION ============ -->
+      <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;align-items:stretch">
+        <div style="flex:1 1 300px;min-width:0;background:#0A1F38;color:#fff;padding:40px 32px">
+          <div style="font-family:Newsreader,Georgia,serif;font-size:19px;letter-spacing:.05em;margin-bottom:34px">BEST <span style="color:#E2B558">INVEST</span></div>
+          <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:36px;line-height:1.14;margin:0 0 16px;text-wrap:pretty">Find Investments That Match Your Goals</h1>
+          <p style="font-size:14px;line-height:1.65;color:#C3D0DE;max-width:44ch;margin:0 0 30px">Tell us the return you need. We will only show properties that clear it.</p>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <sc-for list="{{ regPromise }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;gap:12px;align-items:baseline">
+                <span style="font-family:Newsreader,Georgia,serif;font-size:13px;color:#E2B558">{{ p.num }}</span>
+                <span style="font-size:13.5px;line-height:1.55;color:#C3D0DE">{{ p.body }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:1.4 1 380px;min-width:0;padding:36px 32px 42px">
+          <div style="font-size:10px;letter-spacing:.16em;color:#B8892B;margin-bottom:16px">YOUR INVESTMENT CRITERIA</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px">
+            <label style="display:block">
+              <span style="display:block;font-size:12.5px;color:#48596B;margin-bottom:5px">Your budget</span>
+              <select style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px"><option>€150k – €200k</option><option>€200k – €350k</option><option>€350k+</option></select>
+            </label>
+            <label style="display:block">
+              <span style="display:block;font-size:12.5px;color:#48596B;margin-bottom:5px">Target yield</span>
+              <select style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px"><option>6%+</option><option>7%+</option><option>8%+</option></select>
+            </label>
+            <label style="display:block">
+              <span style="display:block;font-size:12.5px;color:#48596B;margin-bottom:5px">Time horizon</span>
+              <select style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px"><option>5–10 years</option><option>3–5 years</option><option>10+ years</option></select>
+            </label>
+          </div>
+          <div style="display:flex;gap:26px;flex-wrap:wrap;margin-bottom:26px">
+            <div>
+              <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:8px">COUNTRIES</div>
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:3px 0"><input type="checkbox" checked="{{ yes }}" style="accent-color:#B8892B;width:15px;height:15px">Cyprus</label>
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:3px 0"><input type="checkbox" checked="{{ yes }}" style="accent-color:#B8892B;width:15px;height:15px">Spain</label>
+            </div>
+            <div>
+              <div style="font-size:10px;letter-spacing:.14em;color:#7A8899;margin-bottom:8px">STRATEGY</div>
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:3px 0"><input type="checkbox" checked="{{ yes }}" style="accent-color:#B8892B;width:15px;height:15px">Long-term rental</label>
+              <label style="display:flex;gap:9px;align-items:center;font-size:13.5px;padding:3px 0"><input type="checkbox" style="accent-color:#B8892B;width:15px;height:15px">Short-term rental</label>
+            </div>
+          </div>
+
+          <div style="height:1px;background:rgba(14,42,74,.12);margin-bottom:24px"></div>
+          <div style="font-size:10px;letter-spacing:.16em;color:#B8892B;margin-bottom:16px">YOUR DETAILS</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px">
+            <sc-for list="{{ regFields }}" as="f" hint-placeholder-count="5">
+              <label style="display:block">
+                <span style="display:block;font-size:12.5px;color:#48596B;margin-bottom:5px">{{ f.label }}</span>
+                <input type="{{ f.type }}" placeholder="{{ f.ph }}" style="width:100%;padding:10px 11px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px">
+              </label>
+            </sc-for>
+          </div>
+          <label style="display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:#48596B;line-height:1.5;margin-bottom:20px">
+            <input type="checkbox" style="accent-color:#B8892B;width:15px;height:15px;margin-top:2px">
+            <span>I agree to the <a href="#" onClick="{{ goPrivacy }}">Privacy Policy</a> and <a href="#" onClick="{{ goTerms }}">Terms of Use</a>.</span>
+          </label>
+          <button onClick="{{ goDash }}" style="border:0;border-radius:6px;padding:14px 28px;background:#0E2A4A;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Show My Investments</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 9 INVESTOR DASHBOARD ============ -->
+      <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 28px 40px">
+        <div style="display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px">
+          <div>
+            <div style="font-size:13px;color:#7A8899">Welcome back</div>
+            <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:32px;color:#0E2A4A;margin:3px 0 0">Martin Kruger</h1>
+          </div>
+          <button onClick="{{ goSearch }}" style="border:0;border-radius:6px;padding:11px 20px;background:#B8892B;color:#fff;font-size:13px;font-weight:600;cursor:pointer">Refine my criteria</button>
+        </div>
+
+        <div style="background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:22px;margin-bottom:24px">
+          <div style="font-size:10px;letter-spacing:.16em;color:#7A8899;margin-bottom:16px">YOUR INVESTMENT PROFILE</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px">
+            <sc-for list="{{ profile }}" as="p" hint-placeholder-count="4">
+              <div>
+                <div style="font-size:12px;color:#7A8899;margin-bottom:4px">{{ p.k }}</div>
+                <div style="font-family:Newsreader,Georgia,serif;font-size:21px;color:#0E2A4A">{{ p.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:14px">
+          <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:24px;color:#0E2A4A;margin:0">Recommended for you</h2>
+          <span style="font-size:12.5px;color:#7A8899">3 properties</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-bottom:30px">
+          <sc-for list="{{ recommended }}" as="p" hint-placeholder-count="3">
+            <div style="background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;overflow:hidden">
+              <div style="height:120px;background-image:repeating-linear-gradient(135deg,#DFE5EC 0 9px,#EDF1F5 9px 18px)"></div>
+              <div style="padding:15px 16px 17px">
+                <div style="font-size:12px;color:#7A8899">{{ p.location }}</div>
+                <div style="font-family:Newsreader,Georgia,serif;font-size:23px;color:#0E2A4A;font-variant-numeric:tabular-nums">{{ p.price }}</div>
+                <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12.5px;color:#48596B;font-variant-numeric:tabular-nums">
+                  <span>{{ p.gross }} gross</span><span style="font-weight:600;color:#B8892B">{{ p.score }}/100</span>
+                </div>
+                <button onClick="{{ p.view }}" style="width:100%;margin-top:13px;border:1px solid rgba(14,42,74,.18);border-radius:6px;padding:10px;background:transparent;font-size:12.5px;font-weight:500;cursor:pointer;color:#0E2A4A">View Investment</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div style="flex:1 1 280px;min-width:0;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:20px">
+            <div style="font-family:Newsreader,Georgia,serif;font-size:20px;color:#0E2A4A;margin-bottom:14px">Saved Investments</div>
+            <sc-for list="{{ saved }}" as="s" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(14,42,74,.08);font-size:13.5px">
+                <span style="color:#0E2A4A">{{ s.name }}</span>
+                <span style="color:#7A8899;font-variant-numeric:tabular-nums">{{ s.meta }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="flex:1 1 280px;min-width:0;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:20px">
+            <div style="font-family:Newsreader,Georgia,serif;font-size:20px;color:#0E2A4A;margin-bottom:14px">My Enquiries</div>
+            <sc-for list="{{ enquiries }}" as="e" hint-placeholder-count="2">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(14,42,74,.08);font-size:13.5px;align-items:center">
+                <span style="color:#0E2A4A">{{ e.name }}</span>
+                <span style="font-size:11.5px;padding:4px 9px;border-radius:4px;background:#F4F1EA;color:#8A6A22">{{ e.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 10 DEVELOPER PORTAL ============ -->
+      <sc-if value="{{ isDev }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#F4F5F2;min-height:600px">
+        <div style="background:#1F3B2E;color:#E7EFE9;padding:22px 28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center">
+          <div>
+            <div style="font-size:9.5px;letter-spacing:.2em;color:#93B1A1">DEVELOPER PORTAL</div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:26px;margin-top:4px">XYZ Developments</div>
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <button onClick="{{ goAdd }}" style="border:0;border-radius:6px;padding:11px 18px;background:#E7EFE9;color:#1F3B2E;font-size:13px;font-weight:600;cursor:pointer">Add Project</button>
+            <button style="border:1px solid rgba(231,239,233,.35);border-radius:6px;padding:11px 18px;background:transparent;color:#E7EFE9;font-size:13px;cursor:pointer">Update Availability</button>
+            <button style="border:1px solid rgba(231,239,233,.35);border-radius:6px;padding:11px 18px;background:transparent;color:#E7EFE9;font-size:13px;cursor:pointer">View Leads</button>
+          </div>
+        </div>
+        <div style="padding:26px 28px 40px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:26px">
+            <sc-for list="{{ devStats }}" as="s" hint-placeholder-count="4">
+              <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:20px">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:38px;color:#1F3B2E;line-height:1;font-variant-numeric:tabular-nums">{{ s.v }}</div>
+                <div style="font-size:11.5px;letter-spacing:.09em;color:#6B8375;margin-top:8px">{{ s.k }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap">
+            <div style="flex:1.3 1 340px;min-width:0;background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:20px">
+              <div style="font-family:Newsreader,Georgia,serif;font-size:20px;color:#1F3B2E;margin-bottom:14px">Projects</div>
+              <sc-for list="{{ devProjects }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(31,59,46,.09)">
+                  <div style="width:56px;height:42px;flex:none;border-radius:5px;background-image:repeating-linear-gradient(135deg,#DDE4DE 0 8px,#EDF1EE 8px 16px)"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;color:#1F3B2E;font-weight:500">{{ p.name }}</div>
+                    <div style="font-size:12px;color:#6B8375">{{ p.meta }}</div>
+                  </div>
+                  <span style="font-size:11px;padding:4px 9px;border-radius:4px;background:#EDF1EE;color:#3E6350;white-space:nowrap">{{ p.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="flex:1 1 280px;min-width:0;background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:20px">
+              <div style="font-family:Newsreader,Georgia,serif;font-size:20px;color:#1F3B2E;margin-bottom:14px">Recent investor enquiries</div>
+              <sc-for list="{{ devLeads }}" as="l" hint-placeholder-count="4">
+                <div style="display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid rgba(31,59,46,.09);font-size:13px">
+                  <span style="color:#1F3B2E">{{ l.who }}</span>
+                  <span style="color:#6B8375">{{ l.what }}</span>
+                </div>
+              </sc-for>
+              <div style="font-size:11.5px;line-height:1.6;color:#6B8375;margin-top:14px">Leads are qualified by Best Invest before they reach you.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 11 ADD PROJECT ============ -->
+      <sc-if value="{{ isAdd }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#F4F5F2;padding:28px 28px 40px">
+        <button onClick="{{ goDev }}" style="border:0;background:transparent;font-size:12.5px;color:#6B8375;cursor:pointer;padding:0 0 12px">← Developer dashboard</button>
+        <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:32px;color:#1F3B2E;margin:0 0 22px">Add Project</h1>
+
+        <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1.4 1 360px;min-width:0;display:flex;flex-direction:column;gap:18px">
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:22px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#6B8375;margin-bottom:16px">PROJECT INFORMATION</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px">
+                <sc-for list="{{ projFields }}" as="f" hint-placeholder-count="6">
+                  <label style="display:block">
+                    <span style="display:block;font-size:12.5px;color:#41594C;margin-bottom:5px">{{ f.label }}</span>
+                    <input placeholder="{{ f.ph }}" style="width:100%;padding:10px 11px;border:1px solid rgba(31,59,46,.2);border-radius:6px;background:#FBFBF9;font-size:13.5px">
+                  </label>
+                </sc-for>
+              </div>
+              <label style="display:block;margin-top:14px">
+                <span style="display:block;font-size:12.5px;color:#41594C;margin-bottom:5px">Description</span>
+                <textarea rows="3" placeholder="What makes this project attractive to investors?" style="width:100%;padding:10px 11px;border:1px solid rgba(31,59,46,.2);border-radius:6px;background:#FBFBF9;font-size:13.5px;resize:vertical"></textarea>
+              </label>
+            </div>
+
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:22px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#6B8375;margin-bottom:16px">MEDIA</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+                <sc-for list="{{ uploads }}" as="u" hint-placeholder-count="4">
+                  <div style="border:1px dashed rgba(31,59,46,.3);border-radius:7px;padding:22px 12px;text-align:center;background:#FBFBF9">
+                    <div style="font-size:13px;color:#1F3B2E;font-weight:500">{{ u.label }}</div>
+                    <div style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:#6B8375;margin-top:6px">{{ u.hint }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:22px">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px">
+                <div style="font-size:10px;letter-spacing:.16em;color:#6B8375">UNITS</div>
+                <button style="border:1px solid rgba(31,59,46,.2);border-radius:6px;padding:7px 13px;background:transparent;font-size:12px;color:#1F3B2E;cursor:pointer">Add unit</button>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px">
+                <sc-for list="{{ unitFields }}" as="f" hint-placeholder-count="7">
+                  <label style="display:block">
+                    <span style="display:block;font-size:12px;color:#41594C;margin-bottom:5px">{{ f.label }}</span>
+                    <input placeholder="{{ f.ph }}" style="width:100%;padding:9px 10px;border:1px solid rgba(31,59,46,.2);border-radius:6px;background:#FBFBF9;font-size:13px">
+                  </label>
+                </sc-for>
+              </div>
+              <div style="font-size:12px;letter-spacing:.14em;color:#6B8375;margin-bottom:10px">FEATURES</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-for list="{{ features }}" as="f" hint-placeholder-count="9">
+                  <label style="display:flex;gap:7px;align-items:center;font-size:12.5px;border:1px solid rgba(31,59,46,.18);border-radius:20px;padding:6px 12px;background:#FBFBF9;cursor:pointer">
+                    <input type="checkbox" style="accent-color:#1F3B2E;width:14px;height:14px">{{ f.label }}
+                  </label>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1 1 250px;min-width:0;background:#1F3B2E;color:#E7EFE9;border-radius:9px;padding:24px;position:sticky;top:80px">
+            <div style="font-size:10px;letter-spacing:.18em;color:#93B1A1;margin-bottom:12px">BEFORE PUBLICATION</div>
+            <p style="font-size:13.5px;line-height:1.65;color:#C9DCD1;margin:0 0 18px">Your project will be reviewed before publication. We verify pricing, availability and rental assumptions, then produce an independent investment score.</p>
+            <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;color:#C9DCD1">
+              <div>1 · Submitted</div>
+              <div>2 · Best Invest review</div>
+              <div>3 · Investment analysis</div>
+              <div>4 · Published</div>
+            </div>
+            <button style="width:100%;margin-top:22px;border:0;border-radius:6px;padding:13px;background:#E7EFE9;color:#1F3B2E;font-size:13.5px;font-weight:600;cursor:pointer">Submit for Review</button>
+            <button style="width:100%;margin-top:8px;border:1px solid rgba(231,239,233,.3);border-radius:6px;padding:12px;background:transparent;color:#E7EFE9;font-size:13px;cursor:pointer">Save draft</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 12 ADMIN ============ -->
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#15181C;color:#E4E7EB;min-height:640px">
+        <div style="display:flex;flex-wrap:wrap;align-items:stretch">
+          <div style="width:190px;flex:none;background:#0F1216;padding:22px 0 30px;border-right:1px solid rgba(255,255,255,.07)">
+            <div style="padding:0 18px 18px;font-size:10px;letter-spacing:.24em;color:#7E93AB">ADMIN</div>
+            <sc-for list="{{ adminNav }}" as="n" hint-placeholder-count="10">
+              <div style="padding:9px 18px;font-size:12.5px;color:{{ n.fg }};background:{{ n.bg }};border-left:2px solid {{ n.bar }}">{{ n.label }}</div>
+            </sc-for>
+          </div>
+          <div style="flex:1;min-width:0;padding:24px 26px 40px">
+            <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:baseline;margin-bottom:22px">
+              <div>
+                <div style="font-size:10px;letter-spacing:.2em;color:#7E93AB">TODAY</div>
+                <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:28px;margin:4px 0 0">Platform overview</h1>
+              </div>
+              <button onClick="{{ goScores }}" style="border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:10px 16px;background:transparent;color:#E4E7EB;font-size:12.5px;cursor:pointer">Investment score model</button>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;margin-bottom:26px">
+              <sc-for list="{{ adminStats }}" as="s" hint-placeholder-count="5">
+                <div style="background:#1C2027;border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:17px">
+                  <div style="font-family:Newsreader,Georgia,serif;font-size:32px;line-height:1;color:{{ s.color }};font-variant-numeric:tabular-nums">{{ s.v }}</div>
+                  <div style="font-size:11px;color:#7E93AB;margin-top:8px">{{ s.k }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="font-size:10px;letter-spacing:.18em;color:#7E93AB;margin-bottom:12px">PROPERTY APPROVAL</div>
+            <div style="background:#1C2027;border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:20px;margin-bottom:22px">
+              <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">
+                <div>
+                  <div style="font-family:Newsreader,Georgia,serif;font-size:22px">New Project — Cyprus</div>
+                  <div style="font-size:12.5px;color:#7E93AB;margin-top:6px">Developer · XYZ Developments · 12 units · submitted 2 days ago</div>
+                </div>
+                <span style="font-size:10.5px;letter-spacing:.1em;padding:5px 10px;border-radius:4px;background:rgba(226,181,88,.16);color:#E2B558">PENDING REVIEW</span>
+              </div>
+              <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:18px">
+                <button style="border:0;border-radius:6px;padding:10px 18px;background:#2F6B4F;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Approve</button>
+                <button style="border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:10px 18px;background:transparent;color:#E4E7EB;font-size:12.5px;cursor:pointer">Request Changes</button>
+                <button style="border:1px solid rgba(197,86,79,.5);border-radius:6px;padding:10px 18px;background:transparent;color:#D9837C;font-size:12.5px;cursor:pointer">Reject</button>
+              </div>
+            </div>
+
+            <div style="font-size:10px;letter-spacing:.18em;color:#7E93AB;margin-bottom:12px">NEW ENQUIRIES</div>
+            <div style="overflow-x:auto" class="bip-scroll">
+              <table style="width:100%;min-width:520px;border-collapse:collapse;font-size:13px">
+                <thead>
+                  <tr>
+                    <sc-for list="{{ enqHead }}" as="h" hint-placeholder-count="5">
+                      <th style="text-align:left;padding:10px 12px;font-size:10px;letter-spacing:.12em;color:#7E93AB;font-weight:500;border-bottom:1px solid rgba(255,255,255,.1)">{{ h.label }}</th>
+                    </sc-for>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ enqRows }}" as="r" hint-placeholder-count="4">
+                    <tr>
+                      <td style="padding:12px;border-bottom:1px solid rgba(255,255,255,.06)">{{ r.investor }}</td>
+                      <td style="padding:12px;border-bottom:1px solid rgba(255,255,255,.06);color:#B4BCC7">{{ r.property }}</td>
+                      <td style="padding:12px;border-bottom:1px solid rgba(255,255,255,.06);color:#B4BCC7;font-variant-numeric:tabular-nums">{{ r.budget }}</td>
+                      <td style="padding:12px;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:11px;padding:4px 9px;border-radius:4px;background:{{ r.tagBg }};color:{{ r.tagFg }}">{{ r.stage }}</span></td>
+                      <td style="padding:12px;border-bottom:1px solid rgba(255,255,255,.06);color:#7E93AB">{{ r.age }}</td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 13 SCORE EDITOR ============ -->
+      <sc-if value="{{ isScores }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#15181C;color:#E4E7EB;min-height:640px;padding:26px 28px 40px">
+        <button onClick="{{ goAdmin }}" style="border:0;background:transparent;font-size:12.5px;color:#7E93AB;cursor:pointer;padding:0 0 12px">← Admin</button>
+        <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:30px;margin:0 0 6px">Investment Score Model</h1>
+        <p style="font-size:13.5px;color:#7E93AB;margin:0 0 26px;max-width:66ch">Change the weight of each criterion without touching code. Weights must total 100. Saving re-scores every published property.</p>
+
+        <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1.4 1 360px;min-width:0;background:#1C2027;border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:22px">
+            <sc-for list="{{ weights }}" as="w" hint-placeholder-count="8">
+              <div style="display:flex;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap">
+                <div style="flex:1 1 130px;min-width:0;font-size:13.5px">{{ w.label }}</div>
+                <input type="range" min="0" max="40" value="{{ w.value }}" onChange="{{ w.set }}" onInput="{{ w.set }}" style="flex:2 1 160px;min-width:120px">
+                <div style="font-family:Newsreader,Georgia,serif;width:56px;flex:none;text-align:right;font-size:22px;font-variant-numeric:tabular-nums">{{ w.value }}%</div>
+              </div>
+            </sc-for>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:20px;flex-wrap:wrap">
+              <div>
+                <span style="font-size:10px;letter-spacing:.18em;color:#7E93AB">TOTAL</span>
+                <span style="font-family:Newsreader,Georgia,serif;font-size:30px;margin-left:12px;font-variant-numeric:tabular-nums;color:{{ totalColor }}">{{ weightTotal }}%</span>
+              </div>
+              <div style="display:flex;gap:9px">
+                <button onClick="{{ resetWeights }}" style="border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:10px 16px;background:transparent;color:#E4E7EB;font-size:12.5px;cursor:pointer">Reset</button>
+                <button style="border:0;border-radius:6px;padding:10px 18px;background:#B8892B;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">Save &amp; re-score</button>
+              </div>
+            </div>
+            <div style="font-size:12px;color:{{ totalColor }};margin-top:10px">{{ totalNote }}</div>
+          </div>
+
+          <div style="flex:1 1 280px;min-width:0;background:#1C2027;border:1px solid rgba(255,255,255,.07);border-radius:9px;padding:22px">
+            <div style="font-size:10px;letter-spacing:.18em;color:#7E93AB;margin-bottom:14px">IMPACT PREVIEW</div>
+            <p style="font-size:12.5px;line-height:1.6;color:#B4BCC7;margin:0 0 18px">How the three properties on the front page would re-rank under the current weights.</p>
+            <sc-for list="{{ impact }}" as="i" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);align-items:baseline">
+                <div>
+                  <div style="font-size:13.5px">{{ i.name }}</div>
+                  <div style="font-size:11.5px;color:#7E93AB">was {{ i.was }}/100</div>
+                </div>
+                <div style="font-family:Newsreader,Georgia,serif;font-size:26px;font-variant-numeric:tabular-nums;color:{{ i.color }}">{{ i.now }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 15 LOGIN ============ -->
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;align-items:stretch;min-height:560px">
+        <div style="flex:1 1 300px;min-width:0;background:#0A1F38;color:#fff;padding:40px 32px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+          <div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:19px;letter-spacing:.05em;margin-bottom:34px">BEST <span style="color:#E2B558">INVEST</span></div>
+            <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:34px;line-height:1.14;margin:0 0 14px;text-wrap:pretty">Welcome back</h1>
+            <p style="font-size:14px;line-height:1.65;color:#C3D0DE;max-width:40ch;margin:0">Your saved properties, comparisons and yield alerts are where you left them.</p>
+          </div>
+          <div style="border-top:1px solid rgba(255,255,255,.12);padding-top:18px">
+            <div style="font-size:9.5px;letter-spacing:.16em;color:#E2B558;margin-bottom:7px">NEW HERE?</div>
+            <p style="font-size:13px;line-height:1.6;color:#C3D0DE;margin:0 0 14px;max-width:38ch">Set your budget and target yield once, and we will only show properties that clear it.</p>
+            <button onClick="{{ goRegister }}" style="border:1px solid rgba(255,255,255,.34);border-radius:6px;padding:11px 20px;background:transparent;color:#fff;font-size:13px;font-weight:500;cursor:pointer">Create an account</button>
+          </div>
+        </div>
+
+        <div style="flex:1.2 1 360px;min-width:0;padding:40px 34px 44px;display:flex;flex-direction:column;justify-content:center">
+          <div style="max-width:380px;width:100%">
+            <div style="font-size:10px;letter-spacing:.16em;color:#B8892B;margin-bottom:18px">INVESTOR LOGIN</div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:8px">
+              <sc-for list="{{ loginFields }}" as="f" hint-placeholder-count="2">
+                <label style="display:block">
+                  <span style="display:block;font-size:12.5px;color:#48596B;margin-bottom:5px">{{ f.label }}</span>
+                  <input type="{{ f.type }}" placeholder="{{ f.ph }}" style="width:100%;padding:11px 12px;border:1px solid rgba(14,42,74,.18);border-radius:6px;background:#fff;font-size:13.5px">
+                </label>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:10px 0 22px">
+              <label style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:#48596B"><input type="checkbox" checked="{{ yes }}" style="accent-color:#B8892B;width:15px;height:15px">Keep me signed in</label>
+              <a href="#" style="font-size:12.5px;color:#B8892B">Forgot password?</a>
+            </div>
+            <button onClick="{{ goDash }}" style="width:100%;border:0;border-radius:6px;padding:14px 28px;background:#0E2A4A;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Sign in</button>
+
+            <div style="display:flex;align-items:center;gap:12px;margin:24px 0 20px">
+              <div style="flex:1;height:1px;background:rgba(14,42,74,.12)"></div>
+              <span style="font-size:10px;letter-spacing:.14em;color:#93A3B4">OR</span>
+              <div style="flex:1;height:1px;background:rgba(14,42,74,.12)"></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <button onClick="{{ goDev }}" style="border:1px solid rgba(31,59,46,.3);border-radius:6px;padding:12px 18px;background:#fff;color:#1F3B2E;font-size:13px;font-weight:500;cursor:pointer">Sign in as a developer</button>
+              <div style="font-size:12.5px;color:#7A8899">No developer account yet? <a href="#" onClick="{{ goDevSignup }}" style="color:#1F3B2E;font-weight:500">Apply for one</a></div>
+            </div>
+            <p style="font-size:11.5px;line-height:1.6;color:#7A8899;margin:22px 0 0">By signing in you accept our <a href="#" onClick="{{ goTerms }}">Terms of Use</a> and <a href="#" onClick="{{ goPrivacy }}">Privacy Policy</a>.</p>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 16 FOR DEVELOPERS ============ -->
+      <sc-if value="{{ isFordev }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <header style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:14px 26px;border-bottom:1px solid rgba(14,42,74,.1);background:#fff">
+          <div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:19px;letter-spacing:.05em;color:#0E2A4A;line-height:1">BEST <span style="color:#B8892B">INVEST</span></div>
+            <div style="font-size:7.5px;letter-spacing:.32em;color:#7A8899;margin-top:4px">PROPERTIES</div>
+          </div>
+          <nav style="display:flex;gap:22px;align-items:center;flex-wrap:wrap;font-size:13px;color:#48596B">
+            <a href="#" onClick="{{ goResults }}">Investment Properties</a>
+            <a href="#">How It Works</a>
+            <a href="#" style="color:#B8892B">For Developers</a>
+            <a href="#" onClick="{{ goLogin }}">Login</a>
+            <button onClick="{{ goDevSignup }}" style="border:0;border-radius:5px;padding:9px 16px;background:#1F3B2E;color:#fff;font-size:12.5px;font-weight:600;cursor:pointer">List a Project</button>
+          </nav>
+        </header>
+
+        <section style="display:flex;flex-wrap:wrap;gap:34px;padding:46px 34px 44px;background:#1F3B2E;color:#E7EFE9;align-items:center">
+          <div style="flex:1 1 380px;min-width:0">
+            <div style="font-size:10px;letter-spacing:.2em;color:#E2B558;margin-bottom:14px">FOR DEVELOPERS &amp; SELLING AGENTS</div>
+            <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:44px;line-height:1.1;margin:0 0 18px;text-wrap:pretty">Reach buyers who are already looking for a <em style="color:#E2B558;font-style:italic">return</em></h1>
+            <p style="font-size:15.5px;line-height:1.6;color:#BDD0C4;max-width:52ch;margin:0 0 26px">Every investor on the platform has told us their budget, target yield and strategy. We match your project against those criteria instead of pushing it to a general audience.</p>
+            <div style="display:flex;gap:11px;flex-wrap:wrap">
+              <button onClick="{{ goDevSignup }}" style="border:0;border-radius:6px;padding:14px 26px;background:#E2B558;color:#1F3B2E;font-size:14px;font-weight:600;cursor:pointer">Apply for an Account</button>
+              <button onClick="{{ goDev }}" style="border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:14px 26px;background:transparent;color:#E7EFE9;font-size:14px;font-weight:500;cursor:pointer">See the Developer Portal</button>
+            </div>
+          </div>
+          <div style="flex:1 1 300px;min-width:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:24px 26px">
+            <div style="font-size:9.5px;letter-spacing:.16em;color:#E2B558;margin-bottom:16px">PLATFORM AT A GLANCE</div>
+            <div style="display:grid;gap:16px">
+              <div>
+                <div style="font-family:Newsreader,Georgia,serif;font-size:30px;line-height:1">2 markets</div>
+                <div style="font-size:12.5px;color:#BDD0C4">Cyprus and Spain, residential only</div>
+              </div>
+              <div>
+                <div style="font-family:Newsreader,Georgia,serif;font-size:30px;line-height:1">€120k – €600k</div>
+                <div style="font-size:12.5px;color:#BDD0C4">Price band we list</div>
+              </div>
+              <div>
+                <div style="font-family:Newsreader,Georgia,serif;font-size:30px;line-height:1">48 hours</div>
+                <div style="font-size:12.5px;color:#BDD0C4">Expected response time to enquiries</div>
+              </div>
+            </div>
+            <p style="font-size:11px;line-height:1.55;color:#93AB9C;margin:18px 0 0">Figures are placeholders for the prototype.</p>
+          </div>
+        </section>
+
+        <section style="padding:48px 26px 12px">
+          <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:30px;color:#0E2A4A;margin:0 0 24px">What listing with us gives you</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:rgba(14,42,74,.12);border:1px solid rgba(14,42,74,.12);border-radius:8px;overflow:hidden">
+            <sc-for list="{{ devValue }}" as="v" hint-placeholder-count="4">
+              <div style="background:#fff;padding:26px 22px 28px">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:13px;letter-spacing:.14em;color:#1F3B2E;margin-bottom:12px">{{ v.num }} — {{ v.title }}</div>
+                <p style="margin:0;font-size:13.5px;line-height:1.6;color:#48596B">{{ v.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="padding:40px 26px 12px">
+          <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:30px;color:#0E2A4A;margin:0 0 6px">How it works</h2>
+          <p style="font-size:13.5px;color:#7A8899;margin:0 0 24px">From application to a live listing, typically three to four weeks.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:18px">
+            <sc-for list="{{ devSteps }}" as="s" hint-placeholder-count="4">
+              <div style="background:#F4F5F2;border:1px solid rgba(31,59,46,.14);border-radius:8px;padding:22px 20px">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:26px;color:#1F3B2E;line-height:1;margin-bottom:10px">{{ s.num }}</div>
+                <div style="font-size:14px;font-weight:600;color:#1F3B2E;margin-bottom:8px">{{ s.title }}</div>
+                <p style="margin:0;font-size:13px;line-height:1.6;color:#4F6157">{{ s.body }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="padding:40px 26px 48px">
+          <div style="display:flex;flex-wrap:wrap;gap:26px;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:28px 26px">
+            <div style="flex:1 1 300px;min-width:0">
+              <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:26px;color:#0E2A4A;margin:0 0 10px">What we need before a project goes live</h2>
+              <p style="font-size:13.5px;line-height:1.6;color:#48596B;margin:0;max-width:46ch">We verify each item. Projects that cannot meet them are not listed, which is what makes the listings worth something to investors.</p>
+            </div>
+            <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ devReq }}" as="r" hint-placeholder-count="6">
+                <div style="display:flex;gap:10px;align-items:baseline;font-size:13.5px;color:#48596B;line-height:1.5">
+                  <span style="color:#1F3B2E;flex:none">✓</span>{{ r }}
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding:34px 26px 44px;background:#0A1F38;color:#fff;display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:26px;margin-bottom:6px">Ready to submit a project?</div>
+            <p style="margin:0;font-size:13.5px;color:#C3D0DE;max-width:52ch">Send us the company details and one project. We will come back with an indicative score before anything is published.</p>
+          </div>
+          <button onClick="{{ goDevSignup }}" style="border:0;border-radius:6px;padding:14px 26px;background:#B8892B;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Start an application</button>
+        </section>
+      </div>
+      </sc-if>
+
+      <!-- ============ 19 DEVELOPER SIGN-UP ============ -->
+      <sc-if value="{{ isDevSignup }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#F4F5F2">
+        <div style="background:#1F3B2E;color:#E7EFE9;padding:26px 28px 28px">
+          <div style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-start">
+            <div style="flex:1 1 340px;min-width:0">
+              <button onClick="{{ goFordev }}" style="border:0;background:transparent;font-size:12.5px;color:#9DB6A6;cursor:pointer;padding:0 0 12px">← For Developers</button>
+              <div style="font-size:10px;letter-spacing:.2em;color:#E2B558;margin-bottom:10px">DEVELOPER ACCOUNT APPLICATION</div>
+              <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:34px;line-height:1.12;margin:0 0 10px;text-wrap:pretty">Apply to list projects</h1>
+              <p style="font-size:14px;line-height:1.65;color:#BDD0C4;max-width:52ch;margin:0">Company, licence and one contact person. Verification takes two to five working days — you can prepare a project in the portal while it runs.</p>
+            </div>
+            <div style="flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ devStages }}" as="s" hint-placeholder-count="4">
+                <div style="display:flex;gap:12px;align-items:baseline;border:1px solid {{ s.bd }};border-radius:7px;padding:10px 13px">
+                  <span style="font-family:Newsreader,Georgia,serif;font-size:13px;color:{{ s.fg }};flex:none">{{ s.num }}</span>
+                  <span style="min-width:0"><span style="font-size:13px;font-weight:600;color:{{ s.fg }}">{{ s.title }}</span><br><span style="font-size:12px;line-height:1.5;color:#9DB6A6">{{ s.body }}</span></span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:28px 28px 40px;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+          <div style="flex:1.5 1 420px;min-width:0;display:flex;flex-direction:column;gap:18px">
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:24px 24px 26px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#1F3B2E;margin-bottom:16px">1 — COMPANY</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px">
+                <sc-for list="{{ devCompanyFields }}" as="f" hint-placeholder-count="6">
+                  <label style="display:block">
+                    <span style="display:block;font-size:12.5px;color:#4F6157;margin-bottom:5px">{{ f.label }}</span>
+                    <input type="{{ f.type }}" placeholder="{{ f.ph }}" style="width:100%;padding:10px 11px;border:1px solid rgba(31,59,46,.2);border-radius:6px;background:#FBFCFB;font-size:13.5px">
+                  </label>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:24px 24px 26px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#1F3B2E;margin-bottom:16px">2 — ACCOUNT CONTACT</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px">
+                <sc-for list="{{ devContactFields }}" as="f" hint-placeholder-count="6">
+                  <label style="display:block">
+                    <span style="display:block;font-size:12.5px;color:#4F6157;margin-bottom:5px">{{ f.label }}</span>
+                    <input type="{{ f.type }}" placeholder="{{ f.ph }}" style="width:100%;padding:10px 11px;border:1px solid rgba(31,59,46,.2);border-radius:6px;background:#FBFCFB;font-size:13.5px">
+                  </label>
+                </sc-for>
+              </div>
+              <p style="font-size:11.5px;line-height:1.6;color:#7A8899;margin:14px 0 0">This person receives investor enquiries and is expected to respond within 48 hours. Additional users can be added from the portal later.</p>
+            </div>
+
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:24px 24px 26px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#1F3B2E;margin-bottom:16px">3 — PORTFOLIO</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:16px">
+                <sc-for list="{{ devPortfolioFields }}" as="f" hint-placeholder-count="3">
+                  <label style="display:block">
+                    <span style="display:block;font-size:12.5px;color:#4F6157;margin-bottom:5px">{{ f.label }}</span>
+                    <input type="{{ f.type }}" placeholder="{{ f.ph }}" style="width:100%;padding:10px 11px;border:1px solid rgba(31,59,46,.2);border-radius:6px;background:#FBFCFB;font-size:13.5px">
+                  </label>
+                </sc-for>
+              </div>
+              <label style="display:block">
+                <span style="display:block;font-size:12.5px;color:#4F6157;margin-bottom:5px">Markets you build in</span>
+                <div style="display:flex;gap:20px;flex-wrap:wrap;padding-top:2px">
+                  <label style="display:flex;gap:8px;align-items:center;font-size:13.5px;color:#4F6157"><input type="checkbox" checked="{{ yes }}" style="accent-color:#1F3B2E;width:15px;height:15px">Cyprus</label>
+                  <label style="display:flex;gap:8px;align-items:center;font-size:13.5px;color:#4F6157"><input type="checkbox" style="accent-color:#1F3B2E;width:15px;height:15px">Spain</label>
+                </div>
+              </label>
+            </div>
+
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:24px 24px 26px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#1F3B2E;margin-bottom:6px">4 — VERIFICATION DOCUMENTS</div>
+              <p style="font-size:12.5px;line-height:1.6;color:#4F6157;margin:0 0 16px;max-width:56ch">Upload now or within seven days. A project cannot be published until all required documents are verified.</p>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ devDocs }}" as="d" hint-placeholder-count="5">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border:1px dashed rgba(31,59,46,.26);border-radius:7px;padding:12px 14px;background:#FBFCFB">
+                    <span style="min-width:0"><span style="font-size:13.5px;color:#1F3B2E">{{ d.label }}</span><br><span style="font-size:11.5px;color:#7A8899">{{ d.note }}</span></span>
+                    <button style="border:1px solid rgba(31,59,46,.26);border-radius:5px;padding:7px 14px;background:#fff;color:#1F3B2E;font-size:12px;font-weight:500;cursor:pointer;flex:none">Upload</button>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:16px">
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:22px 22px 24px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#1F3B2E;margin-bottom:14px">BEFORE YOU SUBMIT</div>
+              <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:18px">
+                <sc-for list="{{ devReq }}" as="r" hint-placeholder-count="6">
+                  <div style="display:flex;gap:10px;align-items:baseline;font-size:13px;color:#4F6157;line-height:1.5">
+                    <span style="color:#1F3B2E;flex:none">✓</span>{{ r }}
+                  </div>
+                </sc-for>
+              </div>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:#4F6157;line-height:1.5;margin-bottom:8px">
+                <input type="checkbox" style="accent-color:#1F3B2E;width:15px;height:15px;margin-top:2px">
+                <span>The information given is accurate and I am authorised to represent this company.</span>
+              </label>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:#4F6157;line-height:1.5;margin-bottom:18px">
+                <input type="checkbox" style="accent-color:#1F3B2E;width:15px;height:15px;margin-top:2px">
+                <span>I accept the <a href="#" onClick="{{ goTerms }}">Terms of Use</a>, the developer listing agreement and the <a href="#" onClick="{{ goPrivacy }}">Privacy Policy</a>.</span>
+              </label>
+              <button onClick="{{ goDev }}" style="width:100%;border:0;border-radius:6px;padding:14px 20px;background:#1F3B2E;color:#fff;font-size:14px;font-weight:600;cursor:pointer">Submit application</button>
+              <p style="font-size:11.5px;line-height:1.6;color:#7A8899;margin:12px 0 0">You will be taken to the portal in read-only mode while we verify.</p>
+            </div>
+
+            <div style="background:#fff;border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:20px 22px 22px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#1F3B2E;margin-bottom:10px">FEES</div>
+              <p style="font-size:13px;line-height:1.65;color:#4F6157;margin:0">No listing fee. We are paid a success fee by the developer when an introduction leads to a completed sale, disclosed on the property page. Placeholder for the prototype — confirm the commercial model.</p>
+            </div>
+
+            <div style="border:1px solid rgba(31,59,46,.14);border-radius:9px;padding:20px 22px 22px">
+              <div style="font-size:10px;letter-spacing:.16em;color:#1F3B2E;margin-bottom:8px">ALREADY APPLIED?</div>
+              <p style="font-size:13px;line-height:1.6;color:#4F6157;margin:0 0 12px">Sign in to check the status of your verification.</p>
+              <button onClick="{{ goLogin }}" style="border:1px solid rgba(31,59,46,.26);border-radius:6px;padding:10px 18px;background:#fff;color:#1F3B2E;font-size:13px;font-weight:500;cursor:pointer">Developer login</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 17 PRIVACY POLICY ============ -->
+      <sc-if value="{{ isPrivacy }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <header style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:14px 26px;border-bottom:1px solid rgba(14,42,74,.1);background:#fff">
+          <div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:19px;letter-spacing:.05em;color:#0E2A4A;line-height:1">BEST <span style="color:#B8892B">INVEST</span></div>
+            <div style="font-size:7.5px;letter-spacing:.32em;color:#7A8899;margin-top:4px">PROPERTIES</div>
+          </div>
+          <nav style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:13px;color:#48596B">
+            <a href="#" onClick="{{ goLanding }}">Home</a>
+            <a href="#" style="color:#B8892B">Privacy Policy</a>
+            <a href="#" onClick="{{ goTerms }}">Terms of Use</a>
+          </nav>
+        </header>
+
+        <div style="padding:42px 34px 52px;max-width:820px">
+          <div style="font-size:10px;letter-spacing:.2em;color:#B8892B;margin-bottom:10px">LEGAL</div>
+          <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:40px;line-height:1.1;color:#0E2A4A;margin:0 0 12px">Privacy Policy</h1>
+          <p style="font-size:14.5px;line-height:1.65;color:#48596B;max-width:62ch;margin:0 0 10px">How we collect, use and protect personal data when you use the Best Invest Properties platform.</p>
+          <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;letter-spacing:.06em;color:#7A8899;margin-bottom:26px">
+            <span>LAST UPDATED — 15 SEPTEMBER 2026</span><span>APPLIES TO — CYPRUS, SPAIN, EEA</span>
+          </div>
+          <div style="background:#FBF3E0;border:1px solid rgba(184,137,43,.34);border-radius:7px;padding:14px 16px;font-size:12.5px;line-height:1.6;color:#8A6A22;margin-bottom:34px">Draft text for the prototype. It follows a standard GDPR structure but must be reviewed by a qualified lawyer before publication.</div>
+
+          <div style="display:flex;flex-direction:column;gap:26px">
+            <sc-for list="{{ privacySections }}" as="s" hint-placeholder-count="9">
+              <section style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:15px;color:#B8892B;width:28px;flex:none;padding-top:3px">{{ s.num }}</div>
+                <div style="flex:1 1 320px;min-width:0">
+                  <h2 style="font-family:Newsreader,Georgia,serif;font-weight:500;font-size:20px;color:#0E2A4A;margin:0 0 8px">{{ s.title }}</h2>
+                  <p style="margin:0;font-size:13.5px;line-height:1.7;color:#48596B;max-width:64ch;text-wrap:pretty">{{ s.body }}</p>
+                </div>
+              </section>
+            </sc-for>
+          </div>
+
+          <div style="margin-top:36px;padding-top:22px;border-top:1px solid rgba(14,42,74,.12);font-size:13px;line-height:1.7;color:#48596B">
+            Data protection enquiries: <a href="#">privacy@bestinvestproperties.com</a><br>
+            See also our <a href="#" onClick="{{ goTerms }}">Terms of Use</a>.
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 18 TERMS OF USE ============ -->
+      <sc-if value="{{ isTerms }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <header style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:14px 26px;border-bottom:1px solid rgba(14,42,74,.1);background:#fff">
+          <div>
+            <div style="font-family:Newsreader,Georgia,serif;font-size:19px;letter-spacing:.05em;color:#0E2A4A;line-height:1">BEST <span style="color:#B8892B">INVEST</span></div>
+            <div style="font-size:7.5px;letter-spacing:.32em;color:#7A8899;margin-top:4px">PROPERTIES</div>
+          </div>
+          <nav style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:13px;color:#48596B">
+            <a href="#" onClick="{{ goLanding }}">Home</a>
+            <a href="#" onClick="{{ goPrivacy }}">Privacy Policy</a>
+            <a href="#" style="color:#B8892B">Terms of Use</a>
+          </nav>
+        </header>
+
+        <div style="padding:42px 34px 52px;max-width:820px">
+          <div style="font-size:10px;letter-spacing:.2em;color:#B8892B;margin-bottom:10px">LEGAL</div>
+          <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:40px;line-height:1.1;color:#0E2A4A;margin:0 0 12px">Terms of Use</h1>
+          <p style="font-size:14.5px;line-height:1.65;color:#48596B;max-width:62ch;margin:0 0 10px">The conditions on which we make the platform, our property analysis and our investment scores available to you.</p>
+          <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;letter-spacing:.06em;color:#7A8899;margin-bottom:26px">
+            <span>LAST UPDATED — 15 SEPTEMBER 2026</span><span>GOVERNING LAW — CYPRUS</span>
+          </div>
+          <div style="background:#FBF3E0;border:1px solid rgba(184,137,43,.34);border-radius:7px;padding:14px 16px;font-size:12.5px;line-height:1.6;color:#8A6A22;margin-bottom:34px">Draft text for the prototype. The liability, fee-disclosure and jurisdiction clauses in particular need legal review before publication.</div>
+
+          <div style="display:flex;flex-direction:column;gap:26px">
+            <sc-for list="{{ termsSections }}" as="s" hint-placeholder-count="10">
+              <section style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+                <div style="font-family:Newsreader,Georgia,serif;font-size:15px;color:#B8892B;width:28px;flex:none;padding-top:3px">{{ s.num }}</div>
+                <div style="flex:1 1 320px;min-width:0">
+                  <h2 style="font-family:Newsreader,Georgia,serif;font-weight:500;font-size:20px;color:#0E2A4A;margin:0 0 8px">{{ s.title }}</h2>
+                  <p style="margin:0;font-size:13.5px;line-height:1.7;color:#48596B;max-width:64ch;text-wrap:pretty">{{ s.body }}</p>
+                </div>
+              </section>
+            </sc-for>
+          </div>
+
+          <div style="margin-top:36px;padding-top:22px;border-top:1px solid rgba(14,42,74,.12);font-size:13px;line-height:1.7;color:#48596B">
+            Questions about these terms: <a href="#">legal@bestinvestproperties.com</a><br>
+            See also our <a href="#" onClick="{{ goPrivacy }}">Privacy Policy</a>.
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ 14 JOURNEYS ============ -->
+      <sc-if value="{{ isJourneys }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:30px 28px 44px">
+        <h1 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:32px;color:#0E2A4A;margin:0 0 6px">User Journeys</h1>
+        <p style="font-size:13.5px;color:#7A8899;margin:0 0 28px;max-width:70ch">Two flows for the development team: where a lead comes from, who touches it, and where money changes hands.</p>
+        <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1 1 300px;min-width:0">
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px">
+              <span style="font-size:10px;letter-spacing:.18em;color:#B8892B">FLOW A</span>
+              <span style="font-family:Newsreader,Georgia,serif;font-size:22px;color:#0E2A4A">Investor</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <sc-for list="{{ investorFlow }}" as="s" hint-placeholder-count="14">
+                <div style="display:flex;gap:12px;align-items:stretch">
+                  <div style="width:76px;flex:none;font-size:9.5px;letter-spacing:.1em;color:#7A8899;padding-top:13px;text-align:right">{{ s.actor }}</div>
+                  <div style="width:1px;flex:none;background:rgba(14,42,74,.18)"></div>
+                  <div style="flex:1;min-width:0;background:{{ s.bg }};border:1px solid {{ s.border }};border-radius:7px;padding:11px 14px;font-size:13.5px;color:{{ s.fg }}">{{ s.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="flex:1 1 300px;min-width:0">
+            <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:16px">
+              <span style="font-size:10px;letter-spacing:.18em;color:#2F6B4F">FLOW B</span>
+              <span style="font-family:Newsreader,Georgia,serif;font-size:22px;color:#1F3B2E">Developer</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <sc-for list="{{ developerFlow }}" as="s" hint-placeholder-count="10">
+                <div style="display:flex;gap:12px;align-items:stretch">
+                  <div style="width:76px;flex:none;font-size:9.5px;letter-spacing:.1em;color:#6B8375;padding-top:13px;text-align:right">{{ s.actor }}</div>
+                  <div style="width:1px;flex:none;background:rgba(31,59,46,.2)"></div>
+                  <div style="flex:1;min-width:0;background:{{ s.bg }};border:1px solid {{ s.border }};border-radius:7px;padding:11px 14px;font-size:13.5px;color:{{ s.fg }}">{{ s.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:32px;background:#fff;border:1px solid rgba(14,42,74,.12);border-radius:9px;padding:20px 22px">
+          <div style="font-size:10px;letter-spacing:.16em;color:#7A8899;margin-bottom:10px">WHAT TO BUILD NEXT</div>
+          <ul style="margin:0;padding-left:18px;font-size:13.5px;line-height:1.7;color:#48596B">
+            <li>Decide where the rental estimate comes from — the calculator needs one credible source before launch.</li>
+            <li>Lead qualification screen for you, between investor enquiry and developer handover.</li>
+            <li>Commission tracking, so the transaction step in Flow A has a home in admin.</li>
+          </ul>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+    </div>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;overview&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;overview&quot;,&quot;landing&quot;,&quot;search&quot;,&quot;results&quot;,&quot;browse&quot;,&quot;detail&quot;,&quot;analysis&quot;,&quot;calc&quot;,&quot;compare&quot;,&quot;register&quot;,&quot;dashboard&quot;,&quot;devportal&quot;,&quot;addproject&quot;,&quot;admin&quot;,&quot;scores&quot;,&quot;journeys&quot;,&quot;login&quot;,&quot;fordev&quot;,&quot;privacy&quot;,&quot;terms&quot;,&quot;devsignup&quot;],&quot;section&quot;:&quot;Prototype&quot;},&quot;showRail&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;}}">
+const NAVY='#0E2A4A', GOLD='#B8892B';
+
+const SCREENS=[
+  ['overview','Design notes','—'],
+  ['landing','Landing / Home','01'],
+  ['search','Investment Search','02'],
+  ['results','Search Results','03'],
+  ['browse','Search + Results combined','2·3'],
+  ['detail','Property Detail','04'],
+  ['analysis','Investment Analysis','05'],
+  ['calc','Financial Calculator','06'],
+  ['compare','Compare Investments','07'],
+  ['register','Investor Registration','08'],
+  ['dashboard','Investor Dashboard','09'],
+  ['devportal','Developer Portal','10'],
+  ['addproject','Add Project','11'],
+  ['admin','Admin Dashboard','12'],
+  ['scores','Score Editor','13'],
+  ['journeys','User Journeys','14'],
+  ['login','Login','15'],
+  ['fordev','For Developers','16'],
+  ['privacy','Privacy Policy','17'],
+  ['terms','Terms of Use','18'],
+  ['devsignup','Developer Sign-up','19']
+];
+
+const PRIVACY=[
+  {num:'01',title:'Who we are',body:'Best Invest Properties operates this platform and is the controller of the personal data described here. Questions about this policy or your data can be sent to privacy@bestinvestproperties.com.'},
+  {num:'02',title:'What we collect',body:'Account details you give us: name, email address, phone number and country of residence. Your investment criteria: budget, target yield, preferred countries, strategy and time horizon. Records of properties you view, save or compare, and messages you exchange with us. Technical data such as device type, browser and approximate location derived from your IP address.'},
+  {num:'03',title:'Why we use it',body:'To match properties to your criteria and send you shortlists. To operate your account and respond to requests. To introduce you to a developer or agent when you ask us to. To improve our analysis and the platform itself, using aggregated data. To meet legal and accounting obligations.'},
+  {num:'04',title:'Who we share it with',body:'Developers and selling agents receive your contact details only when you request an introduction to a specific project. Service providers — hosting, email delivery, analytics and customer support — process data on our instructions under contract. Authorities receive data only where we are legally required to provide it. We do not sell personal data.'},
+  {num:'05',title:'Where data is held',body:'Data is stored within the European Economic Area. Where a provider processes data outside the EEA, we rely on adequacy decisions or standard contractual clauses approved by the European Commission.'},
+  {num:'06',title:'How long we keep it',body:'Account data is kept while your account is active and for two years after your last activity. Records connected to an introduction or transaction are kept for seven years to meet accounting and anti-money-laundering requirements. Marketing consent records are kept until you withdraw consent.'},
+  {num:'07',title:'Your rights',body:'You may request access to your data, correction of inaccurate data, deletion, restriction of processing, or a portable copy. You may object to processing based on our legitimate interests and withdraw marketing consent at any time. We respond within one month. You may also complain to your national data protection authority.'},
+  {num:'08',title:'Cookies',body:'Essential cookies keep you signed in and remember your filter settings. Analytics cookies, which measure how the platform is used, are set only with your consent and can be withdrawn from the cookie settings link in the footer.'},
+  {num:'09',title:'Changes to this policy',body:'We will post any material change on this page and notify registered users by email at least fourteen days before it takes effect.'}
+];
+
+const TERMS=[
+  {num:'01',title:'Acceptance',body:'By using this platform you agree to these terms. If you do not accept them, do not use the platform. You must be at least eighteen years old and legally able to enter into contracts.'},
+  {num:'02',title:'What the platform provides',body:'We publish residential property listings together with our own analysis of rental income, costs, risks and long-term potential. The platform is an information service. Nothing on it is investment, tax or legal advice, and no content is a personal recommendation or an offer to sell property or securities.'},
+  {num:'03',title:'Our analysis and scores',body:'Investment scores are produced by applying our published criteria and weightings to data we hold. Rental estimates, expenses, yields and calculator outputs are projections based on assumptions stated on each screen. They are not guaranteed, and actual returns may be materially lower. Weightings and methodology may change; historical scores are not restated.'},
+  {num:'04',title:'Developer material',body:'Descriptions, images, floor plans, specifications and completion dates supplied by developers are identified as developer information and presented separately from our analysis. We carry out the checks described in our methodology but do not independently verify every statement a developer makes.'},
+  {num:'05',title:'Your account',body:'You are responsible for the accuracy of the information you provide and for keeping your credentials secure. One account per person. Tell us immediately if you believe your account has been accessed without your authorisation.'},
+  {num:'06',title:'Introductions and transactions',body:'Any purchase contract is concluded directly between you and the seller or developer. We are not a party to it, do not hold client money, and do not act as your agent. We may receive a fee from a developer when an introduction leads to a completed sale; where this applies it is disclosed on the property page. Independent legal and tax advice in the relevant country is your responsibility.'},
+  {num:'07',title:'Acceptable use',body:'You may use the platform for your own investment research. You may not scrape, bulk-download or resell our data, republish our scores or analysis without written permission, misrepresent your identity, or interfere with the operation of the service.'},
+  {num:'08',title:'Intellectual property',body:'The platform, our scoring methodology, written analysis, layouts and brand remain our property or that of our licensors. Developer-supplied material remains the property of the developer.'},
+  {num:'09',title:'Limitation of liability',body:'We provide the platform with reasonable care but do not warrant that content is complete, current or error-free. To the extent permitted by law we are not liable for investment losses, lost profits, or decisions taken in reliance on our analysis. Nothing here excludes liability that cannot lawfully be excluded.'},
+  {num:'10',title:'Governing law and changes',body:'These terms are governed by Cypriot law, with the courts of Cyprus having exclusive jurisdiction. We may update these terms; changes take effect fourteen days after they are posted, and continued use after that date constitutes acceptance.'}
+];
+
+const LISTINGS=[
+  {id:'larnaca',location:'Larnaca, Cyprus',price:'€175,000',spec:'1 bedroom · 55 m²',gross:'7.2%',net:'5.6%',score:87,verdict:'Strong Investment',tag:'TOP INVESTMENT',photoLabel:'exterior — 4:3'},
+  {id:'alicante',location:'Alicante, Spain',price:'€219,000',spec:'2 bedrooms · 72 m²',gross:'6.5%',net:'5.1%',score:84,verdict:'Strong Investment',tag:'CAPITAL GROWTH',photoLabel:'terrace view — 4:3'},
+  {id:'paphos',location:'Paphos, Cyprus',price:'€168,000',spec:'1 bedroom · 51 m²',gross:'7.4%',net:'5.8%',score:89,verdict:'Strong Investment',tag:'HIGH YIELD',photoLabel:'pool area — 4:3'},
+  {id:'valencia',location:'Valencia, Spain',price:'€245,000',spec:'3 bedrooms · 96 m²',gross:'6.1%',net:'4.7%',score:79,verdict:'Solid Investment',tag:'CAPITAL GROWTH',photoLabel:'living room — 4:3'},
+  {id:'limassol',location:'Limassol, Cyprus',price:'€310,000',spec:'2 bedrooms · 84 m²',gross:'5.9%',net:'4.5%',score:76,verdict:'Solid Investment',tag:'CAPITAL GROWTH',photoLabel:'sea view — 4:3'},
+  {id:'malaga',location:'Málaga, Spain',price:'€198,000',spec:'2 bedrooms · 68 m²',gross:'7.0%',net:'5.4%',score:85,verdict:'Strong Investment',tag:'HIGH YIELD',photoLabel:'street facade — 4:3'}
+];
+
+const DEFAULT_WEIGHTS=[
+  {key:'yield',label:'Rental yield',value:25},
+  {key:'demand',label:'Rental demand',value:20},
+  {key:'location',label:'Location',value:15},
+  {key:'price',label:'Entry price',value:15},
+  {key:'growth',label:'Growth potential',value:10},
+  {key:'developer',label:'Developer',value:5},
+  {key:'risk',label:'Risk',value:5},
+  {key:'liquidity',label:'Liquidity',value:5}
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'overview',
+    mobile: false,
+    countries: {Cyprus:true, Spain:true},
+    types: {Apartment:true, Villa:false, House:false},
+    beds: {Studio:false, '1':true, '2':true, '3+':false},
+    strategy: {'Long-term rental':true, 'Short-term rental':false, 'Capital appreciation':false},
+    completion: {Ready:true, '<12 months':true, '12–24 months':false},
+    priceMax: 350000,
+    minGross: 6,
+    minNet: 4.5,
+    compare: ['larnaca','alicante','paphos'],
+    calc: {purchase:175000, financing:'mortgage', deposit:70000, rate:3.5, term:20, rent:1050, occupancy:90, mgmt:10},
+    weights: DEFAULT_WEIGHTS.map(w=>({...w}))
+  };
+
+  componentDidMount(){
+    const s=this.props.startScreen;
+    if(s && SCREENS.some(x=>x[0]===s)) this.setState({screen:s});
+  }
+
+  go(screen){ return ()=>{ this.setState({screen}); if(typeof window!=='undefined') window.scrollTo(0,0); }; }
+
+  eur(n){ return '€'+Math.round(n).toLocaleString('en-US').replace(/,/g,','); }
+  eurK(n){ return n>=1000 ? '€'+Math.round(n/1000)+'k' : '€'+n; }
+
+  toggleGroup(group,key){ return ()=>this.setState(s=>({[group]:{...s[group],[key]:!s[group][key]}})); }
+  opts(group,keys){
+    return keys.map(k=>({label:k,on:!!this.state[group][k],toggle:this.toggleGroup(group,k)}));
+  }
+  chips(group,keys){
+    return keys.map(k=>{
+      const on=!!this.state[group][k];
+      return {label:k,toggle:this.toggleGroup(group,k),bg:on?NAVY:'#FBFAF7',fg:on?'#fff':'#48596B'};
+    });
+  }
+
+  filtered(){
+    const {countries,minGross,minNet,priceMax}=this.state;
+    return LISTINGS.filter(p=>{
+      const cy=p.location.indexOf('Cyprus')>-1;
+      if(cy && !countries.Cyprus) return false;
+      if(!cy && !countries.Spain) return false;
+      if(parseFloat(p.gross)<minGross) return false;
+      if(parseFloat(p.net)<minNet) return false;
+      if(parseInt(p.price.replace(/[^0-9]/g,''),10)>priceMax) return false;
+      return true;
+    });
+  }
+
+  matchCount(){ const n=this.filtered().length; return n ? n*8+3 : 0; }
+
+  card(p){
+    const on=this.state.compare.indexOf(p.id)>-1;
+    return {...p,
+      view:this.go('detail'),
+      compare:()=>this.setState(s=>({compare: on? s.compare.filter(x=>x!==p.id) : s.compare.concat(p.id).slice(-3)})),
+      cmpLabel: on?'✓':'+', cmpBg: on?NAVY:'transparent', cmpFg: on?'#fff':'#48596B'};
+  }
+
+  calcResults(){
+    const c=this.state.calc;
+    const loan=c.financing==='mortgage' ? Math.max(0,c.purchase-c.deposit) : 0;
+    const gross=c.rent*12*(c.occupancy/100);
+    const mgmt=gross*(c.mgmt/100);
+    const opex=mgmt+1400;
+    let annualDebt=0;
+    if(loan>0 && c.term>0){
+      const i=(c.rate/100)/12, n=c.term*12;
+      annualDebt = i>0 ? (loan*i/(1-Math.pow(1+i,-n)))*12 : (loan/n)*12;
+    }
+    const cash=gross-opex-annualDebt;
+    const invested=(c.financing==='mortgage'? c.deposit : c.purchase) + c.purchase*0.08;
+    return {loan,gross,mgmt,opex,annualDebt,cash,invested,coc:invested>0?(cash/invested)*100:0};
+  }
+
+  num(path,int){
+    return e=>{
+      const v=parseFloat(e.target.value);
+      this.setState(s=>({calc:{...s.calc,[path]: isNaN(v)?0:(int?Math.round(v):v)}}));
+    };
+  }
+
+  renderVals(){
+    const st=this.state, cur=st.screen;
+    const meta=SCREENS.find(s=>s[0]===cur)||SCREENS[0];
+    const mk=keys=>keys.map(k=>{
+      const s=SCREENS.find(x=>x[0]===k), on=cur===k;
+      return {label:s[1],num:s[2],go:this.go(k),bg:on?'rgba(226,181,88,.16)':'transparent',fg:on?'#E2B558':'#C3D0DE'};
+    });
+
+    const r=this.calcResults();
+    const c=st.calc;
+    const wTotal=st.weights.reduce((a,w)=>a+w.value,0);
+    const ok=wTotal===100;
+    const cmpIds=st.compare.slice(0,3);
+    const cmpProps=cmpIds.map(id=>LISTINGS.find(p=>p.id===id)).filter(Boolean);
+    while(cmpProps.length<3) cmpProps.push(null);
+
+    const cmpRow=(label,pick,best)=>{
+      const vals=cmpProps.map(p=>p?pick(p):'—');
+      let bi=-1;
+      if(best){
+        let bv=null;
+        cmpProps.forEach((p,i)=>{ if(!p) return; const v=best(p); if(bv===null||v>bv){bv=v;bi=i;} });
+      }
+      const o={label,a:vals[0],b:vals[1],c:vals[2]};
+      [0,1,2].forEach(i=>{ o['c'+i]= i===bi?GOLD:NAVY; o['w'+i]= i===bi?'600':'400'; });
+      return o;
+    };
+
+    const flow=(rows,palette)=>rows.map(x=>{
+      const t=x[2]||'step';
+      const p=palette[t];
+      return {actor:x[0],label:x[1],bg:p[0],border:p[1],fg:p[2]};
+    });
+    const investorPalette={
+      step:['#fff','rgba(14,42,74,.14)','#0E2A4A'],
+      you:['#FBF3E0','rgba(184,137,43,.4)','#8A6A22'],
+      money:['#0A1F38','#0A1F38','#E2B558']
+    };
+    const devPalette={
+      step:['#fff','rgba(31,59,46,.16)','#1F3B2E'],
+      you:['#FBF3E0','rgba(184,137,43,.4)','#8A6A22'],
+      money:['#1F3B2E','#1F3B2E','#E7EFE9']
+    };
+
+    return {
+      showRail: this.props.showRail !== false,
+      screenTitle: meta[1], screenNum: meta[2],
+      frameMax: st.mobile ? '412px' : '1280px',
+      deskBg: st.mobile?'transparent':NAVY, deskFg: st.mobile?'#48596B':'#fff',
+      mobBg: st.mobile?NAVY:'transparent', mobFg: st.mobile?'#fff':'#48596B',
+      setDesktop: ()=>this.setState({mobile:false}),
+      setMobile: ()=>this.setState({mobile:true}),
+
+      railIntro: mk(['overview']),
+      railInvestor: mk(['landing','search','results','browse','detail','analysis','calc','compare','register','login','dashboard']),
+      railDeveloper: mk(['fordev','devsignup','devportal','addproject']),
+      railAdmin: mk(['admin','scores','journeys']),
+      railLegal: mk(['privacy','terms']),
+
+      isOverview: cur==='overview', isLanding: cur==='landing', isSearch: cur==='search',
+      isResults: cur==='results', isBrowse: cur==='browse', isDetail: cur==='detail', isAnalysis: cur==='analysis',
+      isCalc: cur==='calc', isCompare: cur==='compare', isRegister: cur==='register',
+      isDash: cur==='dashboard', isDev: cur==='devportal', isAdd: cur==='addproject',
+      isAdmin: cur==='admin', isScores: cur==='scores', isJourneys: cur==='journeys',
+      isLogin: cur==='login', isFordev: cur==='fordev', isPrivacy: cur==='privacy', isTerms: cur==='terms',
+      isDevSignup: cur==='devsignup',
+      goLogin:this.go('login'), goFordev:this.go('fordev'), goDevSignup:this.go('devsignup'),
+      goPrivacy:this.go('privacy'), goTerms:this.go('terms'),
+      devCompanyFields:[
+        {label:'Registered company name',type:'text',ph:'Aegean Living Developments Ltd'},
+        {label:'Registration number',type:'text',ph:'HE 412 887'},
+        {label:'Country of registration',type:'text',ph:'Cyprus'},
+        {label:'Developer licence number',type:'text',ph:'LIC-2024-00318'},
+        {label:'Company website',type:'text',ph:'aegeanliving.com'},
+        {label:'Years active',type:'text',ph:'8'}
+      ],
+      devContactFields:[
+        {label:'Contact name',type:'text',ph:'Maria Christodoulou'},
+        {label:'Role',type:'text',ph:'Head of Sales'},
+        {label:'Work email',type:'email',ph:'maria@aegeanliving.com'},
+        {label:'Phone',type:'tel',ph:'+357 99 123 456'},
+        {label:'Password',type:'password',ph:'••••••••'},
+        {label:'Confirm password',type:'password',ph:'••••••••'}
+      ],
+      devPortfolioFields:[
+        {label:'Projects completed',type:'text',ph:'11'},
+        {label:'Projects currently selling',type:'text',ph:'3'},
+        {label:'Typical unit price',type:'text',ph:'€180k – €320k'}
+      ],
+      devDocs:[
+        {label:'Company registration certificate',note:'PDF · required'},
+        {label:'Developer licence',note:'PDF · required'},
+        {label:'Building permit for first project',note:'PDF · required'},
+        {label:'Escrow or bank guarantee confirmation',note:'PDF · required for off-plan'},
+        {label:'Two client or bank references',note:'PDF or letter · required'}
+      ],
+      devStages:[
+        {num:'01',title:'Account created',body:'You get portal access immediately, in read-only mode.',fg:'#E2B558',bd:'rgba(226,181,88,.5)'},
+        {num:'02',title:'Verification',body:'We check the licence, permit and references. Two to five working days.',fg:'#BDD0C4',bd:'rgba(255,255,255,.16)'},
+        {num:'03',title:'Project submission',body:'Portal unlocks. Upload units, pricing, schedule and media.',fg:'#BDD0C4',bd:'rgba(255,255,255,.16)'},
+        {num:'04',title:'Scoring and publication',body:'We model the numbers, share the indicative score, then publish.',fg:'#BDD0C4',bd:'rgba(255,255,255,.16)'}
+      ],
+      privacySections: PRIVACY, termsSections: TERMS,
+      loginFields:[
+        {label:'Email address',type:'email',ph:'you@example.com'},
+        {label:'Password',type:'password',ph:'••••••••'}
+      ],
+      devValue:[
+        {num:'01',title:'Investor-ready audience',body:'Our registered users state a budget, a target yield and a strategy before they see a single listing. Enquiries arrive already filtered against your price and completion date.'},
+        {num:'02',title:'Analysis, not advertising',body:'Your project is presented with an independent investment score. Buyers see the reasoning, which shortens the questions that usually come later in the sales cycle.'},
+        {num:'03',title:'Two markets, one channel',body:'Cyprus and Spain, with residential stock between €120k and €600k. We do not list every project, so listings carry weight.'},
+        {num:'04',title:'Your material stays yours',body:'Renders, plans and specifications are published as developer information and labelled as such, separate from our own figures.'}
+      ],
+      devSteps:[
+        {num:'01',title:'Apply',body:'Send us company details, licence number and two completed references. We verify before any project goes live.'},
+        {num:'02',title:'Submit a project',body:'Upload units, pricing, completion schedule, rental expectations and media through the developer portal.'},
+        {num:'03',title:'We analyse',body:'Our team models rent, costs and risk, then assigns a score against published criteria. You see the result before publication.'},
+        {num:'04',title:'Go live and track',body:'The listing publishes with your material attached. The portal shows views, saves and qualified enquiries per unit.'}
+      ],
+      devReq:[
+        'Valid developer licence in Cyprus or Spain',
+        'Building permit issued for the project',
+        'Escrow or bank guarantee for off-plan payments',
+        'Unit-level pricing and floor plans',
+        'Realistic completion schedule with milestones',
+        'A named contact who answers enquiries within 48 hours'
+      ],
+
+      goLanding:this.go('landing'), goSearch:this.go('search'), goResults:this.go('results'),
+      goDetail:this.go('detail'), goAnalysis:this.go('analysis'), goCalc:this.go('calc'),
+      goCompare:this.go('compare'), goRegister:this.go('register'), goDash:this.go('dashboard'),
+      goDev:this.go('devportal'), goAdd:this.go('addproject'), goAdmin:this.go('admin'),
+      goScores:this.go('scores'),
+      yes: true,
+
+      pillars:[
+        {num:'01',title:'Selected',body:"We don't list everything. We select only investment opportunities."},
+        {num:'02',title:'Analysed',body:'Every property is evaluated using consistent investment criteria.'},
+        {num:'03',title:'Transparent',body:'Returns, costs and risks are clearly shown.'},
+        {num:'04',title:'Independent',body:'Developer information is identified separately from our analysis.'}
+      ],
+
+      fCountry:this.opts('countries',['Cyprus','Spain']),
+      fType:this.opts('types',['Apartment','Villa','House']),
+      fBeds:this.chips('beds',['Studio','1','2','3+']),
+      fStrategy:this.opts('strategy',['Long-term rental','Short-term rental','Capital appreciation']),
+      fCompletion:this.opts('completion',['Ready','<12 months','12–24 months']),
+      priceMax:st.priceMax, priceMaxLabel:this.eurK(st.priceMax),
+      setPrice:e=>this.setState({priceMax:parseInt(e.target.value,10)}),
+      minGross:st.minGross, minGrossLabel:st.minGross.toFixed(1)+'%',
+      setGross:e=>this.setState({minGross:parseFloat(e.target.value)}),
+      minNet:st.minNet, minNetLabel:st.minNet.toFixed(1)+'%',
+      setNet:e=>this.setState({minNet:parseFloat(e.target.value)}),
+      matchCount:this.matchCount(),
+      shownCount:LISTINGS.length,
+      sumCountry:Object.keys(st.countries).filter(k=>st.countries[k]).join(' + ')||'none selected',
+
+      listings: LISTINGS.map(p=>this.card(p)),
+      browseListings: this.filtered().map(p=>this.card(p)),
+      browseEmpty: this.filtered().length===0,
+      compareCount: cmpIds.length,
+
+      hero: LISTINGS[0],
+      thumbs:[{label:'living room'},{label:'kitchen'},{label:'floor plan'},{label:'location map'}],
+      finRows:[
+        {k:'Purchase price',v:'€175,000'},
+        {k:'Estimated annual rent',v:'€12,600'},
+        {k:'Gross yield',v:'7.20%'},
+        {k:'Estimated annual expenses',v:'€2,800'},
+        {k:'Net operating income',v:'€9,800'},
+        {k:'Estimated net yield',v:'5.60%'}
+      ],
+
+      reasons:[
+        {num:'01',title:'Rental income',metricLabel:'ESTIMATED ANNUAL RENT',metric:'€12,600',subLabel:'SOURCE',sub:'Independent estimate, cross-checked against developer figure',body:'Comparable one-bedroom units in the same district let for €1,000–€1,150 per month on twelve-month contracts. We model €1,050 at 90% occupancy.'},
+        {num:'02',title:'Location',metricLabel:'RENTAL DEMAND',metric:'Strong',subLabel:'DRIVERS',sub:'Airport, university, year-round tenancy',body:'Larnaca holds tenants outside the tourist season, which matters for long-term rental strategy. Vacancy risk is lower here than in purely seasonal coastal markets.'},
+        {num:'03',title:'Entry price',metricLabel:'THIS PROPERTY',metric:'€175k',subLabel:'COMPARABLE NEW BUILDS',sub:'€190k – €215k',body:'Priced below comparable new-build stock. Part of the gap is the pre-completion discount; the rest reflects the developer pricing early phases to fund construction.'},
+        {num:'04',title:'Resale potential',metricLabel:'OUTLOOK',metric:'Good',subLabel:'HORIZON',sub:'5–10 years',body:'Steady demand from both investors and owner-occupiers on resale. Liquidity is slower than in larger Spanish cities, which is reflected in the score.'}
+      ],
+      scoreRows:[
+        {label:'Rental yield',got:25,max:25,pct:'100%'},
+        {label:'Rental demand',got:18,max:20,pct:'90%'},
+        {label:'Location',got:14,max:15,pct:'93%'},
+        {label:'Entry price',got:14,max:15,pct:'93%'},
+        {label:'Growth potential',got:8,max:10,pct:'80%'},
+        {label:'Developer',got:4,max:5,pct:'80%'},
+        {label:'Risk',got:2,max:5,pct:'40%'},
+        {label:'Liquidity',got:2,max:5,pct:'40%'}
+      ],
+
+      c:{purchase:c.purchase,deposit:c.deposit,rate:c.rate,term:c.term,rent:c.rent,occupancy:c.occupancy,mgmt:c.mgmt},
+      isMortgage: c.financing==='mortgage',
+      cashBg: c.financing==='cash'?NAVY:'#FBFAF7', cashFg: c.financing==='cash'?'#fff':'#48596B',
+      mortBg: c.financing==='mortgage'?NAVY:'#FBFAF7', mortFg: c.financing==='mortgage'?'#fff':'#48596B',
+      setCash: ()=>this.setState(s=>({calc:{...s.calc,financing:'cash'}})),
+      setMortgage: ()=>this.setState(s=>({calc:{...s.calc,financing:'mortgage'}})),
+      setPurchase:this.num('purchase',true), setDeposit:this.num('deposit',true),
+      setRate:this.num('rate'), setTerm:this.num('term',true), setRent:this.num('rent',true),
+      setOcc:this.num('occupancy',true), setMgmt:this.num('mgmt',true),
+      calcRows:[
+        {k:'Annual gross rent',v:this.eur(r.gross)},
+        {k:'Management fee',v:'− '+this.eur(r.mgmt)},
+        {k:'Other operating costs',v:'− €1,400'},
+        {k:'Mortgage costs',v:'− '+this.eur(r.annualDebt)},
+        {k:'Annual cash flow',v:this.eur(r.cash)}
+      ],
+      r:{loan:this.eur(r.loan),coc:r.coc.toFixed(1)+'%',invested:this.eur(r.invested)},
+
+      cmpCols: cmpProps.map(p=>p?{name:p.location.split(',')[0],country:p.location.split(', ')[1]}:{name:'Add property',country:'empty slot'}),
+      cmpRows:[
+        cmpRow('Price',p=>p.price,null),
+        cmpRow('Gross yield',p=>p.gross,p=>parseFloat(p.gross)),
+        cmpRow('Net yield',p=>p.net,p=>parseFloat(p.net)),
+        cmpRow('Investment score',p=>p.score,p=>p.score),
+        cmpRow('Size',p=>p.spec,null),
+        cmpRow('Completion',p=>({larnaca:'2027',alicante:'Ready',paphos:'2026',valencia:'Ready',limassol:'2027',malaga:'Ready'})[p.id],null)
+      ],
+
+      regPromise:[
+        {num:'01',body:'We match your budget and target yield against analysed stock in Cyprus and Spain.'},
+        {num:'02',body:'You see the full financial picture before any developer sees your name.'},
+        {num:'03',body:'No listing spam. You are contacted about matches only.'}
+      ],
+      regFields:[
+        {label:'Name',type:'text',ph:'Full name'},
+        {label:'Email',type:'email',ph:'you@example.com'},
+        {label:'Password',type:'password',ph:'At least 8 characters'},
+        {label:'Phone',type:'tel',ph:'+44 …'},
+        {label:'Country of residence',type:'text',ph:'United Kingdom'}
+      ],
+
+      profile:[
+        {k:'Budget',v:'€150–200k'},{k:'Target yield',v:'6%+'},
+        {k:'Preferred countries',v:'Cyprus / Spain'},{k:'Strategy',v:'Long-term rental'}
+      ],
+      recommended: LISTINGS.slice(0,3).map(p=>({...p,view:this.go('detail')})),
+      saved:[
+        {name:'Larnaca 1BR — Phase II',meta:'87/100 · 7.2%'},
+        {name:'Málaga 2BR — Old town',meta:'85/100 · 7.0%'},
+        {name:'Paphos 1BR — Sea gardens',meta:'89/100 · 7.4%'}
+      ],
+      enquiries:[
+        {name:'Larnaca 1BR',status:'Developer contacted'},
+        {name:'Alicante 2BR',status:'Awaiting analysis'}
+      ],
+
+      devStats:[{k:'Projects',v:'3'},{k:'Available units',v:'28'},{k:'Investor enquiries',v:'14'},{k:'Active leads',v:'6'}],
+      devProjects:[
+        {name:'Coral Bay Residences',meta:'Paphos · 12 units · completion 2027',status:'Published'},
+        {name:'Marina Court',meta:'Larnaca · 9 units · completion 2026',status:'Pending review'},
+        {name:'Casa Alicante',meta:'Alicante · 7 units · ready',status:'Published'}
+      ],
+      devLeads:[
+        {who:'Investor #2841',what:'Marina Court · 2 days'},
+        {who:'Investor #2836',what:'Coral Bay · 4 days'},
+        {who:'Investor #2829',what:'Casa Alicante · 6 days'},
+        {who:'Investor #2814',what:'Coral Bay · 9 days'}
+      ],
+
+      projFields:[
+        {label:'Project name',ph:'Coral Bay Residences'},
+        {label:'Location',ph:'Paphos, Cyprus'},
+        {label:'GPS coordinates',ph:'34.7712, 32.4074'},
+        {label:'Completion date',ph:'Q3 2027'},
+        {label:'Number of units',ph:'12'},
+        {label:'Developer information',ph:'Company, years active, track record'}
+      ],
+      uploads:[
+        {label:'Photos',hint:'jpg · min 2000px · up to 30'},
+        {label:'Videos',hint:'mp4 · up to 2'},
+        {label:'Floor plans',hint:'pdf / png per unit type'},
+        {label:'Brochure',hint:'pdf · single file'}
+      ],
+      unitFields:[
+        {label:'Unit number',ph:'A-201'},{label:'Price',ph:'€175,000'},
+        {label:'Bedrooms',ph:'1'},{label:'Bathrooms',ph:'1'},
+        {label:'Area m²',ph:'55'},{label:'Availability',ph:'Available'},
+        {label:'Expected rent',ph:'€1,050 / month'}
+      ],
+      features:[{label:'Terrace'},{label:'Garden'},{label:'Parking'},{label:'Gated area'},{label:'Pool'},{label:'Gym'},{label:'Tennis / golf'},{label:'Sea view'},{label:'Air conditioning'}],
+
+      adminNav:[
+        'Dashboard','Investors','Developers','Projects','Properties','Enquiries','Transactions','Investment Scores','Analytics','Documents','Settings'
+      ].map((label,i)=>({label,fg:i===0?'#E2B558':'#B4BCC7',bg:i===0?'rgba(226,181,88,.1)':'transparent',bar:i===0?'#E2B558':'transparent'})),
+      adminStats:[
+        {k:'Registered investors',v:'127',color:'#E4E7EB'},
+        {k:'Active developers',v:'14',color:'#E4E7EB'},
+        {k:'Published properties',v:'83',color:'#E4E7EB'},
+        {k:'New enquiries',v:'9',color:'#E2B558'},
+        {k:'Hot leads',v:'4',color:'#E2B558'}
+      ],
+      enqHead:[{label:'INVESTOR'},{label:'PROPERTY'},{label:'BUDGET'},{label:'STAGE'},{label:'AGE'}],
+      enqRows:[
+        {investor:'M. Kruger',property:'Larnaca 1BR',budget:'€150–200k',stage:'Hot lead',age:'2h',tagBg:'rgba(226,181,88,.16)',tagFg:'#E2B558'},
+        {investor:'A. Lindqvist',property:'Paphos 1BR',budget:'€150–250k',stage:'Qualifying',age:'5h',tagBg:'rgba(255,255,255,.08)',tagFg:'#B4BCC7'},
+        {investor:'R. Haddad',property:'Málaga 2BR',budget:'€200–300k',stage:'Hot lead',age:'1d',tagBg:'rgba(226,181,88,.16)',tagFg:'#E2B558'},
+        {investor:'S. Novak',property:'Alicante 2BR',budget:'€200–250k',stage:'New',age:'1d',tagBg:'rgba(255,255,255,.08)',tagFg:'#B4BCC7'}
+      ],
+
+      weights: st.weights.map((w,i)=>({label:w.label,value:w.value,
+        set:e=>{const v=parseInt(e.target.value,10);this.setState(s=>{const n=s.weights.map(x=>({...x}));n[i].value=v;return {weights:n};});}})),
+      weightTotal: wTotal,
+      totalColor: ok?'#7FB49A':'#E2B558',
+      totalNote: ok?'Weights balance. Saving will re-score 83 published properties.':'Weights must total 100 before saving. Currently '+(wTotal>100?'over':'under')+' by '+Math.abs(100-wTotal)+'.',
+      resetWeights: ()=>this.setState({weights:DEFAULT_WEIGHTS.map(w=>({...w}))}),
+      impact:[
+        {name:'Paphos 1BR',was:89,now:Math.min(99,Math.round(89*wTotal/100)),color:'#7FB49A'},
+        {name:'Larnaca 1BR',was:87,now:Math.min(99,Math.round(87*wTotal/100)),color:'#E4E7EB'},
+        {name:'Alicante 2BR',was:84,now:Math.min(99,Math.round(84*wTotal/100)),color:'#E4E7EB'}
+      ],
+
+      investorFlow: flow([
+        ['SOURCE','Google · LinkedIn · referral'],
+        ['INVESTOR','Homepage'],
+        ['INVESTOR','Search'],
+        ['INVESTOR','Property detail'],
+        ['INVESTOR','Investment analysis'],
+        ['INVESTOR','Compare'],
+        ['INVESTOR','Register'],
+        ['INVESTOR','Requests information'],
+        ['YOU','You receive the lead','you'],
+        ['YOU','You qualify the investor','you'],
+        ['DEVELOPER','Developer receives qualified lead'],
+        ['DEVELOPER','Viewing'],
+        ['DEVELOPER','Reservation'],
+        ['DEVELOPER','Purchase'],
+        ['MONEY','Developer pays commission to you','money']
+      ], investorPalette),
+      developerFlow: flow([
+        ['YOU','You contact the developer','you'],
+        ['DEVELOPER','Developer registers'],
+        ['DEVELOPER','Uploads project'],
+        ['YOU','You review','you'],
+        ['YOU','You analyse','you'],
+        ['YOU','You approve','you'],
+        ['PLATFORM','Property goes live'],
+        ['INVESTOR','Investor enquiry'],
+        ['YOU','You receive the lead','you'],
+        ['DEVELOPER','Developer receives the lead'],
+        ['MONEY','Sale','money']
+      ], devPalette)
+    };
+  }
+}
+</script>
+</body>
+</html>
