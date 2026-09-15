@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Best Invest Properties</title>
+    <script>
+      // GitHub Pages has no server-side rewrites, so a deep link 404s here.
+      // Redirect to the SPA root, encoding the intended path in the query
+      // string; index.html's inline script below restores it via
+      // history.replaceState before React Router ever sees "/".
+      var basePath = '/best-invest-properties';
+      var path = location.pathname.slice(basePath.length) + location.search + location.hash;
+      location.replace(basePath + '/?redirect=' + encodeURIComponent(path));
+    </script>
+  </head>
+  <body></body>
+</html>
