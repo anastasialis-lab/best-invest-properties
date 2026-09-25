@@ -1,17 +1,10 @@
 # Специфікація OpenAI для Best Invest Properties
 
-Версія: 1.1  
 Дата: 25 вересня 2026  
 API: OpenAI Responses API  
 Оркестрація: Make  
 Публікація: тільки після admin review
 
-> **Версія 1.1.** Основна логіка не змінилася: OpenAI пише текст, а не рахує
-> гроші — і це підтверджено рішенням від 25.09.2026 без винятків. Змінено:
-> (1) score має **п'ять** категорій замість восьми, з рейтингом 0–10 на
-> категорію — оновлено payload і schema; (2) додано теги походження фактів
-> `SOURCE/DEVELOPER/ESTIMATE/GAP`; (3) панель «AI-proposed financial
-> estimates» у прототипі до AI стосунку не має — див. AI-03.
 
 ## 1. Мета
 
@@ -45,23 +38,19 @@ OpenAI **не**:
 
 Редагує developer-provided description у стандартизований factual tone. Вихід не може додавати факти й також потребує review.
 
-### AI-03 Proposed financial estimates — **закрито, поза обсягом**
+### Фінансові оцінки на екрані Project Review — не AI
 
-Екран Project Review затвердженого прототипу показує панель, підписану
-«AI-proposed financial estimates». Назва вводить в оману: рішенням від
-25.09.2026 ці значення формує **аналітик**, а не модель.
+Панель **Proposed financial estimates** на екрані Project Review формує
+**аналітик**, а не модель:
 
-- заявлену забудовником оренду аналітик перевіряє за порівняльними
-  оголошеннями з відкритих джерел;
+- заявлену забудовником оренду перевіряють за порівняльними оголошеннями з
+  погоджених порталів;
 - регулярні витрати беруться із затверджених середніх по країні/регіону;
 - vacancy — з налаштувань платформи;
 - acquisition cost, gross yield і net yield рахуються автоматично за формулами.
 
-Тому §1 цього документа лишається чинним **без винятків**: OpenAI не формує
-жодної фінансової цифри. Окремий AI use case для цієї панелі не створюється.
-
-Назву панелі в прототипі потрібно змінити на «Proposed financial estimates»
-або «Analysis estimates».
+Тому §1 цього документа діє **без винятків**: OpenAI не формує жодної
+фінансової цифри. Окремий AI use case для цієї панелі не створюється.
 
 ### Investor conversational assistant — поза MVP
 
@@ -204,7 +193,7 @@ OpenAI отримує тільки snapshot, достатній для пояс�
 }
 ```
 
-**Зміни у v1.1:**
+**Правила payload:**
 
 - `score.components` містить рівно **п'ять** елементів із ключами
   `income`, `demand`, `value`, `growth`, `risk` і максимумами 30/20/20/15/15;
@@ -331,9 +320,9 @@ Property JSON передається як `input_text` після developer inst
 
 Structured Outputs гарантує відповідність підтримуваній JSON schema, але **не** фактичну правильність. Після parse обов'язкова application validation, яка окремо перевіряє довжини тексту, 2–4 strengths, 1–4 risks і щонайменше один source key на кожний пункт.
 
-Prompt version у v1.1 підвищується до `bip-investment-analysis-v2` через зміну
-кількості категорій і появу `analysis_facts`. Schema version лишається `1.0` —
-структура виходу не змінилася.
+Будь-яка зміна кількості категорій score або складу `analysis_facts` потребує
+нової версії промпта; schema version змінюється лише тоді, коли змінюється
+структура виходу.
 
 ## 7. Responses API request example
 
@@ -384,11 +373,11 @@ Make/Bubble відхиляє результат, якщо:
 - `missing_data` містить ключ, якого немає у списку missing/optional fields;
 - schema/prompt version не збігається з Integration Job;
 - пов'язаний Financial Snapshot або Listing Score уже не current;
-- **v1.1:** `score_explanation` називає кількість категорій, відмінну від п'яти,
+- `score_explanation` називає кількість категорій, відмінну від п'яти,
   або описує високий бал у категорії `risk` як високий ризик;
-- **v1.1:** будь-який `analysis_fact` із тегом `gap` не згаданий ні в `risks`,
+- будь-який `analysis_fact` із тегом `gap` не згаданий ні в `risks`,
   ні в `missing_data`;
-- **v1.1:** факт із тегом `developer` поданий як незалежно перевірений.
+- факт із тегом `developer` поданий як незалежно перевірений.
 
 Результат, що не пройшов validation, не зберігається як published content. Raw output можна зберігати лише в protected operational field з визначеним retention або не зберігати взагалі.
 
@@ -433,7 +422,7 @@ UI fallback: Investment Analysis показує deterministic score breakdown, f
 - Не передавати PII. Якщо пізніше з'явиться investor chat, потрібні окремі DPIA, retention, safety identifier і moderation правила.
 - `metadata` містить public IDs, не email/phone/name.
 - Prompt/output у Bubble доступний тільки AI reviewer/ops roles.
-- Список subprocessors і місце обробки даних мають бути відображені в Privacy Policy після legal review.
+- Список subprocessors і місце обробки даних відображаються в Privacy Policy.
 
 ## 12. Moderation і abuse
 
@@ -455,9 +444,9 @@ UI fallback: Investment Analysis показує deterministic score breakdown, f
 - stale/conflicting input cases;
 - adversarial developer descriptions із instructions;
 - boundary numbers і rounding;
-- **v1.1:** кейси з високим балом у категорії `risk` — перевірка, що модель не
+- кейси з високим балом у категорії `risk` — перевірка, що модель не
   перевертає напрям шкали;
-- **v1.1:** кейси з кількома фактами `gap` — перевірка, що всі згадані.
+- кейси з кількома фактами `gap` — перевірка, що всі згадані.
 
 Metrics/thresholds:
 

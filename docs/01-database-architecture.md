@@ -1,16 +1,8 @@
-# Архітектура бази даних Best Invest Properties для Марини
+# Архітектура бази даних Best Invest Properties
 
-Версія: 1.1  
 Дата: 25 вересня 2026  
 Система зберігання: Bubble database  
 Системи-учасники: Bubble, Make, OpenAI API
-
-> **Версія 1.1 — звірення із затвердженим прототипом.** Змінено: модель score
-> (п'ять критеріїв замість восьми), правило зміни price/availability, джерела
-> фінансових вхідних даних, статуси введення/верифікації. Структура документа
-> збережена. Схема **не** копіює структуру фронтенд-компонентів прототипу:
-> демонстраційні об'єкти на кшталт `queueOut` чи `previewState` є станом
-> інтерфейсу і в базу не переносяться.
 
 ## 1. Мета та принципи
 
@@ -90,7 +82,7 @@ Option Sets допустимі тільки для несекретних і р�
 
 | Option Set | Значення MVP |
 |---|---|
-| User Role | `investor`, `developer`, `admin`, `senior_admin`, `support` |
+| User Role | `investor`, `developer`, `admin` (ролі `senior_admin`, `support` — резерв на майбутнє) |
 | Account Status | `pending_email`, `active`, `suspended`, `closed` |
 | Application Status | `draft`, `submitted`, `under_review`, `more_info_required`, `approved`, `rejected`, `withdrawn` |
 | Project Status | `draft`, `submitted`, `under_review`, `changes_requested`, `approved`, `published`, `paused`, `sold_out`, `archived`, `rejected` |
@@ -112,16 +104,15 @@ Option Sets допустимі тільки для несекретних і р�
 
 Country, city, amenities, document requirements, scoring criteria, tax rules і legal documents **не** є option sets: вони мають редагуватися без deploy та мати історію.
 
-**Уточнення v1.1 до `Unit Availability`.** Забудовнику доступні для
+**`Unit Availability`.** Забудовнику доступні для
 самостійної зміни лише `available`, `reserved`, `sold`, і кожна така зміна
 проходить через Change Request із затвердженням. `withdrawn` виставляє лише
 адміністратор. Це має бути закріплено у whitelist backend workflow, а не в UI.
 
-**Уточнення v1.1 до `Enquiry Status`.** Набір з одинадцяти значень лишається
-без змін і є **канонічним**. Рольові підписи — це окремий довідник, а не
+**`Enquiry Status`.** Набір з одинадцяти значень є **канонічним**. Рольові підписи — це окремий довідник, а не
 додаткові статуси.
 
-#### Рольові підписи статусів (ухвалено 25.09.2026)
+#### Рольові підписи статусів
 
 | Канонічний статус | Admin | Investor | Developer |
 |---|---|---|---|
@@ -205,7 +196,7 @@ Company — власник Project. Ніколи не прив'язувати Pr
 
 Не зберігати всі податкові правила одним текстом. Для прозорого розрахунку використовувати Cost Rule.
 
-**Пороги вибірки порівняльних оголошень (v1.1).** Зберігаються тут, а не
+**Пороги вибірки порівняльних оголошень.** Зберігаються тут, а не
 глобально, бо ліквідність ринків різна: у Нікосії оголошень менше, ніж у
 Малазі, і однаковий поріг був би або надто суворим, або беззмістовним.
 
@@ -221,8 +212,7 @@ Company — власник Project. Ніколи не прив'язувати Pr
 але явно позначеною. 90 днів — квартал: достатньо, щоб не ганяти збір
 щотижня, і достатньо мало, щоб оцінка не відставала від ринку.
 
-Значення **налаштовуються по країнах** і можуть бути переглянуті після
-перших місяців роботи на реальних даних.
+Значення **налаштовуються по країнах** адміністратором без зміни коду.
 
 #### Cost Rule
 
@@ -237,15 +227,13 @@ Company — власник Project. Ніколи не прив'язувати Pr
 `required_for_publication`, `expires`, `expiry_months`, `instructions`,
 `is_active`, `effective_from`.
 
-**v1.1.** Додано `required_for_account_creation` — прототип розрізняє
-документи, потрібні для відкриття акаунта забудовника (реєстрація компанії,
-ліцензія), і ті, що потрібні лише до публікації проєкту (дозвіл на
-будівництво, escrow). Без цього поля три рівні з екрана заявки
-(`REQUIRED` / `TO CONFIRM` / `OPTIONAL`) не виражаються.
+Поле `required_for_account_creation` розрізняє документи, потрібні для
+відкриття акаунта забудовника (реєстрація компанії, ліцензія), і ті, що
+потрібні лише до публікації проєкту (дозвіл на будівництво, escrow). Так
+виражаються три рівні з екрана заявки: `REQUIRED` / `TO CONFIRM` / `OPTIONAL`.
 
-Матриця **повністю налаштовувана** і не зашивається в код. Building permit і
-escrow до підтвердження Мариною та юристом не позначаються обов'язковими для
-жодної країни.
+Матриця **повністю налаштовувана** адміністратором по кожній країні й не
+зашивається в код.
 
 #### Amenity
 
@@ -259,8 +247,7 @@ escrow до підтвердження Мариною та юристом не �
 
 `address_private` не віддавати публічно, якщо бізнес хоче анонімізувати точне розташування. Для search cards достатньо country/city/area.
 
-**v1.1 — анонімність забудовника підтверджена.** Екран User Journeys
-затвердженого прототипу фіксує, що ім'я та контакти забудовника не показуються
+**Анонімність забудовника.** Ім'я та контакти забудовника не показуються
 в каталозі й на сторінці об'єкта; публічний підпис — «Introduced by Best
 Invest». Тому `developer_visible_publicly` у MVP **завжди `no`**: поле
 лишається у схемі під майбутню зміну політики, але не виводиться в UI і не
@@ -339,21 +326,16 @@ annual_net_income = annual_effective_rent
 net_yield = annual_net_income / (price + purchase_costs)
 ```
 
-Формули мають бути підтверджені замовником і фінансовим/юридичним експертом. Зміна формули створює нову версію, а не переписує історію.
+Зміна формули створює нову версію, а не переписує історію. Вхідні дані для
+формул — затверджені Financial Input (оренда — з порівняльних оголошень через
+Make) і Cost Rule для кожної країни.
 
-> **v1.1.** Спрощені коефіцієнти з прототипу (ціна × 1.08, фіксовані €1 400
-> витрат, short-let × 1.33, best case = 2 × base) у схему **не** переносяться.
-> Це демонстраційні числа інтерфейсу, а не методологія. Формули вище лишаються
-> чинними. Вхідні дані для них визначено рішенням Р-03 (оренда — з
-> порівняльних оголошень через Make); cost/tax таблиці лишаються відкритими
-> до підтвердження Мариною — В-01.
+#### Financial Input
 
-#### Financial Input (новий тип, v1.1)
-
-Затверджений прототип показує на екрані Project Review панель, де кожна цифра
-має власне джерело, і три різні оцінки орендної плати поруч (заявлена
-забудовником, порівнянна оцінка Best Invest, та, що фактично пішла в score).
-Одного поля `rent_source_type` на Unit для цього замало.
+Екран Project Review показує панель, де кожна цифра має власне джерело, і три
+різні оцінки орендної плати поруч (заявлена забудовником, порівнянна оцінка
+Best Invest, та, що фактично пішла в score). Тому кожне вхідне значення
+зберігається окремим записом.
 
 | Поле | Тип | Обов'язкове | Призначення |
 |---|---|---:|---|
@@ -373,9 +355,6 @@ net_yield = annual_net_income / (price + purchase_costs)
 | approved_at | date | ні | коли |
 | superseded_by | Financial Input | ні | історія замість перезапису |
 
-Поле `proposed_by_job` із чернетки v1.1 **прибрано**: автоматичного
-формування оцінок у MVP немає, значення вносить аналітик вручну.
-
 Правила:
 
 - у public listing потрапляють лише значення з `review_status = approved`;
@@ -394,7 +373,7 @@ net_yield = annual_net_income / (price + purchase_costs)
 - запис не редагується: нове значення створює новий запис і заповнює
   `superseded_by` у старого.
 
-#### Rental Comparable Set (новий тип, v1.1)
+#### Rental Comparable Set
 
 Результат збору порівняльних оголошень оренди через Make. Один запис = одна
 вибірка на один набір параметрів у конкретну дату.
@@ -443,7 +422,7 @@ net_yield = annual_net_income / (price + purchase_costs)
   зберігається **тим самим типом** і з тим самим набором полів, щоб
   походження цифри лишалося видимим на екрані рев'ю.
 
-#### Data Provider (новий тип, v1.1)
+#### Data Provider
 
 Довідник погоджених джерел. Не option set: склад змінюється без deploy і
 потребує історії.
@@ -456,7 +435,7 @@ net_yield = annual_net_income / (price + purchase_costs)
 > на дані) має бути перевірена до підключення. Поле `terms_reference`
 > зберігає посилання на відповідний документ.
 
-#### Analysis Fact (новий тип, v1.1)
+#### Analysis Fact
 
 Блок «Sources, assumptions & gaps» на екранах аналізу та рев'ю.
 
@@ -470,9 +449,8 @@ net_yield = annual_net_income / (price + purchase_costs)
 
 `key`, `label`, `description`, `direction` (`higher_better`, `lower_better`, `target_range`), `input_source`, `calculation_rule_version`, `is_active`, `sort_order`.
 
-**Seed v1.1 — п'ять критеріїв (було вісім).** Затверджений прототип
-використовує рівно цей набір на екранах Analysis, Compare, Score Editor і
-Project Review:
+**Seed — п'ять критеріїв.** Цей набір використовується на екранах Analysis,
+Compare, Score Editor і Project Review:
 
 | sort_order | key | label | max_points | weight_fraction | direction |
 |---:|---|---|---:|---:|---|
@@ -485,13 +463,13 @@ Project Review:
 Для `risk` більший бал означає **нижчий** ризик, тому `direction` —
 `higher_better`, а не `lower_better`. Підпис шкали обов'язковий в UI.
 
-**Рубрика нормалізації (ухвалено 25.09.2026).** Кожен критерій отримує
+**Рубрика нормалізації.** Кожен критерій отримує
 `rating` 0–10, далі `weighted_points = rating / 10 × weight`. Повні шкали —
 у §FR-03b специфікації проєкту. Для критерію `income` rating виводиться
 автоматично з net yield за смугами; для решти чотирьох — складається з
 підкритеріїв, які оцінює аналітик.
 
-#### Score Sub-criterion (новий тип, v1.1)
+#### Score Sub-criterion
 
 Довідник підкритеріїв для чотирьох критеріїв, що оцінюються вручну.
 
@@ -521,7 +499,7 @@ Seed:
 Сума `max_points` підкритеріїв кожного критерію має дорівнювати **10**.
 Перевіряється backend workflow при збереженні довідника.
 
-#### Score Sub-component (новий тип, v1.1)
+#### Score Sub-component
 
 Фактична оцінка підкритерію для конкретного Listing Score.
 
@@ -531,7 +509,7 @@ Seed:
 `points_awarded` не може перевищувати `sub_criterion.max_points`.
 Сума `points_awarded` у межах критерію дає його `rating`.
 
-#### Market Benchmark (новий тип, v1.1)
+#### Market Benchmark
 
 Потрібен для критерію `Purchase Value & Market Position`, який порівнює ціну
 за м² з медіаною по району.
@@ -563,14 +541,13 @@ Benchmark версіонується датами, а не перезаписо�
 
 `model_version`, `criterion`, `weight_fraction`, `max_points`. Для активної моделі сума `weight_fraction` повинна дорівнювати `1.0`; Save disabled, якщо не дорівнює.
 
-У прототипі редактор ваг працює у відсотках (0–40 на критерій, сума = 100).
-У базі зберігається десяткова частка (`0.30`), перетворення — на рівні UI.
-**Верхня межа ваги — дефолт установлено.** Жорсткого обмеження на рівні бази
-**немає**: єдине правило, яке перевіряє backend workflow, — сума
-`weight_fraction` активної моделі дорівнює `1.0`.
+Редактор ваг працює у відсотках (0–100 на критерій, сума = 100). У базі
+зберігається десяткова частка (`0.30`), перетворення — на рівні UI.
+Жорсткого обмеження на вагу окремого критерію **немає**: єдине правило, яке
+перевіряє backend workflow, — сума `weight_fraction` активної моделі
+дорівнює `1.0`.
 
-Межа 40% із прототипу була обмеженням повзунка, а не бізнес-правилом.
-Дефолт: діапазон повзунка **0–100%**, плюс м'яке попередження в UI, якщо
+В UI показується м'яке попередження, якщо
 будь-який критерій перевищує **50%** — у цьому разі один критерій фактично
 визначає весь score, а решта чотирьох стають декорацією. Попередження
 **не блокує** збереження.
@@ -586,8 +563,7 @@ Benchmark версіонується датами, а не перезаписо�
 
 `listing_score`, `criterion`, `raw_value_number`, `rating`, `weighted_points`, `source_type`, `source_record_id`, `explanation_deterministic`.
 
-`rating` — оцінка 0–10 (у v1.0 поле називалося `normalized_score`;
-перейменовано, щоб збігалося з рубрикою). `weighted_points` обчислюється як
+`rating` — оцінка 0–10. `weighted_points` обчислюється як
 `rating / 10 × criterion.weight_fraction × 100`.
 
 Компоненти повинні сумуватися до total score з дозволеною похибкою округлення не більше `0.01`.
@@ -633,7 +609,7 @@ Benchmark версіонується датами, а не перезаписо�
 | assigned_admin_user | User | owner |
 | submitted_at | date | SLA start |
 | admin_decision_at | date | SLA |
-| developer_response_due_at | date | 48h, якщо підтверджено бізнесом |
+| developer_response_due_at | date | 48h |
 | closed_at | date | lifecycle |
 | outcome_reason | text | controlled values + note |
 
@@ -661,13 +637,13 @@ Developer privacy rule на User не відкривається. Developer ба
 
 MVP whitelist editable fields для published проєкту: `Unit.price_eur`, `Unit.availability`. Інші зміни створюють повний content review.
 
-**Підтверджено прототипом (v1.1).** Обидва поля проходять **попереднє**
+Обидва поля проходять **попереднє**
 затвердження — негайного застосування availability немає. Дозволені значення
 availability при самостійній зміні забудовником: `available`, `reserved`,
 `sold`. Значення `withdrawn` виставляє лише адміністратор.
 
-Заблоковані поля, які прототип показує у панелі «LOCKED — ADMIN REVIEW
-REQUIRED» на екрані Project & Units: project name, location, completion date,
+Заблоковані поля, показані в панелі «LOCKED — ADMIN REVIEW REQUIRED» на
+екрані Project & Units: project name, location, completion date,
 unit mix, specification, media. Запит на їх зміну створює Change Request із
 `request_type = content_review`.
 
@@ -714,16 +690,15 @@ under_review → rejected
 published → paused | sold_out | archived
 ```
 
-Тільки senior admin: `approved → published`. Publish заборонено без approved verification, мінімум одного available unit, cover photo, current financial snapshot, current score і approved AI analysis або explicit deterministic-only fallback.
+Перехід `approved → published` виконує адміністратор окремою дією. Publish заборонено без approved verification, мінімум одного available unit, cover photo, current financial snapshot, current score і approved AI analysis або explicit deterministic-only fallback.
 
-**Уточнення v1.1.** Прототип дозволяє **подати** проєкт із неповним набором
-юнітів (модальне вікно: «12 units declared · 3 entered. You can submit and add
+Забудовник може **подати** проєкт із неповним набором юнітів (модальне вікно: «12 units declared · 3 entered. You can submit and add
 the rest before publication»). Тому повнота юнітів є умовою переходу
 `approved → published`, а не `draft → submitted`. Додатково до умов вище publish
 вимагає, щоб усі Financial Input, які беруть участь у score, мали
 `review_status = approved`.
 
-### Enquiry decision (v1.1)
+### Enquiry decision
 
 Рішення адміністратора по introduction у черзі відображаються на канонічні
 статуси так:
@@ -760,13 +735,10 @@ introduced → developer_responded → closed_won | closed_lost
 submitted | screening | qualified → cancelled
 ```
 
-> **Виправлено у v1.1.** У версії 1.0 `qualified` стояв **після**
-> `developer_responded`. За ухваленою таблицею рольових підписів `qualified`
-> означає «лід перевірено аналітиком і він очікує рішення адміністратора»,
-> тобто стоїть **до** `approved_for_intro`. Підписи «Awaiting admin approval»
-> для інвестора й забудовника це підтверджують. Стадія після відповіді
-> забудовника описується статусом `developer_responded` і далі
-> `closed_won` / `closed_lost`.
+`qualified` означає «лід перевірено аналітиком і він очікує рішення
+адміністратора», тобто стоїть **до** `approved_for_intro`. Стадія після
+відповіді забудовника описується статусом `developer_responded` і далі
+`closed_won` / `closed_lost`.
 
 ## 7. Privacy rules matrix
 
@@ -787,7 +759,7 @@ submitted | screening | qualified → cancelled
 | Enquiry | none | own, investor-safe fields | own company, masked until release | full |
 | Contact Release | none | own | own company | full |
 | Change Request | none | none | own company | full |
-| Audit Event / Integration Job | none | none | none | ops/senior admin only |
+| Audit Event / Integration Job | none | none | none | admin only |
 
 Implementation details:
 
@@ -803,14 +775,14 @@ Implementation details:
 |---|---|---|
 | `create_developer_application` | submit form | User/Company/Application без дублів, consent, audit |
 | `submit_project` | developer action | validation, content version, status event, review job |
-| `publish_project` | senior admin action | server validation, publish unit snapshots, audit |
+| `publish_project` | admin action | server validation, publish unit snapshots, audit |
 | `store_rental_comparables` | callback від MK-10 | Rental Comparable Set `pending`, попередній — `is_current = no` |
 | `approve_rental_comparables` | admin action | вибірка `approved`, стає доступною як джерело Financial Input |
 | `approve_financial_input` | admin action на A04 | Financial Input `approved`, попередній — `superseded_by` |
 | `recalculate_unit_financials` | approved price/rent/config change | new Financial Snapshot, Unit cached metrics |
 | `calculate_unit_score` | current financial/model change | Listing Score + components |
 | `queue_ai_analysis` | current score created | Integration Job `ai_analysis_generate` |
-| `rescore_all_published` | senior admin зберіг нову Score Model Version | пакетний перерахунок із прогресом, новий Listing Score на кожний unit, старі → `is_current = no` |
+| `rescore_all_published` | admin зберіг нову Score Model Version | пакетний перерахунок із прогресом, новий Listing Score на кожний unit, старі → `is_current = no` |
 | `submit_enquiry` | investor action | consent check, Enquiry + status event |
 | `approve_introduction` | admin action | Contact Release + delivery Integration Job |
 | `submit_change_request` | developer action | immutable Change Items |
@@ -823,11 +795,10 @@ Database triggers використовувати лише як страховк�
 
 - Пошук Screen 02 виконується по Unit, constraints: `publication_status`, `availability`, `country_cached`, `price_eur`, `bedrooms_cached`, `gross_yield`, `net_yield`, `strategy_keys`, `completion_date_cached`.
 - Не використовувати `:filtered` для серверно-фільтрованого каталогу; усі основні умови мають бути search constraints.
-- Slider-зміни debounce 300–500 ms; результат сторінками по 20.
+- Slider-зміни debounce 300–500 ms.
 - Сортування за `net_yield`, `gross_yield`, `price_eur`, `investment_score`.
-  Сортування за `completion_date_cached` у затвердженому прототипі відсутнє —
-  прибрано з обсягу MVP (поле лишається для фільтра за completion range).
-- Пагінація: **8 записів на сторінку**, нумерований пейджер (у версії 1.0 було 20).
+  Поле `completion_date_cached` використовується для фільтра за completion range.
+- Пагінація: **8 записів на сторінку**, нумерований пейджер.
 - Рейка «Top 5» бере перші п'ять записів того самого відсортованого набору —
   окремого запиту робити не треба.
 - Списки records не зберігати на User, якщо вони необмежено ростуть; Saved Unit, Enquiry, Notification — окремі типи.
@@ -835,7 +806,7 @@ Database triggers використовувати лише як страховк�
 
 ## 10. Retention і видалення
 
-Остаточні строки підтверджує юрист. Технічна політика MVP:
+Строки зберігання фіксуються в юридичній політиці платформи. Технічна політика MVP:
 
 - account closure одразу блокує login; фактичне delete/anonymize — керований backend process;
 - open enquiries, consent, audit і legal/transactional records не видаляються автоматично до завершення legal hold;
@@ -848,7 +819,7 @@ Database triggers використовувати лише як страховк�
 
 Обов'язкові seed-набори:
 
-1. Country Config: Spain, Cyprus; Greece/Portugal як `coming_soon` лише після рішення.
+1. Country Config: Spain, Cyprus; Greece/Portugal як `coming_soon` за потреби.
 2. Cost Rules з джерелом, effective date і approver.
 2a. Data Provider: погоджені портали / market-data providers для Іспанії та Кіпру, зі способом доступу й посиланням на умови використання.
 2b. Market Benchmark: медіанна ціна за м² для районів запуску.
@@ -882,22 +853,3 @@ Database triggers використовувати лише як страховк�
 - видалення private record не залишає доступний attached file;
 - усі status changes створюють Status Event/Audit Event;
 - admin publish і contact release неможливі без server-side authorization.
-
-## 14. Відкриті рішення
-
-Статус станом на 25 вересня 2026 (v1.1).
-
-**Закрито затвердженим прототипом:**
-
-- public developer identity — приховано завжди;
-- availability approval rule — потребує затвердження, як і ціна;
-- gating аналізу та score — публічні;
-- кількість критеріїв score — п'ять.
-
-**Лишаються відкритими до створення типів у Bubble:** listing level
-(Unit vs Unit Type), rent ownership і джерело орендної оцінки, cost/tax tables,
-**рубрика нормалізації score**, admin roles і правило «four eyes», legal
-retention, а також нове питання — хто формує AI-proposed financial estimates.
-
-Якщо будь-яке з цих рішень змінюється, спочатку оновлюється ця схема, а вже
-потім Bubble app. Повний перелік із контекстом — у `CHANGELOG-2026-09-25.md`.

@@ -1,28 +1,19 @@
 # Специфікація Make для Best Invest Properties
 
-Версія: 1.1  
 Дата: 25 вересня 2026  
 Оркестратор: Make  
 Source of truth: Bubble
 
-> **Версія 1.1.** Архітектура інтеграції не змінилася — Bubble лишається
-> системою обліку, Make оркестратором, ідемпотентність і dead-letter працюють
-> як описано. Змінено: (1) **додано MK-10** — збір порівняльних оголошень
-> оренди, нова зона відповідальності Make; (2) MK-05 тепер покриває **обидва**
-> типи змін, бо availability теж потребує затвердження; (3) додано MK-09 для
-> пакетного перерахунку score; (4) уточнено вміст листів при відмові в
-> introduction; (5) idempotency key для AI враховує нову версію промпта.
->
-> Межа відповідальності лишається незмінною й у новому сценарії: Make
-> **збирає** дані, Bubble **зберігає й рахує**, OpenAI **пояснює**. MK-10
-> не записує жодної опублікованої цифри.
+> **Межа відповідальності:** Make **збирає** дані, Bubble **зберігає й
+> рахує**, OpenAI **пояснює**. Жоден сценарій Make не записує опублікованої
+> фінансової цифри.
 
 ## 1. Роль Make у системі
 
 Make використовується для довгих, зовнішніх і повторюваних процесів:
 
 - **збір порівняльних оголошень оренди** з погоджених порталів і
-  market-data providers (додано у v1.1);
+  market-data providers;
 - генерація AI-наративу через OpenAI;
 - transactional email і status notifications;
 - доставка introduction після рішення адміністратора;
@@ -90,16 +81,15 @@ Bubble outgoing calls мають використовувати private header p
   "job_id": "job_01J...",
   "entity_type": "unit",
   "entity_id": "unt_01J...",
-  "idempotency_key": "ai-analysis:unt_01J:score-v12:prompt-v2",
+  "idempotency_key": "ai-analysis:unt_01J:score-v12:prompt-v1",
   "occurred_at": "2026-09-17T12:00:00Z",
   "environment": "live"
 }
 ```
 
-Ключ ідемпотентності містить версію промпта. У v1.1 промпт аналізу
-підвищено до `bip-investment-analysis-v2` (п'ять категорій score), тому
-попередні ключі автоматично стають недійсними і перегенерація відбудеться
-коректно, без ручного очищення.
+Ключ ідемпотентності містить версію промпта. Коли промпт аналізу отримує нову
+версію, попередні ключі автоматично стають недійсними, і перегенерація
+відбувається коректно, без ручного очищення.
 
 Headers:
 
@@ -128,7 +118,7 @@ Make webhook повинен відповідати швидко. Для довг
 {
   "event_version": "1.0",
   "job_id": "job_01J...",
-  "idempotency_key": "ai-analysis:unt_01J:score-v12:prompt-v3",
+  "idempotency_key": "ai-analysis:unt_01J:score-v12:prompt-v1",
   "status": "succeeded",
   "provider_request_id": "resp_...",
   "result": {},
@@ -212,7 +202,7 @@ Payload містить `notification_id` і `template_key`, а не довіль
 
 - transactional і marketing email не змішувати;
 - marketing повідомлення відправляти лише за активною Consent Record;
-- unsubscribe не застосовується до security/transactional messages, але legal review required;
+- unsubscribe не застосовується до security/transactional messages;
 - template version і language записувати в Notification.
 
 ### MK-03 Approved introduction delivery
@@ -250,11 +240,11 @@ intro:<enquiry_id>:developer:v1
 - developer application `more_info_required|approved|rejected`;
 - project `changes_requested|approved|published|rejected`;
 - change request `queried|approved|rejected|applied`;
-- **v1.1:** enquiry `on_hold` (листів немає) і `declined`.
+- enquiry `on_hold` (листів немає) і `declined`.
 
 Make доставляє повідомлення; business transition вже відбувся в Bubble. Failure email не відкочує рішення, але створює admin alert і retry job.
 
-**Правила для відмови в introduction (v1.1, підтверджено прототипом).**
+**Правила для відмови в introduction.**
 
 - `on_hold` — **жодного листа** ні інвестору, ні забудовнику. Якщо сценарій
   отримав job на цей статус із шаблоном листа, це помилка конфігурації:
@@ -272,10 +262,9 @@ Make доставляє повідомлення; business transition вже в�
 
 Trigger після успішного apply Change Request і перерахунку financial/score.
 
-**Уточнення v1.1.** Оскільки затверджений прототип вимагає адміністративного
-затвердження **і** для ціни, **і** для availability, цей сценарій завжди
-запускається з однієї точки — після `apply_change_request`. Окремої гілки для
-«негайної» зміни availability не існує; у версії 1.0 така гілка допускалася.
+Оскільки і ціна, і availability проходять адміністративне затвердження, цей
+сценарій завжди запускається з однієї точки — після `apply_change_request`.
+Окремої гілки для «негайної» зміни availability немає.
 
 Bubble готує список Notification IDs для:
 
@@ -291,7 +280,7 @@ Make не виконує широкий пошук у Bubble Data API. Fan-out �
 - `available → reserved|sold`;
 - `→ withdrawn` (адміністративна дія, не забудовника);
 - listing back to available;
-- score verdict changed, якщо це погоджено бізнесом.
+- score verdict changed.
 
 ### MK-06 Saved-search match digest
 
@@ -313,11 +302,11 @@ Alert містить job id, entity public id, environment, attempts, redacted e
 ### MK-09 Bulk re-score progress relay
 
 **Trigger:** Integration Job `job_type = score_rescore_batch`, створений після
-того, як senior admin зберіг нову Score Model Version.
+того, як адміністратор зберіг нову Score Model Version.
 
-Екран Score Editor у затвердженому прототипі показує прогрес («N of 83»), стан
-завершення з можливістю відкоту та стан помилки з референсом і кнопками
-«Retry the remainder» / «Roll back to v3». Щоб це працювало без опитування
+Екран Score Editor показує прогрес («N of 83»), стан завершення з можливістю
+відкоту та стан помилки з референсом і кнопками «Retry the remainder» /
+«Roll back». Щоб це працювало без опитування
 Bubble з браузера, потрібен сценарій, який повідомляє про поступ.
 
 Кроки:
@@ -342,9 +331,8 @@ Bubble з браузера, потрібен сценарій, який пові
 **Trigger:** розклад. Частота визначається умовами кожного provider і
 задається в довіднику Data Provider.
 
-Це **нова зона відповідальності Make**, додана рішенням від 25.09.2026:
-оцінка ринкової оренди формується не вручну аналітиком, а зі зібраних
-порівняльних оголошень.
+Оцінка ринкової оренди формується зі зібраних порівняльних оголошень, а не
+вручну аналітиком.
 
 Кроки:
 
@@ -486,22 +474,22 @@ Webhook names, connections і data stores мають містити environment.
 10. Make queue/rate-limit response → Bubble job залишається retryable;
 11. email opt-out → marketing digest не відправляється, transactional відправляється за правилами;
 12. private data не видно в non-admin Make alert;
-13. **v1.1:** enquiry `on_hold` → жодного листа; job із шаблоном листа на цей
+13. enquiry `on_hold` → жодного листа; job із шаблоном листа на цей
     статус завершується `failed_validation`;
-14. **v1.1:** enquiry `declined` → рівно один лист інвестору, причина відсутня
+14. enquiry `declined` → рівно один лист інвестору, причина відсутня
     і в тілі листа, і в payload, і в логах Make;
-15. **v1.1:** зміна availability без затвердженого Change Request не створює
+15. зміна availability без затвердженого Change Request не створює
     job на alert;
-16. **v1.1:** перерахунок score із частковою помилкою залишає історичні
+16. перерахунок score із частковою помилкою залишає історичні
     Listing Score недоторканими і дає P2-alert із кількістю опрацьованих;
-17. **v1.1:** MK-10 створює Rental Comparable Set зі `review_status = pending`
+17. MK-10 створює Rental Comparable Set зі `review_status = pending`
     і не змінює жодного Financial Input;
-18. **v1.1:** вибірка з `listings_count` = 4 при мінімумі 5 зберігається, але
+18. вибірка з `listings_count` = 4 при мінімумі 5 зберігається, але
     не може бути затверджена; вибірка з 7 затверджується з позначкою
     thin sample; вибірка старша за 90 днів не пропонується як джерело;
-19. **v1.1:** недоступність provider кілька циклів поспіль дає alert, а не
+19. недоступність provider кілька циклів поспіль дає alert, а не
     мовчазне застарівання оцінки;
-20. **v1.1:** повторний запуск MK-10 за тими самими параметрами не створює
+20. повторний запуск MK-10 за тими самими параметрами не створює
     дубль поточної вибірки.
 
 ## 14. Критерії готовності Make
