@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { LegalPage } from '@/components/LegalPage';
 import { TERMS_SECTIONS } from '@/data/listings';
 
@@ -7,17 +6,20 @@ export function TermsOfUsePage() {
     <LegalPage
       active="terms"
       title="Terms of Use"
-      intro="The conditions on which we make the platform, our property analysis and our investment scores available to you."
-      eyebrowMeta={['LAST UPDATED — 15 SEPTEMBER 2026', 'GOVERNING LAW — CYPRUS']}
-      draftNote="Draft text for the prototype. The liability, fee-disclosure and jurisdiction clauses in particular need legal review before publication."
+      lead="The conditions on which we make the platform, our property analysis and our investment scores available to you."
+      meta={[
+        { k: 'LAST UPDATED', v: '15 September 2026' },
+        { k: 'GOVERNING LAW', v: 'Cyprus' },
+        { k: 'SECTIONS', v: 'Ten' },
+      ]}
+      idPrefix="terms"
       sections={TERMS_SECTIONS}
-      footer={
+      footerLeft={
         <>
           Questions about these terms: <a href="mailto:legal@bestinvestproperties.com">legal@bestinvestproperties.com</a>
-          <br />
-          See also our <Link to="/privacy">Privacy Policy</Link>.
         </>
       }
+      footerLink={{ to: '/privacy', label: 'Privacy Policy →' }}
     />
   );
 }

@@ -1,83 +1,109 @@
-// Design tokens ported from the Claude Design prototype
-// (project/Best Invest Properties.dc.html) — navy/gold investor palette,
-// green developer palette, dark admin palette.
+// Design tokens for the v2 "light summer" system, ported from
+// project/Best Invest Properties.dc.html.
+//
+// Three tiers share one palette: the public site is the lightest, signed-in
+// investor/developer screens sit a step deeper and cooler, and admin is the
+// most muted — still light, never a dark console.
 
 export const color = {
-  // core investor palette
-  navyDark: '#0A1F38',
-  navy: '#0E2A4A',
-  ink: '#12263D',
-  gold: '#B8892B',
-  goldLight: '#E2B558',
-  paper: '#EDEAE3',
-  cardAlt: '#FBFAF7',
-  panel: '#F2EFE8',
-  panelAlt: '#F4F1EA',
+  // ink — headings through to the faintest label
+  ink: '#0F3A60',
+  navy: '#153A5C',
+  navyDeep: '#123F66',
+  link: '#174B67',
+  slate: '#1B4258',
+  body: '#36566B',
+  muted: '#566E80',
+  muted2: '#526779',
+  faint: '#5B7485',
+  dim: '#354F63',
+  dim2: '#34495C',
+  placeholder: '#8FA6B8',
+
+  // actions
+  action: '#205A87',
+  actionBright: '#087CB8',
+  actionDeep: '#174470',
+  actionAlt: '#0F3F8F',
+
+  // gold accent — the single warm note
+  gold: '#DDB45E',
+  goldAlt: '#D9B25B',
+  goldWarm: '#E3BC63',
+  goldDeep: '#C9982F',
+  goldPale: '#F8E4A6',
+  goldWash: '#F8EFDC',
+
+  // grounds and surfaces
+  ground: '#F7FCFF',
   white: '#FFFFFF',
-  textMuted: '#48596B',
-  textFaint: '#7A8899',
-  textPlaceholder: '#93A3B4',
-  railMuted: '#7E93AB',
-  railFaint: '#6F859F',
-  railText: '#E9EEF4',
-  border: 'rgba(14,42,74,.12)',
-  borderSoft: 'rgba(14,42,74,.08)',
-  borderStrong: 'rgba(14,42,74,.18)',
-  divider: 'rgba(14,42,74,.1)',
+  sky: '#E5F6FF',
+  skyBright: '#8DD8FA',
+  panel: '#F0F7FC',
+  panelAlt: '#EAF2F8',
+  panelBlue: '#DCEEF9',
+  edge: '#BFD5E5',
 
-  // developer (green) palette
-  devDark: '#1F3B2E',
-  devBg: '#F4F5F2',
-  devMuted: '#6B8375',
-  devLight: '#E7EFE9',
-  devBorder: 'rgba(31,59,46,.14)',
-  devBorderStrong: 'rgba(31,59,46,.2)',
-  devText: '#4F6157',
-  devTextStrong: '#41594C',
-  devFaded: '#93B1A1',
-  devFaded2: '#9DB6A6',
-  devPale: '#BDD0C4',
+  // semantic
+  danger: '#B3453D',
+  dangerDeep: '#8E362F',
+  dangerWash: '#FCF5F4',
+  success: '#2F7D63',
+  successWash: '#E4EFE8',
+};
 
-  // admin (dark) palette
-  adminBg: '#15181C',
-  adminSidebar: '#0F1216',
-  adminCard: '#1C2027',
-  adminText: '#E4E7EB',
-  adminMuted: '#7E93AB',
-  adminMuted2: '#B4BCC7',
-  adminBorder: 'rgba(255,255,255,.07)',
-  adminBorder2: 'rgba(255,255,255,.1)',
-  approve: '#2F6B4F',
-  approveLight: '#7FB49A',
-  reject: '#D9837C',
+// Hairlines and shadows are all tinted with the link/action blues rather than
+// neutral grey, which is what keeps the light surfaces from reading as grey.
+export const line = (a: number) => `rgba(23,75,103,${a})`;
+export const lineAction = (a: number) => `rgba(32,90,135,${a})`;
+export const goldLine = (a: number) => `rgba(221,180,94,${a})`;
 
-  // legal draft banner
-  draftBg: '#FBF3E0',
-  draftBorder: 'rgba(184,137,43,.34)',
-  draftText: '#8A6A22',
+export const border = {
+  hair: line(0.07),
+  soft: line(0.1),
+  base: line(0.14),
+  strong: line(0.18),
+  heavy: line(0.22),
 };
 
 export const font = {
-  display: "'Newsreader', Georgia, serif",
-  ui: "'Archivo', system-ui, sans-serif",
+  ui: "Archivo, system-ui, sans-serif",
   mono: "ui-monospace, Menlo, monospace",
 };
 
+// Archivo carries every level; weight, size and gold do the work a second
+// typeface used to do.
+export const type = {
+  hero: { fontWeight: 700, letterSpacing: '-.018em', textTransform: 'uppercase' as const },
+  heading: { fontWeight: 700, letterSpacing: '-.012em', textTransform: 'uppercase' as const },
+  panelTitle: { fontWeight: 600, letterSpacing: '-.006em' },
+  eyebrow: { fontSize: 10, letterSpacing: '.16em', fontWeight: 400 },
+  figure: { fontWeight: 700, fontVariantNumeric: 'tabular-nums' as const },
+};
+
 export const radius = {
-  sm: 4,
-  md: 6,
-  lg: 9,
-  xl: 10,
+  chip: 999,
+  sm: 6,
+  md: 10,
+  lg: 16,
+  xl: 20,
 };
 
 export const shadow = {
-  card: '0 10px 30px rgba(10,31,56,.07)',
-  hero: '0 12px 30px rgba(10,31,56,.12)',
-  button: '0 10px 24px rgba(4,14,26,.35)',
+  card: '0 1px 2px rgba(23,75,103,.05), 0 8px 24px rgba(23,75,103,.06)',
+  raised: '0 2px 6px rgba(23,75,103,.07), 0 16px 40px rgba(23,75,103,.09)',
+  hero: '0 18px 48px rgba(23,75,103,.16)',
 };
 
-export const stripedPlaceholder = (light = '#DFE5EC', dark = '#EDF1F5') =>
-  `repeating-linear-gradient(135deg, ${light} 0 9px, ${dark} 9px 18px)`;
-
-export const stripedPlaceholderDev = (light = '#DDE4DE', dark = '#EDF1EE') =>
-  `repeating-linear-gradient(135deg, ${light} 0 8px, ${dark} 8px 16px)`;
+export const pill = {
+  minHeight: 40,
+  borderRadius: radius.chip,
+  padding: '0 22px',
+  fontSize: 13.5,
+  fontWeight: 600,
+  cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+} as const;

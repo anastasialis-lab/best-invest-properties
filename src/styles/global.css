@@ -11,19 +11,19 @@ body {
 }
 
 body {
-  background: #edeae3;
-  font-family: 'Archivo', system-ui, sans-serif;
-  color: #12263d;
+  background: #f7fcff;
+  font-family: Archivo, system-ui, sans-serif;
+  color: #0f3a60;
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: #0e2a4a;
+  color: #174b67;
   text-decoration: none;
 }
 
 a:hover {
-  color: #b8892b;
+  color: #205a87;
 }
 
 button {
@@ -39,11 +39,11 @@ textarea {
 }
 
 input[type='range'] {
-  accent-color: #b8892b;
+  accent-color: #205a87;
 }
 
 ::placeholder {
-  color: #93a3b4;
+  color: #8fa6b8;
 }
 
 .bip-scroll::-webkit-scrollbar {
@@ -52,17 +52,32 @@ input[type='range'] {
 }
 
 .bip-scroll::-webkit-scrollbar-thumb {
-  background: rgba(14, 42, 74, 0.2);
-  border-radius: 9px;
+  background: rgba(23, 75, 103, 0.2);
+  border-radius: 16px;
 }
 
-.bip-container {
-  max-width: 1280px;
-  margin: 0 auto;
+@keyframes bipspin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-@media (max-width: 720px) {
-  .bip-hide-mobile {
-    display: none !important;
+@keyframes biptoast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 14px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes bipfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
