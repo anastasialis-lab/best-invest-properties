@@ -7,11 +7,11 @@ API: OpenAI Responses API
 Публікація: тільки після admin review
 
 > **Версія 1.1.** Основна логіка не змінилася: OpenAI пише текст, а не рахує
-> гроші. Змінено три речі за затвердженим прототипом: (1) score має **п'ять**
-> категорій замість восьми — оновлено payload і schema; (2) додано теги
-> походження фактів `SOURCE/DEVELOPER/ESTIMATE/GAP`; (3) зафіксовано новий
-> **умовний** use case AI-03 для запропонованих вхідних фінансових оцінок —
-> він **не** входить в обсяг, поки Марина не підтвердить джерело даних (OQ-02).
+> гроші — і це підтверджено рішенням від 25.09.2026 без винятків. Змінено:
+> (1) score має **п'ять** категорій замість восьми, з рейтингом 0–10 на
+> категорію — оновлено payload і schema; (2) додано теги походження фактів
+> `SOURCE/DEVELOPER/ESTIMATE/GAP`; (3) панель «AI-proposed financial
+> estimates» у прототипі до AI стосунку не має — див. AI-03.
 
 ## 1. Мета
 
@@ -45,35 +45,23 @@ OpenAI **не**:
 
 Редагує developer-provided description у стандартизований factual tone. Вихід не може додавати факти й також потребує review.
 
-### AI-03 Proposed financial estimates — **умовний, не в обсязі**
+### AI-03 Proposed financial estimates — **закрито, поза обсягом**
 
-Екран Project Review затвердженого прототипу показує панель «AI-proposed
-financial estimates»: очікувана річна орендна плата, регулярні витрати, допуск
-на простій — кожне значення з позначкою `Proposed` / `Assumption` /
-`Calculated`, під обов'язкове затвердження адміністратором.
+Екран Project Review затвердженого прототипу показує панель, підписану
+«AI-proposed financial estimates». Назва вводить в оману: рішенням від
+25.09.2026 ці значення формує **аналітик**, а не модель.
 
-Це **пряма суперечність** із §1 цього документа, який забороняє OpenAI
-пропонувати rent і costs. Суперечність не розвʼязується технічно — потрібне
-рішення Марини (**OQ-02**), звідки беруться ці оцінки:
+- заявлену забудовником оренду аналітик перевіряє за порівняльними
+  оголошеннями з відкритих джерел;
+- регулярні витрати беруться із затверджених середніх по країні/регіону;
+- vacancy — з налаштувань платформи;
+- acquisition cost, gross yield і net yield рахуються автоматично за формулами.
 
-| Варіант | Наслідок для цієї специфікації |
-|---|---|
-| A. Аналітик вносить вручну | OpenAI не задіяний; §1 лишається без змін; панель — просто форма |
-| B. Зовнішнє джерело даних (портали оренди, статистика) | OpenAI не задіяний; потрібна окрема специфікація конектора й Make-сценарій |
-| C. OpenAI пропонує оцінки | потрібен новий use case з власною schema, власним eval і жорсткішою валідацією |
+Тому §1 цього документа лишається чинним **без винятків**: OpenAI не формує
+жодної фінансової цифри. Окремий AI use case для цієї панелі не створюється.
 
-**До рішення реалізується варіант A.** Якщо буде обрано C, обов'язкові умови,
-які не підлягають обговоренню:
-
-- модель повертає значення **лише** з діапазону, підтвердженого джерелами, що
-  передані у вхідному payload; вигадувати числа заборонено;
-- кожне запропоноване значення супроводжується `source_key` і діапазоном
-  («€1,100 – €1,250», а не одна цифра без контексту);
-- жодне запропоноване значення не потрапляє у Financial Snapshot без
-  `review_status = approved` від адміністратора;
-- похідні величини (yields, acquisition cost, score) рахує **виключно**
-  детермінований сервіс Bubble;
-- окремий eval-набір із порогом «0 значень поза діапазоном джерела».
+Назву панелі в прототипі потрібно змінити на «Proposed financial estimates»
+або «Analysis estimates».
 
 ### Investor conversational assistant — поза MVP
 
@@ -143,6 +131,7 @@ OpenAI отримує тільки snapshot, достатній для пояс�
         "key": "income",
         "label": "Rental Income & Net Yield",
         "raw_value": 0.056,
+        "rating": 7,
         "weighted_points": 21,
         "max_points": 30,
         "source_key": "financials.net_yield"
@@ -151,6 +140,7 @@ OpenAI отримує тільки snapshot, достатній для пояс�
         "key": "demand",
         "label": "Rental Demand & Tenant Quality",
         "raw_value": null,
+        "rating": 8,
         "weighted_points": 16,
         "max_points": 20,
         "source_key": "assessment.demand"
@@ -158,7 +148,8 @@ OpenAI отримує тільки snapshot, достатній для пояс�
       {
         "key": "value",
         "label": "Purchase Value & Market Position",
-        "raw_value": null,
+        "raw_value": -0.08,
+        "rating": 8,
         "weighted_points": 16,
         "max_points": 20,
         "source_key": "assessment.value"
@@ -167,6 +158,7 @@ OpenAI отримує тільки snapshot, достатній для пояс�
         "key": "growth",
         "label": "Growth & Resale Potential",
         "raw_value": null,
+        "rating": 8,
         "weighted_points": 12,
         "max_points": 15,
         "source_key": "assessment.growth"
@@ -175,6 +167,7 @@ OpenAI отримує тільки snapshot, достатній для пояс�
         "key": "risk",
         "label": "Risk & Investor Protection",
         "raw_value": null,
+        "rating": 8,
         "weighted_points": 12,
         "max_points": 15,
         "source_key": "assessment.risk"
