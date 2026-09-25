@@ -24,23 +24,28 @@ npm run preview  # serve the production build
 
 ## Screens
 
-Investor flow — landing, search filters, results, combined search+results, property
-detail, investment analysis, financial calculator, comparison, registration, login,
-dashboard. Developer — marketing page, account application, portal, add project.
-Back office — admin dashboard, investment-score editor, user-journey diagrams. Legal —
-privacy policy, terms of use.
+Investor flow — landing, browse, property detail, investment analysis, financial
+calculator, comparison, registration, login, password reset, account settings,
+dashboard. Developer — marketing page, account application, portal, my projects, unit
+schedule, leads, company profile, verification status, add project. Back office — admin
+sign-in, dashboard, approvals queue, project review, developer verification, user
+management, investment-score editor, user-journey diagrams. Legal — privacy policy,
+terms of use.
 
-Filters, the comparison basket, the calculator and the score-weight editor are
-interactive and share state; the remaining screens are laid out with placeholder data.
+Filters, the comparison basket, the calculator, the approvals queue and the score-weight
+editor are interactive and share state. Screens that have loading, empty, error or
+decided states carry the prototype's in-screen **preview state** switcher, so each state
+can be seen without a backend; toasts and confirmation dialogs are mounted once for the
+whole app.
 
 ## Structure
 
 | Path | Contents |
 | --- | --- |
 | `src/pages/` | One component per screen |
-| `src/components/` | Shared UI (header, footer, property card, filter panel, …) |
+| `src/components/` | Shared UI (header, footer, filter panel, toast/modal, preview-state chips, …) |
 | `src/layouts/` | Admin and developer-portal chrome |
-| `src/state/store.ts` | Shared filter / compare / calculator / score-weight state |
+| `src/state/store.ts` | Shared filter / compare / calculator / queue / score-weight state |
 | `src/data/` | Listing data and static page copy |
 | `src/styles/theme.ts` | Colour and type tokens |
 
