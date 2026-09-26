@@ -349,20 +349,3 @@ One status, shown with different wording to each user:
 6. **A new score model never overwrites old scores** — they stay in history.
 7. **Account closure** blocks access immediately; records required by law are kept.
 8. **Privacy is enforced by the database rules**, not just by hiding things on screen.
-
-## 9. Not in the MVP
-
-- more than one team member per developer company;
-- chat inside the platform;
-- CRM export;
-- map search;
-- an AI chat assistant for investors;
-- AI rewriting of developer descriptions;
-- mortgage referrals;
-- other currencies and languages;
-- payments, fees and invoices;
-- a public API for partners;
-- portfolio tracking after purchase;
-- importing units from a spreadsheet;
-- email alerts for saved searches;
-- signing in as another user ("View as").
