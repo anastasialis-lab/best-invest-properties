@@ -2,59 +2,51 @@
 
 Date: 25 September 2026  
 API: OpenAI Responses API  
-Orchestration: Make  
+Called through: Make  
 Publication: only after admin review
 
-## 1. Purpose
+## 1. What OpenAI does on the platform
 
-In the MVP, OpenAI performs one controlled function: it writes the readable Investment Analysis text from already verified facts, the unit's financial metrics and the Listing Score.
+OpenAI does one thing: it writes the readable **Investment Analysis** text for a property, based on facts and figures the platform has already verified and calculated.
+
+How it works:
+
+1. The platform calculates the property's figures and score.
+2. Make sends OpenAI the verified facts (section 4) together with fixed instructions (section 5).
+3. OpenAI returns the text in a fixed structure (section 6).
+4. The platform checks the text automatically: every statement must point to a supplied fact, no new numbers may appear, and words like "guaranteed" or "risk-free" are not allowed.
+5. The admin reviews the text and approves it. Only then do investors see it.
 
 OpenAI does **not**:
 
-- calculate price, rent, tax, purchase costs, yield, cash-on-cash or score;
-- decide what a "good investment" is without a given score/verdict;
-- search the internet for data on its own;
+- calculate price, rent, tax, purchase costs, yield or score;
+- decide on its own what a "good investment" is;
+- search the internet;
 - see the investor's name, email, phone or any other investor data;
-- publish text without admin review;
+- publish anything without admin approval;
 - replace a financial, legal or investment adviser.
 
-This separation is mandatory: numbers come from a deterministic service; AI only explains them.
+If OpenAI is unavailable, the property page still shows the score breakdown and the financial table, with the note "Narrative analysis is being reviewed".
 
-## 2. Use cases
+## 2. What is in the MVP
 
-### AI-01 Investment narrative — MVP
-
-Generates:
+**In the MVP — the investment analysis text:**
 
 - a short neutral summary;
-- 2–4 strengths, each with source keys;
-- 1–4 risks/limitations;
-- an explanation of the verdict without changing the score;
-- a standard disclaimer key;
-- a list of missing data.
+- 2–4 strengths, each linked to the facts it is based on;
+- 1–4 risks or limitations;
+- an explanation of the score, without changing it;
+- a list of missing data;
+- the standard disclaimer.
 
-### AI-02 Description normalization — not in the MVP
+**Not AI — the financial estimates on the Project Review screen.** These figures come from comparable rental listings, approved country cost averages and platform settings, and the formulas are calculated by the platform. OpenAI does not produce any financial figure.
 
-Rewrites the developer-provided description in a standardised factual tone. The output may not add facts and also requires review.
+**Not in the MVP:**
 
-### Financial estimates on the Project Review screen — not AI
+- rewriting developer descriptions with AI;
+- a chat assistant for investors.
 
-The **Proposed financial estimates** panel on the Project Review screen is produced by an **analyst**, not by the model:
-
-- the developer's claimed rent is checked against comparable listings from approved portals;
-- recurring costs come from approved country/regional averages;
-- vacancy comes from platform settings;
-- acquisition cost, gross yield and net yield are calculated automatically by formula.
-
-Therefore §1 of this document applies **without exception**: OpenAI does not produce any financial figure. No separate AI use case is created for this panel.
-
-### Investor conversational assistant — outside the MVP
-
-Not to be built until deterministic metrics, permissions, source traceability and the evaluation set are stable.
-
-## 3. Model and endpoint
-
-Production default as of the specification date:
+## 3. Model
 
 ```text
 endpoint: POST /v1/responses
@@ -67,15 +59,11 @@ text.format: json_schema, strict: true
 max_output_tokens: 1800
 ```
 
-Rationale: OpenAI's official documentation positions GPT-5.6 Luna for cost-sensitive/high-volume workloads and GPT-5.6 Terra as the intelligence/cost balance. Both are available through the Responses API and support Structured Outputs.
-
-The model id is not hard-coded in the Make module: it is kept in protected configuration and recorded on the AI Analysis. Run the eval before production; if Luna does not meet the acceptance thresholds, the primary model switches to Terra.
-
-For stable production behaviour, pin a snapshot if OpenAI provides a separate snapshot ID for the chosen model. If only an alias is available, run the regression eval before accepting any material change in behaviour.
+The primary model is the lower-cost one, which suits short, structured texts. Before launch it is tested on a set of example properties; if the quality is not good enough, the platform switches to the higher-quality model. The model name is a setting, so switching requires no development work.
 
 ## 4. Data contract Bubble → OpenAI
 
-OpenAI receives only the snapshot needed for the explanation:
+This is the exact data the platform sends to OpenAI for one property. It contains only verified facts about the property, its figures and its score — **no investor data**. The numbers are an example.
 
 ```json
 {
@@ -190,7 +178,7 @@ OpenAI receives only the snapshot needed for the explanation:
 }
 ```
 
-**Payload rules:**
+**What to notice:**
 
 - `score.components` contains exactly **five** items with keys `income`, `demand`, `value`, `growth`, `risk` and maximums 30/20/20/15/15;
 - the `analysis_facts` array carries tags `source` / `developer` / `estimate` / `gap` — the model may cite them as sources and **must** mention every `gap` fact under risks or missing_data;
@@ -210,7 +198,7 @@ Do not send:
 
 ## 5. System/developer prompt
 
-Prompt version: `bip-investment-analysis-v1`.
+These are the instructions OpenAI receives with every request. They are fixed in the platform and cannot be changed by developers or investors. Prompt version: `bip-investment-analysis-v1`.
 
 ```text
 You write factual investment-property analysis for Best Invest Properties.
@@ -243,7 +231,7 @@ The property JSON is passed as `input_text` after the developer instruction. Do 
 
 ## 6. Structured Output schema
 
-`text.format.type = json_schema`, `strict = true`.
+OpenAI must answer in exactly this structure — a headline, a summary, strengths, risks, an explanation of the score, missing data and the disclaimer. Any answer in a different shape is rejected automatically.
 
 ```json
 {
@@ -314,7 +302,7 @@ Structured Outputs guarantees conformance to the supported JSON schema, but **no
 
 Any change to the number of score categories or to the structure of `analysis_facts` requires a new prompt version; the schema version changes only when the output structure changes.
 
-## 7. Responses API request example
+## 7. Full request example
 
 ```json
 {
@@ -350,132 +338,9 @@ Any change to the number of score categories or to the structure of `analysis_fa
 }
 ```
 
-Do not enable web search, file search, code interpreter or function tools for this use case. They increase the surface area and can introduce unverified facts.
+The model is not given web search or any other tools, so it cannot bring in facts from outside. `store: false` means OpenAI does not keep the request or the answer.
 
-## 8. Post-generation validation
-
-Make/Bubble rejects the result if:
-
-- any `source_key` is not in the allowlist of input keys;
-- the text contains a new number, date, percentage, currency amount or place name that is not in the input/approved boilerplate;
-- the output changes or contradicts the verdict/score;
-- forbidden claims are used: guarantee, risk-free, assured return, certain appreciation;
-- `missing_data` contains a key not in the list of missing/optional fields;
-- the schema/prompt version does not match the Integration Job;
-- the linked Listing Score is no longer current;
-- `score_explanation` names a number of categories other than five, or describes a high score in the `risk` category as high risk;
-- any `analysis_fact` tagged `gap` is mentioned in neither `risks` nor `missing_data`;
-- a fact tagged `developer` is presented as independently verified.
-
-A result that fails validation is not stored as published content. Raw output may be stored only in a protected operational field with a defined retention period, or not stored at all.
-
-## 9. Human review workflow
-
-The admin queue shows:
-
-- the rendered narrative;
-- all source keys with their source values alongside;
-- the score model version and the financial calculation date;
-- a diff against the previous approved version;
-- validation warnings;
-- Approve, Request regeneration, Reject.
-
-Rules:
-
-- the reviewer does not silently edit raw AI output; a manual edit creates `content_source = human_edited_ai` and an audit diff;
-- Approve records the reviewer, timestamp and prompt/model/schema versions;
-- a change to price/rent/cost/score makes the previous AI Analysis stale and hides it until regenerated/reviewed;
-- the investor screen clearly separates calculated figures from the AI-assisted reviewed narrative;
-- the public disclaimer is always platform-owned, never model-generated.
-
-## 10. Error handling
-
-| Case | Action |
-|---|---|
-| HTTP 429 / 5xx / timeout | exponential retry via Make, up to max attempts |
-| 400 invalid request/schema | permanent failure, alert engineering |
-| 401/403 | dead letter, rotate/check key; no endless retry |
-| refusal | status `failed_refusal`, deterministic fallback |
-| incomplete response / max tokens | one retry with a larger safe limit or shorter input |
-| schema-valid, fact-invalid | one repair regeneration, then admin failure queue |
-| stale source version | cancel job; queue a new job for the current version |
-| callback failure | retry the callback without repeating the OpenAI request |
-
-UI fallback: Investment Analysis shows the deterministic score breakdown, the financial table and the message "Narrative analysis is being reviewed" or "Narrative temporarily unavailable".
-
-## 11. Data protection
-
-- The API key is stored only in a Make secured connection; never in Bubble fields, option sets, page workflows or client-side JS.
-- `store:false` is set explicitly; do not rely on the default. Per the official API reference, if `store` is omitted, response storage is on by default.
-- Do not send PII. If investor chat is added later, it needs its own DPIA, retention, safety identifier and moderation rules.
-- `metadata` contains public IDs, not email/phone/name.
-- Prompt/output in Bubble is visible only to AI reviewer/ops roles.
-- The list of subprocessors and the data processing location are stated in the Privacy Policy.
-
-## 12. Moderation and abuse
-
-For AI-01 the input is built from approved property data, so content moderation is not the main risk. However:
-
-- before AI-02, the developer description is checked for prompt-injection-like instructions and harmful content;
-- the model receives the developer description as data, not as an instruction;
-- where needed, input/output is checked with the Moderations endpoint using `omni-moderation-latest`;
-- any future investor free text goes through rate limiting, abuse logging and moderation before/after generation.
-
-## 13. Evaluation plan
-
-Before production, build at least 40 golden cases:
-
-- 10 Spain / 10 Cyprus;
-- different project types and price/yield bands;
-- positive, mixed and high-risk verdicts;
-- missing data;
-- stale/conflicting input cases;
-- adversarial developer descriptions containing instructions;
-- boundary numbers and rounding;
-- cases with a high score in the `risk` category — check the model does not invert the scale;
-- cases with several `gap` facts — check that all are mentioned.
-
-Metrics/thresholds:
-
-| Metric | Release threshold |
-|---|---:|
-| JSON schema pass | 100% |
-| Existing source keys only | 100% |
-| Numeric fidelity | 100% |
-| Unsupported factual claims | 0 critical; < 2% minor before human review |
-| Forbidden guarantee language | 0 |
-| Correct disclaimer key | 100% |
-| Correct `risk` scale direction | 100% |
-| All `gap` facts mentioned | 100% |
-| Human reviewer approve without edits | ≥ 85% |
-| p95 latency | < 30 s target; < 60 s hard UI expectation |
-
-The regression eval runs whenever the model, prompt, schema, calculation payload or score rubric changes. The current production version and the candidate are compared on the same dataset.
-
-## 14. Cost controls
-
-- short structured payload; do not send full documents;
-- `max_output_tokens = 1800`;
-- at most one automatic repair attempt;
-- do not regenerate unless the input hash/prompt version/model policy has changed;
-- cache the analysis by `unit + listing_score + prompt_version + model`;
-- daily/monthly OpenAI budget alert in the platform dashboard;
-- model routing: Luna primary; Terra only when eval/quality or a manual reviewer requires it.
-
-## 15. Acceptance criteria
-
-- no AI output changes deterministic fields;
-- the response is always strict JSON, or the job moves to failure/fallback;
-- every published paragraph has source keys, model, prompt and input versions;
-- no PII in OpenAI input/metadata;
-- `store:false` is present in every request;
-- stale output cannot be published;
-- admin review is mandatory before publication;
-- the fallback screen works fully without AI;
-- eval thresholds are met on a frozen dataset;
-- the API key is not accessible in the Bubble client/browser or Make logs.
-
-## 16. Official OpenAI sources
+## 8. Official OpenAI sources
 
 - [Models and model selection](https://developers.openai.com/api/docs/models)
 - [GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)

@@ -28,13 +28,13 @@ OpenAI **не**:
 Генерує:
 
 - короткий neutral summary;
-- 3–4 strengths, кожна з source keys;
-- 2–4 risks/limitations;
+- 2–4 strengths, кожна з source keys;
+- 1–4 risks/limitations;
 - пояснення verdict без зміни score;
 - standard disclaimer key;
 - список відсутніх даних.
 
-### AI-02 Description normalization — optional MVP
+### AI-02 Description normalization — не в MVP
 
 Редагує developer-provided description у стандартизований factual tone. Вихід не може додавати факти й також потребує review.
 
@@ -101,13 +101,13 @@ OpenAI отримує тільки snapshot, достатній для пояс�
   "financials": {
     "currency": "EUR",
     "price": 280000,
-    "expected_monthly_rent": 1650,
+    "expected_monthly_rent": 1900,
     "occupancy_rate": 0.9,
-    "annual_gross_rent": 19800,
+    "annual_gross_rent": 22800,
     "purchase_costs": 28000,
-    "annual_net_income": 13540,
-    "gross_yield": 0.0707,
-    "net_yield": 0.04396,
+    "annual_net_income": 17248,
+    "gross_yield": 0.0814,
+    "net_yield": 0.056,
     "calculation_version": "fin-v3",
     "calculated_at": "2026-09-17T10:00:00Z"
   },
@@ -155,6 +155,7 @@ OpenAI отримує тільки snapshot, достатній для пояс�
       {
         "key": "risk",
         "label": "Risk & Investor Protection",
+        "scale_direction": "higher_points_mean_lower_risk",
         "raw_value": null,
         "rating": 8,
         "weighted_points": 12,
@@ -203,7 +204,7 @@ OpenAI отримує тільки snapshot, достатній для пояс�
 - `raw_value` для нефінансових категорій може бути `null` — модель не повинна
   вигадувати числову підставу там, де її немає.
 
-Для категорії `risk` у payload передається пояснення напряму шкали
+Для категорії `risk` у payload передається `scale_direction`
 (більший бал = нижчий ризик), щоб модель не перевернула його в тексті.
 
 Не передавати:

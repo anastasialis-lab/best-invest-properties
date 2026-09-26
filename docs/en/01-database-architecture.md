@@ -614,7 +614,9 @@ The sum of `points_awarded` within a criterion gives its `rating`.
 | review_status | Review Status | yes | |
 | prompt_version | text | yes | |
 | model_id | text | yes | |
+| headline | text | no | analysis headline |
 | summary | text | no | |
+| score_explanation | text | no | explanation of the score |
 | strengths_json | text | no | |
 | risks_json | text | no | |
 | missing_data_json | text | no | |

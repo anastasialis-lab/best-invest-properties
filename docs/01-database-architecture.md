@@ -614,7 +614,9 @@ net_yield = annual_net_income / (price + purchase_costs)
 | review_status | Review Status | так | |
 | prompt_version | text | так | |
 | model_id | text | так | |
+| headline | text | ні | заголовок аналізу |
 | summary | text | ні | |
+| score_explanation | text | ні | пояснення score |
 | strengths_json | text | ні | |
 | risks_json | text | ні | |
 | missing_data_json | text | ні | |
