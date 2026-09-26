@@ -191,8 +191,8 @@ The list of states below is a mandatory part of the implementation scope.
 | P03 Detail | `Published` · `Enquiry sent` · `Analysis not ready` · `Withdrawn / 404` |
 | P04 Analysis | `Full analysis` · `Narrative unavailable` (deterministic fallback) |
 | P05 Calculator | field validation; the result block is not calculated while there are errors |
-| P06 Compare | empty (<2 properties) · 2–3 properties · limit when trying to add a 4th |
-| P08 Login | `Credentials` · `Two-factor` · `Locked`; login error state |
+| P06 Compare | empty (<2 properties) · 2–5 properties · limit when trying to add a 6th |
+| P08 Login | sign-in; login error state |
 | P09 Forgot password | `Request` · `Sent` · `Reset` · `Done` |
 | P10 Dashboard | `Active investor` · `First day — nothing yet` (empty state) |
 | P13 Account settings | `idle` · `Saving…` · `Saved` |
@@ -230,7 +230,7 @@ Five screens are needed for the MVP **in minimal form** — one screen each, in 
 4. P03 shows one Unit with project context, approved media, availability, financials and score.
 5. P04 explains the deterministic score; the AI narrative is labelled reviewed/AI-assisted.
 6. P05 recalculates the scenario locally and optionally saves after login.
-7. P06 compares 2–3 Units; each row has a canonical better direction.
+7. P06 compares 2–5 Units; each row has a canonical better direction.
 8. "Request information/analysis" opens login/registration when anonymous.
 9. Investor reviews contact-sharing consent and submits the Enquiry.
 10. Confirmation shows the reference and `submitted` status.
@@ -293,9 +293,9 @@ Rules:
   | Bedrooms | checkboxes | Studio, 1, 2, 3+ |
   | Strategy | checkboxes | Long-term rental, Short-term rental, Mixed with private use, Capital growth |
   | Completion | checkboxes | Ready, `<12 months`, `12–24 months` |
-  | Max price | slider | up to €400,000 |
-  | Min gross yield | slider | from 6% |
-  | Min net yield | slider | from 4.5% |
+  | Max price | slider | dynamic: from the lowest to the highest price of published units; default — the highest |
+  | Min gross yield | slider | 4% – 10%, default 6% |
+  | Min net yield | slider | 3% – 8%, default 4.5% |
 
 - Default sort: **net yield descending**.
 - Sort options: **net yield, gross yield, investment score, price**.
@@ -305,7 +305,7 @@ Rules:
 - **"Top 5" rail** — a side block with the five best properties by the current sort; the label changes: `BY NET YIELD` / `BY GROSS YIELD` / `BY SCORE` / `BY PRICE`. On mobile it moves above the list. Hidden in the `loading` and `error` states.
 - Empty state recommends widening named constraints.
 - On mobile, filters collapse into a drawer with a selected-count badge.
-- Compare is selected directly from result cards; limit is 3 properties, trying to add a fourth shows a toast.
+- Compare is selected directly from result cards; limit is 5 properties, trying to add a sixth shows a toast.
 - Anonymous compare persists in the browser session; account persistence optional in the MVP.
 - Greece/Portugal never look live unless Country Config says `coming_soon` with a clear label.
 
@@ -515,7 +515,7 @@ The "thin sample" flag is shown to the admin on the review screen and added for 
 
 ### FR-05 Compare
 
-- 2–3 Units; adding a fourth shows a limit toast.
+- 2–5 Units; adding a sixth shows a limit toast.
 - Add/remove and return to results.
 - Comparison rows:
 
@@ -551,11 +551,10 @@ The "thin sample" flag is shown to the admin on the review screen and added for 
 - Sign-in with Google is not included in the MVP — email + password only.
 - Email verification required before enquiry/contact sharing; browsing policy is configurable.
 - Duplicate email, weak password, wrong credentials, locked/suspended/unverified states.
-- **Login (screen 15)** has three states: `Credentials`, `Two-factor`, `Locked`, plus the error state "We do not recognise this email and password combination."
-- **Admin login (screen 31)** — a separate login with its own two-step process (credentials → 2FA) and a locked state.
+- **Login (screen 15)** — email and password, "Keep me signed in", a link to developer sign-in; error state "We do not recognise this email and password combination."
+- **Admin login (screen 31)** — a separate staff login (email and password) with a locked state. There is no two-factor sign-in anywhere in the MVP; admin accounts are created by another admin.
 - **Forgot password (screen 24)** — four steps: `Request` → `Sent` (a neutral message that does not reveal whether the account exists) → `Reset` → `Done`. Handling of an expired/used token is shown in text.
 - Route by active role/workspace.
-- Admin accounts require a stronger access policy/2FA, subject to Bubble capability and plan.
 
 ### FR-07 Investor dashboard
 

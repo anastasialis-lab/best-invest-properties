@@ -216,8 +216,8 @@ project-submission обґрунтування не вимагає, але пок
 | P03 Detail | `Published` · `Enquiry sent` · `Analysis not ready` · `Withdrawn / 404` |
 | P04 Analysis | `Full analysis` · `Narrative unavailable` (детермінований fallback) |
 | P05 Calculator | валідація полів; блок результату не рахується за наявності помилок |
-| P06 Compare | порожньо (<2 об'єктів) · 2–3 об'єкти · ліміт при спробі додати 4-й |
-| P08 Login | `Credentials` · `Two-factor` · `Locked`; стан помилки входу |
+| P06 Compare | порожньо (<2 об'єктів) · 2–5 об'єктів · ліміт при спробі додати 6-й |
+| P08 Login | вхід; стан помилки входу |
 | P09 Forgot password | `Request` · `Sent` · `Reset` · `Done` |
 | P10 Dashboard | `Active investor` · `First day — nothing yet` (порожній стан) |
 | P13 Account settings | `idle` · `Saving…` · `Saved` |
@@ -262,7 +262,7 @@ duplicate submit, unsaved changes guard. `404` показано як стан «
 4. P03 shows one Unit with project context, approved media, availability, financials and score.
 5. P04 explains deterministic score; AI narrative is labelled reviewed/AI-assisted.
 6. P05 recalculates scenario locally and optionally saves after login.
-7. P06 compares 2–3 Units; each row has canonical better direction.
+7. P06 compares 2–5 Units; each row has canonical better direction.
 8. “Request information/analysis” opens login/registration when anonymous.
 9. Investor reviews contact-sharing consent and submits Enquiry.
 10. Confirmation shows reference and `submitted` status.
@@ -330,9 +330,9 @@ duplicate submit, unsaved changes guard. `404` показано як стан «
   | Bedrooms | чекбокси | Studio, 1, 2, 3+ |
   | Strategy | чекбокси | Long-term rental, Short-term rental, Mixed with private use, Capital growth |
   | Completion | чекбокси | Ready, `<12 months`, `12–24 months` |
-  | Max price | слайдер | до €400 000 |
-  | Min gross yield | слайдер | від 6% |
-  | Min net yield | слайдер | від 4.5% |
+  | Max price | слайдер | динамічний: від найнижчої до найвищої ціни опублікованих юнітів; за замовчуванням — максимум |
+  | Min gross yield | слайдер | 4% – 10%, за замовчуванням 6% |
+  | Min net yield | слайдер | 3% – 8%, за замовчуванням 4.5% |
 
 - Default sort: **net yield descending**.
 - Варіанти сортування: **net yield, gross yield, investment score, price**.
@@ -347,8 +347,8 @@ duplicate submit, unsaved changes guard. `404` показано як стан «
   станах `loading` і `error`.
 - Empty state recommends widening named constraints.
 - На мобільному фільтри згортаються у drawer із лічильником вибраних.
-- Compare вибирається прямо з карток результатів; ліміт — 3 об'єкти, спроба
-  додати четвертий показує toast.
+- Compare вибирається прямо з карток результатів; ліміт — 5 об'єктів, спроба
+  додати шостий показує toast.
 - Anonymous compare persists in browser session; account persistence optional MVP.
 - Greece/Portugal never look live unless Country Config says `coming_soon` with clear label.
 
@@ -604,7 +604,7 @@ MVP використовує ручне внесення чи імпорт compa
 
 ### FR-05 Compare
 
-- 2–3 Units; fourth add shows limit toast.
+- 2–5 Units; adding a sixth shows a limit toast.
 - Add/remove and return to results.
 - Рядки порівняння:
 
@@ -640,15 +640,15 @@ MVP використовує ручне внесення чи імпорт compa
 - Вхід через Google у MVP не передбачено — лише email + пароль.
 - Email verification required before enquiry/contact sharing; browsing policy is configurable.
 - Duplicate email, weak password, wrong credentials, locked/suspended/unverified states.
-- **Login (екран 15)** має три стани: `Credentials`, `Two-factor`, `Locked`,
-  плюс стан помилки «We do not recognise this email and password combination.»
-- **Admin login (екран 31)** — окремий вхід із власним двокроковим процесом
-  (credentials → 2FA) і станом блокування.
+- **Login (екран 15)** — email і пароль, «Keep me signed in», перехід на вхід
+  забудовника; стан помилки «We do not recognise this email and password combination.»
+- **Admin login (екран 31)** — окремий вхід для команди (email і пароль) зі станом
+  блокування. Двофакторного входу в MVP немає ніде; акаунти адміністраторів
+  створює інший адміністратор.
 - **Forgot password (екран 24)** — чотири кроки: `Request` → `Sent`
   (нейтральне повідомлення, яке не розкриває наявність акаунта) → `Reset`
   → `Done`. Обробку простроченого/використаного токена показано текстом.
 - Route by active role/workspace.
-- Admin accounts require stronger access policy/2FA subject to Bubble capability and plan.
 
 ### FR-07 Investor dashboard
 
