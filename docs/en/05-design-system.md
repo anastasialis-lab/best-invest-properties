@@ -23,10 +23,10 @@ All three tiers are light. Dark surfaces are used **sparingly**: the landing her
 
 | HEX | RGB | Purpose |
 |---|---|---|
-| `#0F3A60` | 15, 58, 96 | main body text colour, dark headers |
+| `#0F3A60` | 15, 58, 96 | main body text colour, dark headers, text on gold buttons |
 | `#153A5C` | 21, 58, 92 | modal titles, active chip state |
 | `#174B67` | 23, 75, 103 | page titles, links, text on gold |
-| `#1B4258` | 27, 66, 88 | admin headings, text on gold buttons |
+| `#1B4258` | 27, 66, 88 | admin headings, secondary button text |
 | `#36566B` | 54, 86, 107 | main paragraph text |
 | `#354F63` | 53, 79, 99 | text in modals |
 | `#34495C` | 52, 73, 92 | secondary text in tables and cards |
@@ -116,7 +116,7 @@ Monospace is used sparingly: unit numbers, file names, section numbers on legal 
 
 | Size | Weight | Tracking | Use |
 |---:|---:|---|---|
-| 56 px | 700 | −.018em | landing hero title |
+| 34–54 px (`clamp(34px, 4.4vw, 54px)`); mobile 31 px | 700 | −.018em | landing hero title |
 | 44 px | 600 | — | legal page title (desktop) |
 | 34 px | 700 | −.012em | header-screen title |
 | 32 px | 700 | — | large statistic figures |
@@ -180,8 +180,8 @@ Buttons are **always pills**. There are no rectangular buttons.
 | Tone | Background | Text | Border |
 |---|---|---|---|
 | Primary | `#205A87` | `#FFFFFF` | none |
-| Bright | `#087CB8` | `#1B4258` or `#FFFFFF` | none |
-| Gold (developer actions) | `#DDB45E` | `#1B4258` | none |
+| Bright | `#087CB8` | `#FFFFFF` | none |
+| Gold (developer actions) | `#DDB45E` | `#0F3A60` | none |
 | Secondary | transparent | `#1B4258` | `1px rgba(23,75,103,.14)` |
 | Text | transparent | `#566E80` | none |
 | Destructive | transparent | `#B3453D` | `1px rgba(197,86,79,.5)` |
@@ -276,11 +276,11 @@ The grid is a multiple of 4 px. Typical values: 4, 6, 8, 9, 12, 14, 16, 18, 20, 
 
 ## 7. Responsive behaviour
 
-The interface switches layout at **one breakpoint — 760 px**. It is not a fluid grid: the mobile and desktop versions differ structurally.
+The prototype has **two layouts — desktop and mobile** (in the prototype a button switches between them, not the screen width). The mobile and desktop versions differ structurally, not just in size. The switch width is set during development; the working demo uses 760 px.
 
-| Element | Desktop (> 760 px) | Mobile (≤ 760 px) |
+| Element | Desktop | Mobile |
 |---|---|---|
-| Portal/admin side navigation | 210 px column, gold left bar on the active item | horizontal scrolling strip, active item is a white pill |
+| Portal/admin side navigation | 190 px column, gold left bar on the active item | horizontal scrolling strip, active item is a white pill |
 | Catalogue filters | left column | drawer with a selected-count badge |
 | "Top 5" rail | right column, 268 px | moves **above** the list |
 | Legal page contents | sticky column, 150–230 px | horizontal strip of pills |
@@ -302,7 +302,7 @@ Contrast is calculated with the WCAG 2.2 formula (relative luminance, sRGB). Thr
 | `#36566B` on `#FFFFFF` | 7.78:1 | AAA |
 | `#FFFFFF` on `#205A87` | 7.31:1 | AAA |
 | `#B3453D` on `#FFFFFF` | 5.48:1 | AA |
-| `#1B4258` on `#DDB45E` | 5.47:1 | AA |
+| `#0F3A60` on `#DDB45E` | 6.00:1 | AA |
 | `#566E80` on `#FFFFFF` | 5.33:1 | AA |
 | `#2F7D63` on `#FFFFFF` | 4.96:1 | AA |
 | `#5B7485` on `#FFFFFF` | 4.90:1 | AA |
