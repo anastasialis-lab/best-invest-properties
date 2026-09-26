@@ -143,18 +143,20 @@ Bubble callback workflow:
 
 ## 5. Реєстр сценаріїв
 
-| ID | Scenario | Trigger | Priority | MVP |
-|---|---|---|---|---:|
-| MK-01 | Generate investment analysis | instant webhook | high | так |
-| MK-02 | Transactional email dispatcher | instant webhook | high | так |
-| MK-03 | Approved introduction delivery | instant webhook | critical | так |
-| MK-04 | Developer/application decision notification | instant webhook | high | так |
-| MK-05 | Price and availability alerts | instant webhook | medium | так |
-| MK-06 | Saved-search match digest | scheduled | medium | так |
-| MK-07 | Integration dead-letter alert | scheduled/instant | critical | так |
-| MK-08 | CRM export | instant webhook | low | після MVP |
-| MK-09 | Bulk re-score progress relay | instant webhook | medium | так |
-| MK-10 | Comparable rental data collection | scheduled | high | так |
+У MVP потрібні **чотири** сценарії Make. Решта ID лишаються для довідки: три з них — типи листів усередині MK-02, три не будуються.
+
+| ID | Scenario | Trigger | MVP |
+|---|---|---|---|
+| MK-10 | Comparable rental data collection | scheduled | **так** — головна причина, навіщо потрібен Make |
+| MK-01 | Generate investment analysis | instant webhook | **так** |
+| MK-02 | Transactional email dispatcher | instant webhook | **так** — один сценарій для всіх листів |
+| MK-06 | Saved-search match digest | scheduled | **так** |
+| MK-03 | Approved introduction delivery | — | частина MK-02 (два листи, повтор окремо для кожного одержувача) |
+| MK-04 | Decision notification | — | частина MK-02 (шаблони) |
+| MK-05 | Price and availability alerts | — | частина MK-02 (по одному job на одержувача) |
+| MK-07 | Integration dead-letter alert | — | не будується: вбудовані сповіщення Make про помилки + екран A10 Automation Monitor у Bubble |
+| MK-08 | CRM export | — | після MVP |
+| MK-09 | Bulk re-score progress relay | — | не будується: Bubble сам рахує і показує прогрес |
 
 ## 6. Детальні сценарії
 
@@ -205,7 +207,7 @@ Payload містить `job_id` і `template_key`, а не довільний HT
 - unsubscribe не застосовується до security/transactional messages;
 - template version і language записувати в Integration Job.
 
-### MK-03 Approved introduction delivery
+### MK-03 Approved introduction delivery (тип листа в MK-02)
 
 Це high-risk flow, бо розкриває персональні дані обом сторонам.
 
@@ -233,7 +235,7 @@ intro:<enquiry_id>:investor:v1
 intro:<enquiry_id>:developer:v1
 ```
 
-### MK-04 Decision notification
+### MK-04 Decision notification (тип листа в MK-02)
 
 Події:
 
@@ -258,7 +260,7 @@ Make доставляє повідомлення; business transition вже в�
 Це означає, що payload для `declined` не має містити ні `reason`, ні
 `note_private` — інакше причина потрапить у логи Make.
 
-### MK-05 Price and availability alerts
+### MK-05 Price and availability alerts (тип листа в MK-02)
 
 Trigger після успішного apply Change Request і перерахунку financial/score.
 
@@ -288,43 +290,10 @@ Schedule: щодня о 08:00 у timezone користувача або один
 
 Bubble endpoint повертає batch Integration Job IDs, уже сформованих за privacy/business rules. Make відправляє digest і callback. Не виконувати per-user uncontrolled Data API scans у Make.
 
-### MK-07 Integration dead-letter alert
+### MK-07 і MK-09 — у MVP не будуються
 
-Schedule: кожні 15 хвилин.
-
-1. Запитати Bubble `Integration Job` зі status `failed|dead_letter` або overdue `processing`.
-2. Group by job type/error code.
-3. Надіслати operational alert відповідальним admins.
-4. Не включати PII/payload у subject або chat notification.
-
-Alert містить job id, entity public id, environment, attempts, redacted error, direct admin URL.
-
-### MK-09 Bulk re-score progress relay
-
-**Trigger:** Integration Job `job_type = score_rescore_batch`, створений після
-того, як адміністратор зберіг нову Score Model Version.
-
-Екран Score Editor показує прогрес («N of 83»), стан завершення з можливістю
-відкоту та стан помилки з референсом і кнопками «Retry the remainder» /
-«Roll back». Щоб це працювало без опитування
-Bubble з браузера, потрібен сценарій, який повідомляє про поступ.
-
-Кроки:
-
-1. Bubble сам виконує перерахунок пакетами у backend workflow (обчислення
-   лишається в Bubble — Make score не рахує).
-2. Після кожного пакета Bubble оновлює `processed_count` в Integration Job.
-3. MK-09 надсилає операційне сповіщення лише у двох випадках: повне завершення
-   і остаточна помилка після вичерпання спроб.
-4. Проміжний прогрес UI читає безпосередньо з Integration Job.
-
-Правила:
-
-- перерахунок **ніколи** не переписує історичні Listing Score — створюються
-  нові записи, старі отримують `is_current = no` (BR-04);
-- відкат до попередньої версії моделі — це новий пакетний job, а не видалення;
-- часткова помилка лишає каталог у змішаному стані, тому alert має рівень P2
-  і повідомлення має прямо називати кількість опрацьованих об'єктів.
+- **Сповіщення про збої:** вбудовані сповіщення Make про помилки сценаріїв (email команді) плюс екран A10 Automation Monitor у Bubble — список failed і stuck Integration Job з кнопкою Retry. Окремий сценарій не потрібен.
+- **Пакетний перерахунок score:** Bubble рахує пакетами в backend workflow і оновлює `processed_count` в Integration Job; Score Editor читає прогрес звідти напряму. Історичні Listing Score ніколи не перезаписуються (BR-04); відкат — новий пакет, а не видалення.
 
 ### MK-10 Comparable rental data collection
 
@@ -481,7 +450,7 @@ Webhook names, connections і data stores мають містити environment.
 15. зміна availability без затвердженого Change Request не створює
     job на alert;
 16. перерахунок score із частковою помилкою залишає історичні
-    Listing Score недоторканими і дає P2-alert із кількістю опрацьованих;
+    Listing Score недоторканими і показує стан помилки на Score Editor із кількістю опрацьованих;
 17. MK-10 створює Rental Comparable Set зі `review_status = pending`
     і не змінює жодного Financial Input;
 18. вибірка з `listings_count` = 4 при мінімумі 5 зберігається, але

@@ -140,18 +140,20 @@ Bubble callback workflow:
 
 ## 5. Scenario register
 
-| ID | Scenario | Trigger | Priority | MVP |
-|---|---|---|---|---:|
-| MK-01 | Generate investment analysis | instant webhook | high | yes |
-| MK-02 | Transactional email dispatcher | instant webhook | high | yes |
-| MK-03 | Approved introduction delivery | instant webhook | critical | yes |
-| MK-04 | Developer/application decision notification | instant webhook | high | yes |
-| MK-05 | Price and availability alerts | instant webhook | medium | yes |
-| MK-06 | Saved-search match digest | scheduled | medium | yes |
-| MK-07 | Integration dead-letter alert | scheduled/instant | critical | yes |
-| MK-08 | CRM export | instant webhook | low | after MVP |
-| MK-09 | Bulk re-score progress relay | instant webhook | medium | yes |
-| MK-10 | Comparable rental data collection | scheduled | high | yes |
+The MVP needs **four** Make scenarios. The other IDs are kept for reference: three are email types inside MK-02, and three are not built.
+
+| ID | Scenario | Trigger | MVP |
+|---|---|---|---|
+| MK-10 | Comparable rental data collection | scheduled | **yes** — the main reason Make is used |
+| MK-01 | Generate investment analysis | instant webhook | **yes** |
+| MK-02 | Transactional email dispatcher | instant webhook | **yes** — one scenario for all emails |
+| MK-06 | Saved-search match digest | scheduled | **yes** |
+| MK-03 | Approved introduction delivery | — | part of MK-02 (two emails, per-recipient retry) |
+| MK-04 | Decision notification | — | part of MK-02 (templates) |
+| MK-05 | Price and availability alerts | — | part of MK-02 (one job per recipient) |
+| MK-07 | Integration dead-letter alert | — | not built: Make's built-in error notifications + the A10 Automation Monitor in Bubble |
+| MK-08 | CRM export | — | after the MVP |
+| MK-09 | Bulk re-score progress relay | — | not built: Bubble runs the recalculation and shows progress itself |
 
 ## 6. Scenario details
 
@@ -202,7 +204,7 @@ Rules:
 - unsubscribe does not apply to security/transactional messages;
 - record template version and language on the Integration Job.
 
-### MK-03 Approved introduction delivery
+### MK-03 Approved introduction delivery (email type within MK-02)
 
 This is a high-risk flow because it discloses personal data to both parties.
 
@@ -230,7 +232,7 @@ intro:<enquiry_id>:investor:v1
 intro:<enquiry_id>:developer:v1
 ```
 
-### MK-04 Decision notification
+### MK-04 Decision notification (email type within MK-02)
 
 Events:
 
@@ -249,7 +251,7 @@ Make delivers the notification; the business transition has already happened in 
 
 This means the payload for `declined` must contain neither `reason` nor `note_private` — otherwise the reason would end up in Make logs.
 
-### MK-05 Price and availability alerts
+### MK-05 Price and availability alerts (email type within MK-02)
 
 Triggered after a Change Request is successfully applied and financials/score are recalculated.
 
@@ -277,35 +279,10 @@ Schedule: daily at 08:00 in the user's timezone, or one global UTC batch in the 
 
 The Bubble endpoint returns a batch of Integration Job IDs already built according to privacy/business rules. Make sends the digest and the callback. No per-user uncontrolled Data API scans in Make.
 
-### MK-07 Integration dead-letter alert
+### MK-07 and MK-09 — not built in the MVP
 
-Schedule: every 15 minutes.
-
-1. Query Bubble for `Integration Job` with status `failed|dead_letter` or overdue `processing`.
-2. Group by job type/error code.
-3. Send an operational alert to the responsible admins.
-4. Do not include PII/payload in the subject or chat notification.
-
-The alert contains the job id, entity public id, environment, attempts, redacted error and a direct admin URL.
-
-### MK-09 Bulk re-score progress relay
-
-**Trigger:** Integration Job `job_type = score_rescore_batch`, created after the admin saves a new Score Model Version.
-
-The Score Editor screen shows progress ("N of 83"), a completion state with a rollback option, and a failure state with a reference and the buttons "Retry the remainder" / "Roll back". For this to work without the browser polling Bubble, a scenario is needed that reports progress.
-
-Steps:
-
-1. Bubble itself runs the recalculation in batches in a backend workflow (calculation stays in Bubble — Make does not compute the score).
-2. After each batch Bubble updates `processed_count` on the Integration Job.
-3. MK-09 sends an operational notification only in two cases: full completion, and final failure after retries are exhausted.
-4. Intermediate progress is read by the UI directly from the Integration Job.
-
-Rules:
-
-- a recalculation **never** overwrites historical Listing Scores — new records are created, old ones get `is_current = no` (BR-04);
-- rolling back to a previous model version is a new batch job, not a deletion;
-- a partial failure leaves the catalogue in a mixed state, so the alert is P2 and the message must state how many properties were processed.
+- **Failure alerts:** Make's built-in scenario error notifications (email to the team) plus the A10 Automation Monitor in Bubble, which lists failed and stuck Integration Jobs with a Retry button. No separate alert scenario.
+- **Bulk re-score:** Bubble recalculates in batches in a backend workflow and updates `processed_count` on the Integration Job; the Score Editor reads progress from it directly. Historical Listing Scores are never overwritten (BR-04); rolling back is a new batch, not a deletion.
 
 ### MK-10 Comparable rental data collection
 
@@ -439,7 +416,7 @@ Must be verified:
 13. enquiry `on_hold` → no email; a job with an email template for this status ends as `failed_validation`;
 14. enquiry `declined` → exactly one email to the investor; the reason is absent from the email body, the payload and the Make logs;
 15. an availability change without an approved Change Request does not create an alert job;
-16. a score recalculation with a partial failure leaves historical Listing Scores untouched and raises a P2 alert with the processed count;
+16. a score recalculation with a partial failure leaves historical Listing Scores untouched and shows the failure state on the Score Editor with the processed count;
 17. MK-10 creates a Rental Comparable Set with `review_status = pending` and does not change any Financial Input;
 18. a sample with `listings_count` = 4 against a minimum of 5 is stored but cannot be approved; a sample of 7 is approved with a thin sample flag; a sample older than 90 days is not offered as a source;
 19. a provider being unavailable for several cycles in a row raises an alert rather than letting the estimate go stale silently;
