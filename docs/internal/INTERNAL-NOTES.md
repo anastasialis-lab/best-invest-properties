@@ -130,3 +130,13 @@ support mode з чотирма умовами: помітний banner на вс
 
 Формула vacancy записана як `× (1 − vacancy_rate)` замість `× occupancy_rate` —
 те саме, але узгоджено з полем `default_vacancy_rate` на Country Config.
+
+## 9. Make скорочено до двох сценаріїв (26.09.2026)
+
+У Make лишились лише MK-10 (збір оренди) і MK-01 (AI-аналіз). Усі листи
+(колишні MK-02…MK-05) і дайджест збережених пошуків (MK-06) надсилає Bubble:
+`Send email` у backend workflows, власний SendGrid-ключ, домен із SPF/DKIM;
+дайджест — recurring workflow (потрібен платний тариф Bubble). Кожен лист —
+Integration Job, невдалі видно на A10 з Retry. MK-07 замінено вбудованими
+сповіщеннями Make + A10, MK-09 не потрібен (прогрес рахує Bubble), MK-08 —
+після MVP.

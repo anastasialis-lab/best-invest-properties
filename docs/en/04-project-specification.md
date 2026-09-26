@@ -79,7 +79,7 @@ flowchart LR
   B --> BW[Bubble backend workflows]
   BW --> M[Make scenarios]
   M --> O[OpenAI Responses API]
-  M --> E[Email provider]
+  BW --> E[Email via SendGrid]
   M --> BW
   BW --> DB
   A[Admins] --> B
@@ -90,9 +90,9 @@ flowchart LR
 - Bubble pages: UI, route guards, forms, client calculations for preview only.
 - Bubble backend workflows: authorisation, validation, deterministic calculations, status transitions, final writes.
 - Bubble database: authoritative state, versions, audit, consent, integration jobs.
-- Make: async external calls, retry, email delivery, operational routing.
+- Make: collecting rental listings from portals and generating the AI narrative via OpenAI; retry of external calls.
 - OpenAI: reviewed narrative only.
-- Email provider: transactional delivery; provider chosen separately.
+- Email: all emails and the saved-search digest are sent by Bubble (backend workflows, own SendGrid key and domain with SPF/DKIM).
 
 ## 6. Information architecture and screens
 
@@ -235,7 +235,7 @@ Five screens are needed for the MVP **in minimal form** — one screen each, in 
 9. Investor reviews contact-sharing consent and submits the Enquiry.
 10. Confirmation shows the reference and `submitted` status.
 11. Admin screens the enquiry; on approval, confirms the contact release.
-12. Make sends both introductions; the Enquiry moves to `introduced` after the required deliveries.
+12. Bubble sends both introduction emails; the Enquiry moves to `introduced` after both are sent.
 13. Investor sees the history in P12; developer sees a role-safe status in D10/D11.
 
 ### 7.2 Developer application → verified portal
@@ -994,7 +994,7 @@ A feature is complete only when:
 |---|---|---|
 | Unverified tax/cost assumptions | misleading net yield | versioned country rules + expert approval |
 | Bubble privacy misconfiguration | PII/document exposure | privacy-first schema + role penetration tests |
-| Make duplicate execution | duplicate emails/contact release | Integration Job + channel idempotency |
+| Duplicate execution (Make or Bubble) | duplicate emails/contact release | Integration Job + idempotency key |
 | AI unsupported claim | reputational/legal | structured facts, validation, human review, fallback |
 | Different status labels per role | broken journey/reporting | one canonical Enquiry Status |
 | Published edits without history | audit failure | Change Request + Audit Event |

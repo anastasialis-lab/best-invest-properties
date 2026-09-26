@@ -708,7 +708,7 @@ After publication the developer changes only price and availability; both go thr
 
 #### Integration Job
 
-Every asynchronous action through Make, including every email.
+Every asynchronous action: Make calls and every email sent by Bubble.
 
 | Field | Type | Required | Note |
 |---|---|---:|---|
@@ -726,7 +726,7 @@ Every asynchronous action through Make, including every email.
 | provider_message_id | text | no | email id / OpenAI response id |
 | completed_at | date | no | |
 
-Uniqueness is enforced by `idempotency_key`. Make reads the Job first; if it is `succeeded`, the repeat ends without side effects. This same type is the log of sent emails.
+Uniqueness is enforced by `idempotency_key`. The Job is checked before the action (a Make call or sending an email); if it is `succeeded`, the repeat ends without side effects. This same type is the log of sent emails: a failed email appears on screen A10 with a Retry button.
 
 #### Audit Event
 

@@ -14,11 +14,10 @@ Make is used for long-running, external and repeatable processes:
 
 - **collecting comparable rental listings** from approved portals and market-data providers;
 - generating the AI narrative via OpenAI;
-- transactional email and status notifications;
-- delivering introductions after the admin decision;
-- digests of new matches and price/availability alerts;
-- notifying the team about failures;
-- future CRM synchronisation.
+- notifying the team about its own failures (built-in error notifications);
+- future CRM synchronisation (after the MVP).
+
+All emails and the saved-search digest are sent **by Bubble**, not Make — see §6 "Emails and saved-search digest".
 
 Make must **not**:
 
@@ -64,7 +63,7 @@ Connections/secrets:
 | Bubble Workflow API bearer token | Make connection/secret | separate Dev/Live; rotate quarterly or after an incident |
 | Make custom webhook API key | Bubble API Connector private header | `X-Make-Apikey`; never in URL/Option Set |
 | OpenAI API key | Make OpenAI/HTTP connection | production project key with budget/rate limits |
-| Email provider API key | Make connection | separate sending domain/environment |
+| Email (SendGrid) API key | Bubble settings, not Make | separate sending domain/environment |
 | Callback shared secret | Make secret + Bubble API Connector/private config | separate Dev/Live |
 
 Bubble outgoing calls must use private header parameters. The Bubble API Connector keeps private keys server-side; Development and Live keys are set separately.
@@ -140,17 +139,17 @@ Bubble callback workflow:
 
 ## 5. Scenario register
 
-The MVP needs **four** Make scenarios. The other IDs are kept for reference: three are email types inside MK-02, and three are not built.
+The MVP needs **two** Make scenarios. The other IDs are kept for reference: emails and the digest moved to Bubble, and three scenarios are not built.
 
 | ID | Scenario | Trigger | MVP |
 |---|---|---|---|
 | MK-10 | Comparable rental data collection | scheduled | **yes** — the main reason Make is used |
 | MK-01 | Generate investment analysis | instant webhook | **yes** |
-| MK-02 | Transactional email dispatcher | instant webhook | **yes** — one scenario for all emails |
-| MK-06 | Saved-search match digest | scheduled | **yes** |
-| MK-03 | Approved introduction delivery | — | part of MK-02 (two emails, per-recipient retry) |
-| MK-04 | Decision notification | — | part of MK-02 (templates) |
-| MK-05 | Price and availability alerts | — | part of MK-02 (one job per recipient) |
+| MK-02 | Transactional email dispatcher | — | in **Bubble** (`Send email` in backend workflows) |
+| MK-06 | Saved-search match digest | — | in **Bubble** (recurring backend workflow) |
+| MK-03 | Approved introduction delivery | — | Bubble email (two emails, per-recipient retry) |
+| MK-04 | Decision notification | — | Bubble email (templates) |
+| MK-05 | Price and availability alerts | — | Bubble email (one job per recipient) |
 | MK-07 | Integration dead-letter alert | — | not built: Make's built-in error notifications + the A10 Automation Monitor in Bubble |
 | MK-08 | CRM export | — | after the MVP |
 | MK-09 | Bulk re-score progress relay | — | not built: Bubble runs the recalculation and shows progress itself |
@@ -183,101 +182,34 @@ Error route:
 - OpenAI policy/refusal → `failed_refusal`, show the admin the deterministic fallback;
 - callback failure → retry the callback; do not repeat the OpenAI call if the provider result is already stored in the execution bundle.
 
-### MK-02 Transactional email dispatcher
+### Emails and saved-search digest — in Bubble, not Make
 
-**Events:** email verification, password reset (if not handled by Bubble), application received, verification decision, changes requested, project decision, enquiry received, status update.
+All platform emails (MK-02 … MK-05 in earlier drafts) and the saved-search digest (MK-06) are sent **by Bubble** in the MVP, with the `Send email` action in backend workflows. Setup: Bubble's own SendGrid API key setting and a platform domain with SPF/DKIM, so emails do not land in spam.
 
-The payload contains `job_id` and `template_key`, not arbitrary HTML. The recipient and template are stored on the Integration Job itself; Make fetches approved template data from Bubble.
+Each email is recorded as an Integration Job (`job_type = email`, `recipient_user`, `template_key`, `idempotency_key`). Before sending, the workflow checks the Job: if it is already `succeeded`, nothing is sent again. A failed email stays `failed` and appears on the A10 Automation Monitor screen with a Retry button. A failed email never rolls back the business decision.
 
-Steps:
-
-1. Receive job.
-2. Fetch the email payload by `job_id`.
-3. Router by `template_key`.
-4. Send through the email provider.
-5. Callback with the provider message id.
+| Event | Recipient |
+|---|---|
+| Registration / password reset | the user |
+| Developer application received | the developer |
+| Verification decision: more info required / approved / rejected | the developer |
+| Project decision: changes requested / approved / published / rejected | the developer |
+| Change request: queried / approved / rejected | the developer |
+| Enquiry received | the investor |
+| Introduction approved (Approve & connect) | the investor **and** the developer, each with the other's whitelisted contact |
+| Enquiry `on_hold` | **nobody** |
+| Enquiry `declined` | the investor only — neutral template, three similar properties, **no reason** |
+| Price/availability of a unit changed | investors who saved the unit or have an open enquiry about it (one job per recipient) |
+| Saved-search digest | investors with active saved searches, per their `alert_frequency` |
 
 Rules:
 
-- do not mix transactional and marketing email;
-- send marketing messages only with an active Consent Record;
-- unsubscribe does not apply to security/transactional messages;
-- record template version and language on the Integration Job.
-
-### MK-03 Approved introduction delivery (email type within MK-02)
-
-This is a high-risk flow because it discloses personal data to both parties.
-
-Preconditions in Bubble before the job is created:
-
-- Enquiry status `approved_for_intro`;
-- the investor has active consent to contact sharing;
-- Unit/Project/Company are not suspended;
-- the contact release fields on the Enquiry are filled in (who, when, which fields);
-- admin confirmation is complete.
-
-Make steps:
-
-1. Fetch the one-time introduction payload.
-2. Send the investor email with the whitelisted developer contact.
-3. Send the developer email with the whitelisted investor contact.
-4. If one delivery succeeds and the other fails, do not resend the first; store the provider id on the channel item and retry only the failed leg.
-5. Callback with the results of both deliveries.
-6. Bubble moves `approved_for_intro → introduced` only when the required deliveries have succeeded.
-
-Channel-level idempotency:
-
-```text
-intro:<enquiry_id>:investor:v1
-intro:<enquiry_id>:developer:v1
-```
-
-### MK-04 Decision notification (email type within MK-02)
-
-Events:
-
-- developer application `more_info_required|approved|rejected`;
-- project `changes_requested|approved|published|rejected`;
-- change request `queried|approved|rejected|applied`;
-- enquiry `on_hold` (no emails) and `declined`.
-
-Make delivers the notification; the business transition has already happened in Bubble. An email failure does not roll back the decision but creates an admin alert and a retry job.
-
-**Rules for a declined introduction.**
-
-- `on_hold` — **no email** to either the investor or the developer. If the scenario receives a job for this status with an email template, that is a configuration error: the job must end as `failed_validation`, not as a send.
-- `declined` — **exactly one** email, to the investor, using a neutral template: the property is not available, plus three similar properties. The decline reason **does not** go into the email and is **not passed** into the Make payload at all.
-- The developer receives no email on a decline; they see only an aggregated count of filtered-out requests in their portal.
-
-This means the payload for `declined` must contain neither `reason` nor `note_private` — otherwise the reason would end up in Make logs.
-
-### MK-05 Price and availability alerts (email type within MK-02)
-
-Triggered after a Change Request is successfully applied and financials/score are recalculated.
-
-Because both price and availability go through admin approval, this scenario always starts from one point — after `apply_change_request`. There is no separate branch for an "immediate" availability change.
-
-Bubble creates one Integration Job per recipient:
-
-- investors who saved the Unit;
-- investors with an open Enquiry;
-- saved searches that stopped/started matching.
-
-Make does not run broad searches in the Bubble Data API. The fan-out is built by backend workflows with batching.
-
-Events:
-
-- price changed by a configured threshold;
-- `available → reserved|sold`;
-- `→ withdrawn` (admin action, not the developer's);
-- listing back to available;
-- score verdict changed.
-
-### MK-06 Saved-search match digest
-
-Schedule: daily at 08:00 in the user's timezone, or one global UTC batch in the MVP.
-
-The Bubble endpoint returns a batch of Integration Job IDs already built according to privacy/business rules. Make sends the digest and the callback. No per-user uncontrolled Data API scans in Make.
+- **Introduction:** two separate jobs (`intro:<enquiry_id>:investor`, `intro:<enquiry_id>:developer`); if one fails, only that one is retried. The Enquiry moves `approved_for_intro → introduced` only when both are sent.
+- **Decline:** the reason is never put into the email job; the developer receives no email and sees only a count of filtered-out requests.
+- **Hold:** a job with an email template for `on_hold` is a configuration error and must not be sent.
+- **Marketing vs transactional:** the digest and alerts are sent only with an active marketing/alerts consent; security and service emails are always sent.
+- **Digest:** a Bubble recurring backend workflow (daily at 08:00 UTC; weekly on Mondays) builds one email per investor; investors with `alert_frequency = off` get nothing. Recurring workflows require a paid Bubble plan.
+- Template key and language are stored on the Integration Job.
 
 ### MK-07 and MK-09 — not built in the MVP
 
@@ -322,7 +254,7 @@ Rules for every scenario:
 - a repeated bundle with the same key does not resend the email/AI request if a provider id already exists;
 - for Unit change jobs, the key includes the target version;
 - for webhook scenarios where order matters, enable **Process data in order**;
-- independent email jobs may run in parallel within the provider rate limit.
+- independent jobs may run in parallel within the provider rate limit.
 
 Make webhooks are processed in parallel by default, so ordering cannot be assumed without the corresponding scenario setting.
 
@@ -399,7 +331,7 @@ Webhook names, connections and data stores must include the environment. Scenari
 
 ## 13. Test scenarios
 
-Must be verified:
+Must be verified (items 6–8, 11 and 13–15 test emails sent by Bubble; the rest test Make):
 
 1. valid AI job → pending-review AI Analysis;
 2. duplicate webhook → one AI call / one result;
@@ -414,7 +346,7 @@ Must be verified:
 11. email opt-out → the marketing digest is not sent; transactional email is sent per the rules;
 12. private data is not visible in a non-admin Make alert;
 13. enquiry `on_hold` → no email; a job with an email template for this status ends as `failed_validation`;
-14. enquiry `declined` → exactly one email to the investor; the reason is absent from the email body, the payload and the Make logs;
+14. enquiry `declined` → exactly one email to the investor; the reason is absent from the email body and the email job;
 15. an availability change without an approved Change Request does not create an alert job;
 16. a score recalculation with a partial failure leaves historical Listing Scores untouched and shows the failure state on the Score Editor with the processed count;
 17. MK-10 creates a Rental Comparable Set with `review_status = pending` and does not change any Financial Input;

@@ -15,11 +15,10 @@ Make використовується для довгих, зовнішніх і
 - **збір порівняльних оголошень оренди** з погоджених порталів і
   market-data providers;
 - генерація AI-наративу через OpenAI;
-- transactional email і status notifications;
-- доставка introduction після рішення адміністратора;
-- digest нових відповідностей і price/availability alerts;
-- сповіщення команди про збої;
-- майбутня CRM-синхронізація.
+- сповіщення команди про власні збої (вбудовані error notifications);
+- майбутня CRM-синхронізація (після MVP).
+
+Усі листи й дайджест збережених пошуків надсилає **Bubble**, а не Make — див. §6 «Листи й дайджест збережених пошуків».
 
 Make **не** повинен:
 
@@ -65,7 +64,7 @@ Connections/секрети:
 | Bubble Workflow API bearer token | Make connection/secret | окремий Dev/Live; rotate quarterly або після інциденту |
 | Make custom webhook API key | Bubble API Connector private header | `X-Make-Apikey`; не в URL/Option Set |
 | OpenAI API key | Make OpenAI/HTTP connection | production project key з budget/rate limits |
-| Email provider API key | Make connection | окремий sending domain/environment |
+| Email (SendGrid) API key | налаштування Bubble, не Make | окремий sending domain/environment |
 | Callback shared secret | Make secret + Bubble API Connector/private config | окремий Dev/Live |
 
 Bubble outgoing calls мають використовувати private header parameters. Bubble API Connector зберігає приватні ключі server-side; Development і Live keys задаються окремо.
@@ -143,17 +142,17 @@ Bubble callback workflow:
 
 ## 5. Реєстр сценаріїв
 
-У MVP потрібні **чотири** сценарії Make. Решта ID лишаються для довідки: три з них — типи листів усередині MK-02, три не будуються.
+У MVP потрібні **два** сценарії Make. Решта ID лишаються для довідки: листи й дайджест перенесено в Bubble, три сценарії не будуються.
 
 | ID | Scenario | Trigger | MVP |
 |---|---|---|---|
 | MK-10 | Comparable rental data collection | scheduled | **так** — головна причина, навіщо потрібен Make |
 | MK-01 | Generate investment analysis | instant webhook | **так** |
-| MK-02 | Transactional email dispatcher | instant webhook | **так** — один сценарій для всіх листів |
-| MK-06 | Saved-search match digest | scheduled | **так** |
-| MK-03 | Approved introduction delivery | — | частина MK-02 (два листи, повтор окремо для кожного одержувача) |
-| MK-04 | Decision notification | — | частина MK-02 (шаблони) |
-| MK-05 | Price and availability alerts | — | частина MK-02 (по одному job на одержувача) |
+| MK-02 | Transactional email dispatcher | — | у **Bubble** (`Send email` у backend workflows) |
+| MK-06 | Saved-search match digest | — | у **Bubble** (recurring backend workflow) |
+| MK-03 | Approved introduction delivery | — | лист із Bubble (два листи, повтор окремо для кожного одержувача) |
+| MK-04 | Decision notification | — | лист із Bubble (шаблони) |
+| MK-05 | Price and availability alerts | — | лист із Bubble (по одному job на одержувача) |
 | MK-07 | Integration dead-letter alert | — | не будується: вбудовані сповіщення Make про помилки + екран A10 Automation Monitor у Bubble |
 | MK-08 | CRM export | — | після MVP |
 | MK-09 | Bulk re-score progress relay | — | не будується: Bubble сам рахує і показує прогрес |
@@ -186,109 +185,34 @@ Error route:
 - OpenAI policy/refusal → `failed_refusal`, показати admin deterministic fallback;
 - callback failure → retry callback; не повторювати OpenAI call, якщо provider result уже збережений у execution bundle.
 
-### MK-02 Transactional email dispatcher
+### Листи й дайджест збережених пошуків — у Bubble, не в Make
 
-**Події:** email verification, password reset (якщо не handled Bubble), application received, verification decision, changes requested, project decision, enquiry received, status update.
+Усі листи платформи (MK-02 … MK-05 у попередніх версіях) і дайджест збережених пошуків (MK-06) у MVP надсилає **Bubble** — дією `Send email` у backend workflows. Налаштування: власний SendGrid API key у Bubble і домен платформи з SPF/DKIM, щоб листи не потрапляли в спам.
 
-Payload містить `job_id` і `template_key`, а не довільний HTML. Одержувач і шаблон зберігаються в самому Integration Job; Make отримує approved template data з Bubble.
+Кожен лист записується як Integration Job (`job_type = email`, `recipient_user`, `template_key`, `idempotency_key`). Перед відправкою workflow перевіряє Job: якщо він уже `succeeded`, повторно нічого не надсилається. Невдалий лист лишається `failed` і з'являється на екрані A10 Automation Monitor з кнопкою Retry. Невдалий лист ніколи не відкочує бізнес-рішення.
 
-Кроки:
-
-1. Receive job.
-2. Fetch email payload за `job_id`.
-3. Router by `template_key`.
-4. Send through email provider.
-5. Callback with provider message id.
+| Подія | Одержувач |
+|---|---|
+| Реєстрація / скидання пароля | користувач |
+| Заявку забудовника отримано | забудовник |
+| Рішення по верифікації: more info required / approved / rejected | забудовник |
+| Рішення по проєкту: changes requested / approved / published / rejected | забудовник |
+| Change request: queried / approved / rejected | забудовник |
+| Запит отримано | інвестор |
+| Introduction затверджено (Approve & connect) | інвестор **і** забудовник, кожен — з дозволеним контактом іншої сторони |
+| Enquiry `on_hold` | **ніхто** |
+| Enquiry `declined` | лише інвестор — нейтральний шаблон, три схожі об'єкти, **без причини** |
+| Змінилася ціна / availability юніта | інвестори, які зберегли юніт або мають відкритий запит (по одному job на одержувача) |
+| Дайджест збережених пошуків | інвестори з активними збереженими пошуками, згідно з `alert_frequency` |
 
 Правила:
 
-- transactional і marketing email не змішувати;
-- marketing повідомлення відправляти лише за активною Consent Record;
-- unsubscribe не застосовується до security/transactional messages;
-- template version і language записувати в Integration Job.
-
-### MK-03 Approved introduction delivery (тип листа в MK-02)
-
-Це high-risk flow, бо розкриває персональні дані обом сторонам.
-
-Preconditions у Bubble до створення job:
-
-- Enquiry status `approved_for_intro`;
-- є активна згода investor на contact sharing;
-- Unit/Project/Company не suspended;
-- на Enquiry заповнено поля розкриття контактів (хто, коли, які поля);
-- admin confirmation завершено.
-
-Кроки Make:
-
-1. Fetch one-time introduction payload.
-2. Send investor email з whitelisted developer contact.
-3. Send developer email з whitelisted investor contact.
-4. Якщо одна доставка успішна, а друга ні — не відправляти першу повторно; зберегти provider id на channel item і retry лише failed leg.
-5. Callback з результатами обох доставок.
-6. Bubble переводить `approved_for_intro → introduced` тільки коли required deliveries successful.
-
-Ідемпотентність на рівні каналу:
-
-```text
-intro:<enquiry_id>:investor:v1
-intro:<enquiry_id>:developer:v1
-```
-
-### MK-04 Decision notification (тип листа в MK-02)
-
-Події:
-
-- developer application `more_info_required|approved|rejected`;
-- project `changes_requested|approved|published|rejected`;
-- change request `queried|approved|rejected|applied`;
-- enquiry `on_hold` (листів немає) і `declined`.
-
-Make доставляє повідомлення; business transition вже відбувся в Bubble. Failure email не відкочує рішення, але створює admin alert і retry job.
-
-**Правила для відмови в introduction.**
-
-- `on_hold` — **жодного листа** ні інвестору, ні забудовнику. Якщо сценарій
-  отримав job на цей статус із шаблоном листа, це помилка конфігурації:
-  job має завершитися `failed_validation`, а не відправкою.
-- `declined` — **лише один** лист, інвестору, за нейтральним шаблоном:
-  об'єкт недоступний, плюс три схожі об'єкти. Причина відмови у лист
-  **не потрапляє** і в payload Make **не передається** взагалі.
-- Забудовник при відмові листа не отримує; він бачить лише агрегований
-  лічильник відфільтрованих запитів у своєму порталі.
-
-Це означає, що payload для `declined` не має містити ні `reason`, ні
-`note_private` — інакше причина потрапить у логи Make.
-
-### MK-05 Price and availability alerts (тип листа в MK-02)
-
-Trigger після успішного apply Change Request і перерахунку financial/score.
-
-Оскільки і ціна, і availability проходять адміністративне затвердження, цей
-сценарій завжди запускається з однієї точки — після `apply_change_request`.
-Окремої гілки для «негайної» зміни availability немає.
-
-Bubble створює по одному Integration Job на кожного одержувача:
-
-- investors, що зберегли Unit;
-- investors з open Enquiry;
-- saved searches, які перестали/почали match.
-
-Make не виконує широкий пошук у Bubble Data API. Fan-out формується backend workflows із batching.
-
-Події:
-
-- price changed by configured threshold;
-- `available → reserved|sold`;
-- `→ withdrawn` (адміністративна дія, не забудовника);
-- listing back to available;
-- score verdict changed.
-
-### MK-06 Saved-search match digest
-
-Schedule: щодня о 08:00 у timezone користувача або один global UTC batch у MVP.
-
-Bubble endpoint повертає batch Integration Job IDs, уже сформованих за privacy/business rules. Make відправляє digest і callback. Не виконувати per-user uncontrolled Data API scans у Make.
+- **Introduction:** два окремі job (`intro:<enquiry_id>:investor`, `intro:<enquiry_id>:developer`); якщо один впав, повторюється лише він. Enquiry переходить `approved_for_intro → introduced` лише коли надіслано обидва.
+- **Decline:** причина ніколи не потрапляє в job листа; забудовник листа не отримує і бачить лише лічильник відфільтрованих запитів.
+- **Hold:** job із шаблоном листа для `on_hold` — помилка конфігурації, лист не надсилається.
+- **Маркетингові й сервісні:** дайджест і сповіщення надсилаються лише за активної згоди; security- і сервісні листи — завжди.
+- **Дайджест:** recurring backend workflow у Bubble (щодня о 08:00 UTC; щотижня в понеділок) формує один лист на інвестора; з `alert_frequency = off` — нічого. Recurring workflows доступні лише на платних тарифах Bubble.
+- Template key і мова зберігаються в Integration Job.
 
 ### MK-07 і MK-09 — у MVP не будуються
 
@@ -352,7 +276,7 @@ Bubble endpoint повертає batch Integration Job IDs, уже сформо�
 - повторний bundle з тим самим key не відправляє email/AI request повторно, якщо provider id уже існує;
 - для Unit change jobs ключ включає target version;
 - для webhook scenarios, де порядок важливий, увімкнути **Process data in order**;
-- для незалежних email jobs дозволений parallel processing з provider rate limit.
+- для незалежних jobs дозволений parallel processing з provider rate limit.
 
 Make webhooks за замовчуванням обробляються паралельно, тому ordering не можна вважати гарантованим без відповідного scenario setting.
 
@@ -429,7 +353,7 @@ Webhook names, connections і data stores мають містити environment.
 
 ## 13. Тестові сценарії
 
-Обов'язково перевірити:
+Обов'язково перевірити (пункти 6–8, 11 і 13–15 перевіряють листи, які надсилає Bubble; решта — Make):
 
 1. валідний AI job → pending review AI Analysis;
 2. duplicate webhook → один AI call/один result;
@@ -446,7 +370,7 @@ Webhook names, connections і data stores мають містити environment.
 13. enquiry `on_hold` → жодного листа; job із шаблоном листа на цей
     статус завершується `failed_validation`;
 14. enquiry `declined` → рівно один лист інвестору, причина відсутня
-    і в тілі листа, і в payload, і в логах Make;
+    і в тілі листа, і в job листа;
 15. зміна availability без затвердженого Change Request не створює
     job на alert;
 16. перерахунок score із частковою помилкою залишає історичні

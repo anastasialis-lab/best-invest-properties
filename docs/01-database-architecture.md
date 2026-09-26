@@ -745,7 +745,7 @@ net_yield = annual_net_income / (price + purchase_costs)
 
 #### Integration Job
 
-Кожна асинхронна дія через Make, зокрема кожен лист.
+Кожна асинхронна дія: виклики Make і кожен лист, який надсилає Bubble.
 
 | Поле | Тип | Обов'язкове | Примітка |
 |---|---|---:|---|
@@ -763,7 +763,7 @@ net_yield = annual_net_income / (price + purchase_costs)
 | provider_message_id | text | ні | id листа / відповіді OpenAI |
 | completed_at | date | ні | |
 
-Унікальність забезпечується по `idempotency_key`. Make спочатку читає Job; якщо `succeeded`, повтор завершується без side effects. Цей самий тип — журнал надісланих листів.
+Унікальність забезпечується по `idempotency_key`. Перед дією (виклик Make або відправка листа) перевіряється Job; якщо `succeeded`, повтор завершується без side effects. Цей самий тип — журнал надісланих листів: невдалий лист видно на екрані A10 з кнопкою Retry.
 
 #### Audit Event
 

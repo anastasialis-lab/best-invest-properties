@@ -6,14 +6,14 @@ Main system: Bubble
 
 ## 1. What Make does
 
-Make is the automation service that connects the platform to the outside world: property portals, OpenAI and email. The platform itself (Bubble) stays the single place where all data is stored and all figures are calculated.
+Make is the automation service that connects the platform to outside services: property portals and OpenAI. The platform itself (Bubble) stays the single place where all data is stored and all figures are calculated, and it also sends all emails.
 
 The division of responsibility is simple:
 
 | System | Role |
 |---|---|
-| **Make** | collects data from outside and delivers messages |
-| **Bubble** | stores the data and calculates every figure — price, rent, yield, score |
+| **Make** | collects rental data from portals and requests the AI text |
+| **Bubble** | stores the data, calculates every figure — price, rent, yield, score — and sends all emails |
 | **OpenAI** | writes the text explanation of an already verified result |
 
 Make **does not**:
@@ -27,30 +27,31 @@ Make **does not**:
 
 Every automation follows the same five steps:
 
-1. Something happens on the platform — for example, the admin approves an introduction.
+1. Something happens on the platform — for example, a property's score is calculated, or a rent sample becomes older than 90 days.
 2. Bubble records a task: what needs to be done and for whom.
-3. Make picks up the task and does the external part: sends an email, asks OpenAI, or collects listings from a portal.
+3. Make picks up the task and does the external part: asks OpenAI or collects listings from a portal.
 4. Make reports the result back to Bubble.
 5. Bubble applies the result and marks the task as done.
 
-Each task has a unique key, so **nothing is ever done twice**: if a step is repeated after a network error, the email is not sent again and the analysis is not generated again.
+Each task has a unique key, so **nothing is ever done twice**: if a step is repeated after a network error, the analysis is not generated again and the listings are not stored twice.
 
 ## 3. Automations in the MVP
 
-The MVP needs **four** automations.
+The MVP needs **two** Make automations.
 
 | # | Automation | When it runs | What it does |
 |---|---|---|---|
 | 1 | Rental data collection | on a schedule | collects comparable rental listings from approved portals |
 | 2 | AI investment analysis | when a property's score is calculated | asks OpenAI to write the analysis text |
-| 3 | Emails | when an event needs an email | sends every platform email |
-| 4 | Saved-search digest | daily or weekly | emails investors new properties matching their saved searches |
 
-Not built in the MVP:
+Done by the platform itself (Bubble), without Make:
 
-- **CRM export** — after the MVP.
-- **A separate failure-alert automation** — Make's built-in error notifications email the team, and the admin sees failed tasks on the Automation Monitor screen.
-- **A separate automation for score recalculation** — Bubble recalculates the scores itself and shows the progress on the Score Editor screen.
+- **all emails**, including introductions and price/availability alerts;
+- **the saved-search digest** (daily or weekly);
+- **score recalculation** — with progress shown on the Score Editor screen;
+- **failure tracking** — failed tasks appear on the Automation Monitor screen.
+
+Not built in the MVP: **CRM export**.
 
 ## 4. Automations in detail
 
@@ -86,9 +87,9 @@ When a property's score is calculated, Make sends OpenAI the verified facts abou
 - If the text contains a number that is not in the facts, contradicts the score or promises returns, it is rejected automatically.
 - If OpenAI is unavailable, the property page still shows the score breakdown and the financial table, with the note "Narrative analysis is being reviewed".
 
-### 4.3 Emails
+### 4.3 Emails (sent by Bubble)
 
-One automation sends every platform email. The decision is always made in Bubble first; Make only delivers the email. If an email fails, the decision is not cancelled — Make retries, and the admin sees the failure.
+All platform emails are sent by Bubble, from the platform's own email domain. Every email is logged; if one fails, the decision is not cancelled — the admin sees the failed email on the Automation Monitor screen and can resend it with one click.
 
 | Event | Who receives the email |
 |---|---|
@@ -105,18 +106,18 @@ One automation sends every platform email. The decision is always made in Bubble
 
 Rules:
 
-- On a decline, the reason is never sent to Make at all, so it cannot appear in any email or log.
+- On a decline, the reason is never included in any email.
 - The developer receives no email about a decline; they only see a count of filtered-out requests in their portal.
 - For an introduction, if one of the two emails fails, only that email is resent — the other party never receives a duplicate.
 - Marketing emails are sent only to users who have given marketing consent. Security and service emails are always sent.
 
-### 4.4 Saved-search digest
+### 4.4 Saved-search digest (sent by Bubble)
 
-Once a day or once a week (as the investor chooses), Bubble finds new properties matching each investor's saved searches, and Make sends one digest email per investor. Investors who have switched alerts off receive nothing.
+Once a day or once a week (as the investor chooses), Bubble finds new properties matching each investor's saved searches and sends one digest email per investor. Investors who have switched alerts off receive nothing.
 
 ## 5. When something fails
 
 - Temporary errors (network, a busy service) are retried automatically.
-- A task that still fails appears on the **Automation Monitor** screen in the admin area with a **Retry** button, and Make emails the team.
+- A task that still fails — a Make automation or an email — appears on the **Automation Monitor** screen in the admin area with a **Retry** button; for Make failures the team also receives an email.
 - A repeated task never sends a second email or creates a second analysis.
 - A failed email never cancels or changes a decision already made on the platform.

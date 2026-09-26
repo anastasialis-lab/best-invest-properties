@@ -85,7 +85,7 @@ flowchart LR
   B --> BW[Bubble backend workflows]
   BW --> M[Make scenarios]
   M --> O[OpenAI Responses API]
-  M --> E[Email provider]
+  BW --> E[Email via SendGrid]
   M --> BW
   BW --> DB
   A[Admins] --> B
@@ -96,9 +96,9 @@ flowchart LR
 - Bubble pages: UI, route guards, forms, client calculations лише для preview.
 - Bubble backend workflows: authorization, validation, deterministic calculations, status transitions, final writes.
 - Bubble database: authoritative state, versions, audit, consent, integration jobs.
-- Make: async external calls, retry, email delivery, operational routing.
+- Make: збір оголошень оренди з порталів і генерація AI-наративу через OpenAI; retry зовнішніх викликів.
 - OpenAI: reviewed narrative only.
-- Email provider: transactional delivery; provider вибирається окремо.
+- Email: усі листи й дайджест збережених пошуків надсилає Bubble (backend workflows, власний SendGrid-ключ і домен із SPF/DKIM).
 
 ## 6. Інформаційна архітектура та екрани
 
@@ -267,7 +267,7 @@ duplicate submit, unsaved changes guard. `404` показано як стан «
 9. Investor reviews contact-sharing consent and submits Enquiry.
 10. Confirmation shows reference and `submitted` status.
 11. Admin screens enquiry; on approval, confirms contact release.
-12. Make sends both introductions; Enquiry moves to `introduced` after required deliveries.
+12. Bubble sends both introduction emails; Enquiry moves to `introduced` after both are sent.
 13. Investor sees history in P12, developer sees role-safe status in D10/D11.
 
 ### 7.2 Developer application → verified portal
@@ -1161,7 +1161,7 @@ Feature complete only when:
 |---|---|---|
 | Unverified tax/cost assumptions | misleading net yield | versioned country rules + expert approval |
 | Bubble privacy misconfiguration | PII/document exposure | privacy-first schema + role penetration tests |
-| Make duplicate execution | duplicate emails/contact release | Integration Job + channel idempotency |
+| Duplicate execution (Make or Bubble) | duplicate emails/contact release | Integration Job + idempotency key |
 | AI unsupported claim | reputational/legal | structured facts, validation, human review, fallback |
 | Різні підписи статусів для ролей | broken journey/reporting | one canonical Enquiry Status |
 | Published edits without history | audit failure | Change Request + Audit Event |
