@@ -17,7 +17,7 @@ Make is used for long-running, external and repeatable processes:
 - notifying the team about its own failures (built-in error notifications);
 - future CRM synchronisation (after the MVP).
 
-All emails and the saved-search digest are sent **by Bubble**, not Make — see §6 "Emails and saved-search digest".
+Make sends no emails. All platform emails are sent by Bubble — see FR-12 of the project specification.
 
 Make must **not**:
 
@@ -33,7 +33,7 @@ Make must **not**:
 sequenceDiagram
   participant B as Bubble backend
   participant M as Make webhook
-  participant O as OpenAI / Email provider
+  participant O as OpenAI / rental data provider
   participant A as Bubble callback
 
   B->>B: Create Integration Job (queued)
@@ -63,7 +63,6 @@ Connections/secrets:
 | Bubble Workflow API bearer token | Make connection/secret | separate Dev/Live; rotate quarterly or after an incident |
 | Make custom webhook API key | Bubble API Connector private header | `X-Make-Apikey`; never in URL/Option Set |
 | OpenAI API key | Make OpenAI/HTTP connection | production project key with budget/rate limits |
-| Email (SendGrid) API key | Bubble settings, not Make | separate sending domain/environment |
 | Callback shared secret | Make secret + Bubble API Connector/private config | separate Dev/Live |
 
 Bubble outgoing calls must use private header parameters. The Bubble API Connector keeps private keys server-side; Development and Live keys are set separately.
@@ -139,20 +138,12 @@ Bubble callback workflow:
 
 ## 5. Scenario register
 
-The MVP needs **two** Make scenarios. The other IDs are kept for reference: emails and the digest moved to Bubble, and three scenarios are not built.
+The MVP has **two** Make scenarios. CRM export (MK-08) comes after the MVP.
 
 | ID | Scenario | Trigger | MVP |
 |---|---|---|---|
 | MK-10 | Comparable rental data collection | scheduled | **yes** — the main reason Make is used |
 | MK-01 | Generate investment analysis | instant webhook | **yes** |
-| MK-02 | Transactional email dispatcher | — | in **Bubble** (`Send email` in backend workflows) |
-| MK-06 | Saved-search match digest | — | in **Bubble** (recurring backend workflow) |
-| MK-03 | Approved introduction delivery | — | Bubble email (two emails, per-recipient retry) |
-| MK-04 | Decision notification | — | Bubble email (templates) |
-| MK-05 | Price and availability alerts | — | Bubble email (one job per recipient) |
-| MK-07 | Integration dead-letter alert | — | not built: Make's built-in error notifications + the A10 Automation Monitor in Bubble |
-| MK-08 | CRM export | — | after the MVP |
-| MK-09 | Bulk re-score progress relay | — | not built: Bubble runs the recalculation and shows progress itself |
 
 ## 6. Scenario details
 
@@ -182,36 +173,7 @@ Error route:
 - OpenAI policy/refusal → `failed_refusal`, show the admin the deterministic fallback;
 - callback failure → retry the callback; do not repeat the OpenAI call if the provider result is already stored in the execution bundle.
 
-### Emails and saved-search digest — in Bubble, not Make
-
-All platform emails (MK-02 … MK-05 in earlier drafts) and the saved-search digest (MK-06) are sent **by Bubble** in the MVP, with the `Send email` action in backend workflows. Setup: Bubble's own SendGrid API key setting and a platform domain with SPF/DKIM, so emails do not land in spam.
-
-Each email is recorded as an Integration Job (`job_type = email`, `recipient_user`, `template_key`, `idempotency_key`). Before sending, the workflow checks the Job: if it is already `succeeded`, nothing is sent again. A failed email stays `failed` and appears on the A10 Automation Monitor screen with a Retry button. A failed email never rolls back the business decision.
-
-| Event | Recipient |
-|---|---|
-| Registration / password reset | the user |
-| Developer application received | the developer |
-| Verification decision: more info required / approved / rejected | the developer |
-| Project decision: changes requested / approved / published / rejected | the developer |
-| Change request: queried / approved / rejected | the developer |
-| Enquiry received | the investor |
-| Introduction approved (Approve & connect) | the investor **and** the developer, each with the other's whitelisted contact |
-| Enquiry `on_hold` | **nobody** |
-| Enquiry `declined` | the investor only — neutral template, three similar properties, **no reason** |
-| Price/availability of a unit changed | investors who saved the unit or have an open enquiry about it (one job per recipient) |
-| Saved-search digest | investors with active saved searches, per their `alert_frequency` |
-
-Rules:
-
-- **Introduction:** two separate jobs (`intro:<enquiry_id>:investor`, `intro:<enquiry_id>:developer`); if one fails, only that one is retried. The Enquiry moves `approved_for_intro → introduced` only when both are sent.
-- **Decline:** the reason is never put into the email job; the developer receives no email and sees only a count of filtered-out requests.
-- **Hold:** a job with an email template for `on_hold` is a configuration error and must not be sent.
-- **Marketing vs transactional:** the digest and alerts are sent only with an active marketing/alerts consent; security and service emails are always sent.
-- **Digest:** a Bubble recurring backend workflow (daily at 08:00 UTC; weekly on Mondays) builds one email per investor; investors with `alert_frequency = off` get nothing. Recurring workflows require a paid Bubble plan.
-- Template key and language are stored on the Integration Job.
-
-### MK-07 and MK-09 — not built in the MVP
+### Failure alerts and score recalculation — no separate scenarios
 
 - **Failure alerts:** Make's built-in scenario error notifications (email to the team) plus the A10 Automation Monitor in Bubble, which lists failed and stuck Integration Jobs with a Retry button. No separate alert scenario.
 - **Bulk re-score:** Bubble recalculates in batches in a backend workflow and updates `processed_count` on the Integration Job; the Score Editor reads progress from it directly. Historical Listing Scores are never overwritten (BR-04); rolling back is a new batch, not a deletion.
@@ -251,7 +213,7 @@ Rules for every scenario:
 - Bubble creates the `idempotency_key`; Make never generates it;
 - before a side effect, Make checks the current Job status;
 - after a side effect, it stores the provider id and returns it in the callback;
-- a repeated bundle with the same key does not resend the email/AI request if a provider id already exists;
+- a repeated bundle with the same key does not repeat the AI request or store the sample twice if a provider id already exists;
 - for Unit change jobs, the key includes the target version;
 - for webhook scenarios where order matters, enable **Process data in order**;
 - independent jobs may run in parallel within the provider rate limit.
@@ -265,7 +227,7 @@ In all production scenarios:
 - `Store incomplete executions = Yes`;
 - automatic retry for connection/rate-limit/timeouts;
 - Retry error handler for important external modules;
-- no silent Ignore/Skip for AI, introductions, decisions or transactional email;
+- no silent Ignore/Skip for the AI analysis or rental data collection;
 - invalid business data → callback `failed_validation`, no endless retries;
 - temporary failure → exponential/backoff retry;
 - permanent 4xx authentication/configuration failure → dead letter + alert;
@@ -295,7 +257,7 @@ If a Data Store is used for dedup, record key = idempotency key, TTL is cleared 
 ## 10. Logs and confidentiality
 
 - Do not pass more data into Make scenario logs than necessary.
-- For introductions and PII-heavy flows, consider `Keep data confidential`, bearing in mind it limits debugging; the choice must be aligned with the incident procedure.
+- Make handles no personal data of investors or developers: only property facts and public IDs.
 - Error messages returned to Bubble are redacted: no token, email, document URL or raw OpenAI prompt.
 - Correlation ID = Integration Job public_id in Bubble, Make and external metadata.
 - Retention of Make logs/incomplete executions is documented separately as a subprocessor setting.
@@ -308,17 +270,15 @@ Dashboard metrics:
 |---|---:|
 | Webhook acceptance p95 | < 2 s |
 | AI job complete p95 | < 60 s |
-| Transactional email queued p95 | < 2 min |
-| Introduction complete p95 | < 5 min |
 | Failed jobs after retries | < 1% |
 | Duplicate side effects | 0 |
 | Jobs stuck processing > 15 min | 0 |
 
 Alert levels:
 
-- P1: introduction delivered to one party only; possible data leak; credential compromise.
+- P1: possible data leak; credential compromise.
 - P2: AI/transactional scenario dead-letter, >5 consecutive failures, provider auth error.
-- P3: digest delay, individual non-critical email failure.
+- P3: a delayed rental sample collection.
 
 ## 12. Naming convention in Make
 
@@ -331,28 +291,20 @@ Webhook names, connections and data stores must include the environment. Scenari
 
 ## 13. Test scenarios
 
-Must be verified (items 6–8, 11 and 13–15 test emails sent by Bubble; the rest test Make):
+Must be verified:
 
-1. valid AI job → pending-review AI Analysis;
+1. valid AI job → AI Analysis with `review_status = pending`;
 2. duplicate webhook → one AI call / one result;
 3. OpenAI 429 → retry without a duplicate callback;
 4. stale score version → cancel without publication;
 5. malformed structured output → one repair attempt → failure;
-6. approved introduction → two unique emails and status `introduced`;
-7. failure of the second introduction email → retry only the second;
-8. invalid/missing consent → no job is created;
-9. Bubble callback timeout after external success → retry the callback, not the side effect;
-10. Make queue/rate-limit response → the Bubble job stays retryable;
-11. email opt-out → the marketing digest is not sent; transactional email is sent per the rules;
-12. private data is not visible in a non-admin Make alert;
-13. enquiry `on_hold` → no email; a job with an email template for this status ends as `failed_validation`;
-14. enquiry `declined` → exactly one email to the investor; the reason is absent from the email body and the email job;
-15. an availability change without an approved Change Request does not create an alert job;
-16. a score recalculation with a partial failure leaves historical Listing Scores untouched and shows the failure state on the Score Editor with the processed count;
-17. MK-10 creates a Rental Comparable Set with `review_status = pending` and does not change any Financial Input;
-18. a sample with `listings_count` = 4 against a minimum of 5 is stored but cannot be approved; a sample of 7 is approved with a thin sample flag; a sample older than 90 days is not offered as a source;
-19. a provider being unavailable for several cycles in a row raises an alert rather than letting the estimate go stale silently;
-20. re-running MK-10 with the same parameters does not create a duplicate of the current sample.
+6. Bubble callback timeout after external success → retry the callback, not the external call;
+7. Make queue/rate-limit response → the Bubble job stays retryable;
+8. no personal data appears in Make payloads, logs or error notifications;
+9. MK-10 creates a Rental Comparable Set with `review_status = pending` and does not change any Financial Input;
+10. a sample with `listings_count` = 4 against a minimum of 5 is stored but cannot be approved; a sample of 7 is approved with a thin sample flag; a sample older than 90 days is not offered as a source;
+11. a provider being unavailable for several cycles in a row raises an alert rather than letting the estimate go stale silently;
+12. re-running MK-10 with the same parameters does not create a duplicate of the current sample.
 
 ## 14. Make readiness criteria
 
@@ -360,7 +312,7 @@ Must be verified (items 6–8, 11 and 13–15 test emails sent by Bubble; the re
 - all critical scenarios have incomplete executions, a retry route and a dead-letter alert;
 - secrets are separated Dev/Live and never appear in payload/URL/log text;
 - every scenario has a documented owner and a rollback/disable procedure;
-- a manual replay does not produce a duplicate email, AI analysis or status event;
+- a manual replay does not produce a duplicate AI analysis or rental sample;
 - the Bubble admin sees the status, attempts and redacted error for every job;
 - financial/approval decisions do not depend on the Make Data Store;
-- introduction PII is passed only after explicit Bubble authorisation and consent validation.
+- Make receives no personal data.

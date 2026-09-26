@@ -98,7 +98,7 @@ flowchart LR
 - Bubble database: authoritative state, versions, audit, consent, integration jobs.
 - Make: збір оголошень оренди з порталів і генерація AI-наративу через OpenAI; retry зовнішніх викликів.
 - OpenAI: reviewed narrative only.
-- Email: усі листи й дайджест збережених пошуків надсилає Bubble (backend workflows, власний SendGrid-ключ і домен із SPF/DKIM).
+- Email: усі листи надсилає Bubble (backend workflows, власний SendGrid-ключ і домен із SPF/DKIM) — див. FR-12.
 
 ## 6. Інформаційна архітектура та екрани
 
@@ -657,7 +657,7 @@ MVP використовує ручне внесення чи імпорт compa
 - Recommendations = same catalogue ranking with saved criteria unless a separate documented model is approved.
 - Saved Units with changed price/availability badges; видалення зі списку має
   крок підтвердження (стан «removing»).
-- Saved Searches and alert frequency.
+- Saved Searches (збережені фільтри, щоб відкрити знову; email-розсилки в MVP немає).
 - Enquiries with canonical history and public notes.
 - Empty/loading/error states for each panel independently, плюс окремий
   повний порожній стан дашборду «First day — nothing yet».
@@ -870,20 +870,29 @@ MVP використовує ручне внесення чи імпорт compa
 
 Функція «View as user» (вхід від імені користувача) у MVP не передбачена.
 
-### FR-12 Notifications
+### FR-12 Листи
 
-Transactional templates:
+Усі листи надсилає **Bubble** (`Send email` у backend workflows), з власним SendGrid-ключем платформи і доменом із SPF/DKIM, щоб листи не потрапляли в спам. Make листів не надсилає.
 
-1. verify email;
-2. password reset/security notice;
-3. developer application received;
-4. verification more info/approved/rejected;
-5. project submitted/changes requested/approved/published/rejected;
-6. change request queried/approved/rejected;
-7. enquiry received/on hold/declined/introduction approved;
-8. introduction emails to both parties;
-9. price/availability alert;
-10. saved-search digest.
+| Подія | Одержувач |
+|---|---|
+| Підтвердження email / скидання пароля | користувач |
+| Заявку забудовника отримано | забудовник |
+| Рішення по верифікації: more info required / approved / rejected | забудовник |
+| Рішення по проєкту: changes requested / approved / published / rejected | забудовник |
+| Change request: queried / approved / rejected | забудовник |
+| Запит отримано | інвестор |
+| Introduction затверджено (Approve & connect) | інвестор **і** забудовник, кожен — із затвердженими контактами іншої сторони |
+| Enquiry `on_hold` | **ніхто** |
+| Enquiry `declined` | лише інвестор — нейтральний шаблон, три схожі об'єкти, **без причини** |
+| Змінилася ціна / availability юніта | інвестори, які зберегли юніт або мають відкритий запит |
+
+Правила:
+
+- кожен лист записується як Integration Job з idempotency key, тож повтор ніколи не надсилає його двічі; невдалий лист видно на A10 Automation Monitor з кнопкою Retry, і він ніколи не скасовує рішення;
+- introduction: два окремі листи; якщо один не пішов, повторюється лише він; Enquiry переходить у `introduced`, коли надіслано обидва;
+- decline: причина не потрапляє в жоден лист; забудовник листа не отримує і бачить лише лічильник відфільтрованих запитів;
+- сповіщення про ціну/availability — лише користувачам із відповідною згодою; security- і сервісні листи — завжди.
 
 ## 9. Business rules
 
@@ -1153,7 +1162,8 @@ Feature complete only when:
 - public partner API/feed;
 - investor post-purchase portfolio tracking;
 - bulk spreadsheet unit import unless separately estimated;
-- advanced analytics dashboard.
+- advanced analytics dashboard;
+- email-дайджест збережених пошуків.
 
 ## 18. Risks
 

@@ -214,7 +214,6 @@ Option Sets — для фіксованих, рідко змінюваних і 
 | strategies | list of Strategy | ні | |
 | bedrooms_min | number | ні | |
 | marketing_email_opt_in | yes/no | так | дублює останню згоду `marketing` для швидкого фільтра |
-| match_email_frequency | text | ні | `off` / `daily` / `weekly` |
 
 Унікальність профілю перевіряється backend workflow перед створенням.
 
@@ -654,7 +653,6 @@ net_yield = annual_net_income / (price + purchase_costs)
 | price_max_eur | number | ні | |
 | gross_yield_min | number | ні | |
 | net_yield_min | number | ні | |
-| alert_frequency | text | так | `off` / `daily` / `weekly` |
 | is_active | yes/no | так | |
 
 #### Calculator Scenario

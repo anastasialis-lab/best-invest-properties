@@ -177,7 +177,6 @@ Do not store the password in a custom field. Use Bubble authentication.
 | strategies | list of Strategy | no | |
 | bedrooms_min | number | no | |
 | marketing_email_opt_in | yes/no | yes | mirrors the latest `marketing` consent for fast filtering |
-| match_email_frequency | text | no | `off` / `daily` / `weekly` |
 
 Profile uniqueness is checked by a backend workflow before creation.
 
@@ -617,7 +616,6 @@ Only `review_status = approved` is published, and only while the linked Listing 
 | price_max_eur | number | no | |
 | gross_yield_min | number | no | |
 | net_yield_min | number | no | |
-| alert_frequency | text | yes | `off` / `daily` / `weekly` |
 | is_active | yes/no | yes | |
 
 #### Calculator Scenario

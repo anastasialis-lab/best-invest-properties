@@ -18,7 +18,7 @@ Make використовується для довгих, зовнішніх і
 - сповіщення команди про власні збої (вбудовані error notifications);
 - майбутня CRM-синхронізація (після MVP).
 
-Усі листи й дайджест збережених пошуків надсилає **Bubble**, а не Make — див. §6 «Листи й дайджест збережених пошуків».
+Make не надсилає жодних листів. Усі листи платформи надсилає Bubble — див. FR-12 специфікації проєкту.
 
 Make **не** повинен:
 
@@ -34,7 +34,7 @@ Make **не** повинен:
 sequenceDiagram
   participant B as Bubble backend
   participant M as Make webhook
-  participant O as OpenAI / Email provider
+  participant O as OpenAI / rental data provider
   participant A as Bubble callback
 
   B->>B: Create Integration Job (queued)
@@ -64,7 +64,6 @@ Connections/секрети:
 | Bubble Workflow API bearer token | Make connection/secret | окремий Dev/Live; rotate quarterly або після інциденту |
 | Make custom webhook API key | Bubble API Connector private header | `X-Make-Apikey`; не в URL/Option Set |
 | OpenAI API key | Make OpenAI/HTTP connection | production project key з budget/rate limits |
-| Email (SendGrid) API key | налаштування Bubble, не Make | окремий sending domain/environment |
 | Callback shared secret | Make secret + Bubble API Connector/private config | окремий Dev/Live |
 
 Bubble outgoing calls мають використовувати private header parameters. Bubble API Connector зберігає приватні ключі server-side; Development і Live keys задаються окремо.
@@ -142,20 +141,12 @@ Bubble callback workflow:
 
 ## 5. Реєстр сценаріїв
 
-У MVP потрібні **два** сценарії Make. Решта ID лишаються для довідки: листи й дайджест перенесено в Bubble, три сценарії не будуються.
+У MVP — **два** сценарії Make. Експорт у CRM (MK-08) — після MVP.
 
 | ID | Scenario | Trigger | MVP |
 |---|---|---|---|
 | MK-10 | Comparable rental data collection | scheduled | **так** — головна причина, навіщо потрібен Make |
 | MK-01 | Generate investment analysis | instant webhook | **так** |
-| MK-02 | Transactional email dispatcher | — | у **Bubble** (`Send email` у backend workflows) |
-| MK-06 | Saved-search match digest | — | у **Bubble** (recurring backend workflow) |
-| MK-03 | Approved introduction delivery | — | лист із Bubble (два листи, повтор окремо для кожного одержувача) |
-| MK-04 | Decision notification | — | лист із Bubble (шаблони) |
-| MK-05 | Price and availability alerts | — | лист із Bubble (по одному job на одержувача) |
-| MK-07 | Integration dead-letter alert | — | не будується: вбудовані сповіщення Make про помилки + екран A10 Automation Monitor у Bubble |
-| MK-08 | CRM export | — | після MVP |
-| MK-09 | Bulk re-score progress relay | — | не будується: Bubble сам рахує і показує прогрес |
 
 ## 6. Детальні сценарії
 
@@ -185,36 +176,7 @@ Error route:
 - OpenAI policy/refusal → `failed_refusal`, показати admin deterministic fallback;
 - callback failure → retry callback; не повторювати OpenAI call, якщо provider result уже збережений у execution bundle.
 
-### Листи й дайджест збережених пошуків — у Bubble, не в Make
-
-Усі листи платформи (MK-02 … MK-05 у попередніх версіях) і дайджест збережених пошуків (MK-06) у MVP надсилає **Bubble** — дією `Send email` у backend workflows. Налаштування: власний SendGrid API key у Bubble і домен платформи з SPF/DKIM, щоб листи не потрапляли в спам.
-
-Кожен лист записується як Integration Job (`job_type = email`, `recipient_user`, `template_key`, `idempotency_key`). Перед відправкою workflow перевіряє Job: якщо він уже `succeeded`, повторно нічого не надсилається. Невдалий лист лишається `failed` і з'являється на екрані A10 Automation Monitor з кнопкою Retry. Невдалий лист ніколи не відкочує бізнес-рішення.
-
-| Подія | Одержувач |
-|---|---|
-| Реєстрація / скидання пароля | користувач |
-| Заявку забудовника отримано | забудовник |
-| Рішення по верифікації: more info required / approved / rejected | забудовник |
-| Рішення по проєкту: changes requested / approved / published / rejected | забудовник |
-| Change request: queried / approved / rejected | забудовник |
-| Запит отримано | інвестор |
-| Introduction затверджено (Approve & connect) | інвестор **і** забудовник, кожен — з дозволеним контактом іншої сторони |
-| Enquiry `on_hold` | **ніхто** |
-| Enquiry `declined` | лише інвестор — нейтральний шаблон, три схожі об'єкти, **без причини** |
-| Змінилася ціна / availability юніта | інвестори, які зберегли юніт або мають відкритий запит (по одному job на одержувача) |
-| Дайджест збережених пошуків | інвестори з активними збереженими пошуками, згідно з `alert_frequency` |
-
-Правила:
-
-- **Introduction:** два окремі job (`intro:<enquiry_id>:investor`, `intro:<enquiry_id>:developer`); якщо один впав, повторюється лише він. Enquiry переходить `approved_for_intro → introduced` лише коли надіслано обидва.
-- **Decline:** причина ніколи не потрапляє в job листа; забудовник листа не отримує і бачить лише лічильник відфільтрованих запитів.
-- **Hold:** job із шаблоном листа для `on_hold` — помилка конфігурації, лист не надсилається.
-- **Маркетингові й сервісні:** дайджест і сповіщення надсилаються лише за активної згоди; security- і сервісні листи — завжди.
-- **Дайджест:** recurring backend workflow у Bubble (щодня о 08:00 UTC; щотижня в понеділок) формує один лист на інвестора; з `alert_frequency = off` — нічого. Recurring workflows доступні лише на платних тарифах Bubble.
-- Template key і мова зберігаються в Integration Job.
-
-### MK-07 і MK-09 — у MVP не будуються
+### Сповіщення про збої й перерахунок score — без окремих сценаріїв
 
 - **Сповіщення про збої:** вбудовані сповіщення Make про помилки сценаріїв (email команді) плюс екран A10 Automation Monitor у Bubble — список failed і stuck Integration Job з кнопкою Retry. Окремий сценарій не потрібен.
 - **Пакетний перерахунок score:** Bubble рахує пакетами в backend workflow і оновлює `processed_count` в Integration Job; Score Editor читає прогрес звідти напряму. Історичні Listing Score ніколи не перезаписуються (BR-04); відкат — новий пакет, а не видалення.
@@ -273,7 +235,7 @@ Error route:
 - `idempotency_key` створює Bubble, Make не генерує його сам;
 - перед side effect Make перевіряє актуальний Job status;
 - після side effect зберігає provider id і повертає його в callback;
-- повторний bundle з тим самим key не відправляє email/AI request повторно, якщо provider id уже існує;
+- повторний bundle з тим самим key не повторює AI request і не зберігає вибірку двічі, якщо provider id уже існує;
 - для Unit change jobs ключ включає target version;
 - для webhook scenarios, де порядок важливий, увімкнути **Process data in order**;
 - для незалежних jobs дозволений parallel processing з provider rate limit.
@@ -287,7 +249,7 @@ Make webhooks за замовчуванням обробляються пара�
 - `Store incomplete executions = Yes`;
 - automatic retry для connection/rate-limit/timeouts;
 - Retry error handler для важливих зовнішніх модулів;
-- no silent Ignore/Skip для AI, introduction, decisions або transactional email;
+- no silent Ignore/Skip для AI-аналізу чи збору оренди;
 - invalid business data → callback `failed_validation`, без нескінченних retry;
 - temporary failure → exponential/backoff retry;
 - permanent 4xx authentication/configuration failure → dead letter + alert;
@@ -317,7 +279,7 @@ Make incomplete executions — механізм відновлення, а не 
 ## 10. Логи та конфіденційність
 
 - У Make scenario logs не передавати більше даних, ніж необхідно.
-- Для introduction і PII-heavy flows розглянути `Keep data confidential`, але врахувати, що це обмежує debugging; рішення має бути узгоджене з incident procedure.
+- Make не обробляє персональних даних інвесторів чи забудовників: лише факти про об'єкт і public IDs.
 - Error message, що повертається в Bubble, redacted: без token, email, document URL, raw OpenAI prompt.
 - Correlation ID = Integration Job public_id у Bubble, Make і зовнішньому metadata.
 - Retention Make logs/incomplete executions документується окремо як subprocessor setting.
@@ -330,17 +292,15 @@ Dashboard метрики:
 |---|---:|
 | Webhook acceptance p95 | < 2 s |
 | AI job complete p95 | < 60 s |
-| Transactional email queued p95 | < 2 min |
-| Introduction complete p95 | < 5 min |
 | Failed jobs after retries | < 1% |
 | Duplicate side effects | 0 |
 | Jobs stuck processing > 15 min | 0 |
 
 Alert levels:
 
-- P1: introduction delivered to one party only; possible data leak; credential compromise.
+- P1: possible data leak; credential compromise.
 - P2: AI/transactional scenario dead-letter, >5 consecutive failures, provider auth error.
-- P3: digest delay, individual noncritical email failure.
+- P3: затримка збору вибірки оренди.
 
 ## 12. Naming convention у Make
 
@@ -353,37 +313,20 @@ Webhook names, connections і data stores мають містити environment.
 
 ## 13. Тестові сценарії
 
-Обов'язково перевірити (пункти 6–8, 11 і 13–15 перевіряють листи, які надсилає Bubble; решта — Make):
+Обов'язково перевірити:
 
-1. валідний AI job → pending review AI Analysis;
-2. duplicate webhook → один AI call/один result;
+1. валідний AI job → AI Analysis зі `review_status = pending`;
+2. duplicate webhook → один AI call / один result;
 3. OpenAI 429 → retry без duplicate callback;
 4. stale score version → cancel без publication;
 5. malformed structured output → one repair attempt → failure;
-6. approved introduction → два унікальні email і status `introduced`;
-7. failure другого introduction email → retry тільки другого;
-8. invalid/missing consent → job не створюється;
-9. Bubble callback timeout після external success → retry callback, не side effect;
-10. Make queue/rate-limit response → Bubble job залишається retryable;
-11. email opt-out → marketing digest не відправляється, transactional відправляється за правилами;
-12. private data не видно в non-admin Make alert;
-13. enquiry `on_hold` → жодного листа; job із шаблоном листа на цей
-    статус завершується `failed_validation`;
-14. enquiry `declined` → рівно один лист інвестору, причина відсутня
-    і в тілі листа, і в job листа;
-15. зміна availability без затвердженого Change Request не створює
-    job на alert;
-16. перерахунок score із частковою помилкою залишає історичні
-    Listing Score недоторканими і показує стан помилки на Score Editor із кількістю опрацьованих;
-17. MK-10 створює Rental Comparable Set зі `review_status = pending`
-    і не змінює жодного Financial Input;
-18. вибірка з `listings_count` = 4 при мінімумі 5 зберігається, але
-    не може бути затверджена; вибірка з 7 затверджується з позначкою
-    thin sample; вибірка старша за 90 днів не пропонується як джерело;
-19. недоступність provider кілька циклів поспіль дає alert, а не
-    мовчазне застарівання оцінки;
-20. повторний запуск MK-10 за тими самими параметрами не створює
-    дубль поточної вибірки.
+6. Bubble callback timeout після external success → retry callback, не зовнішнього виклику;
+7. Make queue/rate-limit response → Bubble job залишається retryable;
+8. жодних персональних даних у payload, логах чи сповіщеннях Make;
+9. MK-10 створює Rental Comparable Set зі `review_status = pending` і не змінює жодного Financial Input;
+10. вибірка з `listings_count` = 4 при мінімумі 5 зберігається, але не може бути затверджена; вибірка з 7 затверджується з позначкою thin sample; вибірка старша за 90 днів не пропонується як джерело;
+11. недоступність provider кілька циклів поспіль дає alert, а не мовчазне застарівання оцінки;
+12. повторний запуск MK-10 за тими самими параметрами не створює дубль поточної вибірки.
 
 ## 14. Критерії готовності Make
 
@@ -391,8 +334,8 @@ Webhook names, connections і data stores мають містити environment.
 - усі critical scenarios мають incomplete executions, retry route і dead-letter alert;
 - secrets розділені Dev/Live і не присутні в payload/URL/log text;
 - кожний scenario має documented owner і rollback/disable procedure;
-- manual replay не породжує duplicate email, AI analysis або status event;
+- manual replay не породжує duplicate AI analysis чи вибірку оренди;
 - Bubble admin бачить status, attempts і redacted error для кожного job;
 - фінансові/approval рішення не залежать від Make Data Store;
-- introduction PII передається тільки після explicit Bubble authorization і consent validation.
+- Make не отримує персональних даних.
 

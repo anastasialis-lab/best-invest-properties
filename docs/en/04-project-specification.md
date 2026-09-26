@@ -92,7 +92,7 @@ flowchart LR
 - Bubble database: authoritative state, versions, audit, consent, integration jobs.
 - Make: collecting rental listings from portals and generating the AI narrative via OpenAI; retry of external calls.
 - OpenAI: reviewed narrative only.
-- Email: all emails and the saved-search digest are sent by Bubble (backend workflows, own SendGrid key and domain with SPF/DKIM).
+- Email: all emails are sent by Bubble (backend workflows, own SendGrid key and domain with SPF/DKIM) — see FR-12.
 
 ## 6. Information architecture and screens
 
@@ -562,7 +562,7 @@ The "thin sample" flag is shown to the admin on the review screen and added for 
 - Profile criteria with an edit link: Budget, Target yield, Preferred countries, Strategy.
 - Recommendations = the same catalogue ranking with saved criteria, unless a separate documented model is approved.
 - Saved Units with changed price/availability badges; removing from the list has a confirmation step ("removing" state).
-- Saved Searches and alert frequency.
+- Saved Searches (saved filters to reopen; no email alerts in the MVP).
 - Enquiries with canonical history and public notes.
 - Empty/loading/error states for each panel independently, plus a separate full empty dashboard state "First day — nothing yet".
 
@@ -717,20 +717,29 @@ The 50% threshold is a UI constant; it can be changed without a database migrati
 
 "View as user" (signing in as a user) is not included in the MVP.
 
-### FR-12 Notifications
+### FR-12 Emails
 
-Transactional templates:
+All emails are sent **by Bubble** (`Send email` in backend workflows), with the platform's own SendGrid key and a domain with SPF/DKIM so emails do not land in spam. Make sends no emails.
 
-1. verify email;
-2. password reset/security notice;
-3. developer application received;
-4. verification more info/approved/rejected;
-5. project submitted/changes requested/approved/published/rejected;
-6. change request queried/approved/rejected;
-7. enquiry received/on hold/declined/introduction approved;
-8. introduction emails to both parties;
-9. price/availability alert;
-10. saved-search digest.
+| Event | Recipient |
+|---|---|
+| Email verification / password reset | the user |
+| Developer application received | the developer |
+| Verification decision: more info required / approved / rejected | the developer |
+| Project decision: changes requested / approved / published / rejected | the developer |
+| Change request: queried / approved / rejected | the developer |
+| Enquiry received | the investor |
+| Introduction approved (Approve & connect) | the investor **and** the developer, each with the other's approved contact details |
+| Enquiry `on_hold` | **nobody** |
+| Enquiry `declined` | the investor only — neutral template, three similar properties, **no reason** |
+| Price/availability of a unit changed | investors who saved the unit or have an open enquiry about it |
+
+Rules:
+
+- every email is logged as an Integration Job with an idempotency key, so a retry never sends it twice; a failed email appears on the A10 Automation Monitor with a Retry button and never cancels the decision;
+- introduction: two separate emails; if one fails, only that one is resent; the Enquiry moves to `introduced` when both are sent;
+- decline: the reason never goes into any email; the developer receives no email and sees only a count of filtered-out requests;
+- price/availability alerts are sent only to users with the matching consent; security and service emails are always sent.
 
 ## 9. Business rules
 
@@ -986,7 +995,8 @@ A feature is complete only when:
 - public partner API/feed;
 - investor post-purchase portfolio tracking;
 - bulk spreadsheet unit import unless separately estimated;
-- advanced analytics dashboard.
+- advanced analytics dashboard;
+- saved-search email digest.
 
 ## 18. Risks
 
