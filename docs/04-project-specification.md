@@ -153,7 +153,7 @@ flowchart LR
 | A05 | Developer Verification | 29 | затверджено |
 | A06 | AI / Analysis Review | 28 (панель) | панель усередині A04, окремого екрана немає — §6.2 |
 | A07 | Score Model Versions | 13 | затверджено; включає компактну таблицю версій — FR-11b |
-| A08 | Enquiries / Contact Release | 12 + 23 | розділено: таблиця enquiries на A02, рішення — у секції Introductions на A03 |
+| A08 | Enquiries / contact release | 12 + 23 | розділено: таблиця enquiries на A02, рішення — у секції Introductions на A03 |
 | A09 | Users and Companies lookup | 30 | затверджено як «User Management» (інвестори + контакти забудовників) |
 | A10 | Automation Monitor | — | мінімальний блок — §6.4 |
 | A11 | Country & Cost Settings | — | мінімальна форма — §6.4 |
@@ -266,7 +266,7 @@ duplicate submit, unsaved changes guard. `404` показано як стан «
 8. “Request information/analysis” opens login/registration when anonymous.
 9. Investor reviews contact-sharing consent and submits Enquiry.
 10. Confirmation shows reference and `submitted` status.
-11. Admin screens enquiry; on approval, confirms Contact Release.
+11. Admin screens enquiry; on approval, confirms contact release.
 12. Make sends both introductions; Enquiry moves to `introduced` after required deliveries.
 13. Investor sees history in P12, developer sees role-safe status in D10/D11.
 
@@ -278,7 +278,7 @@ duplicate submit, unsaved changes guard. `404` показано як стан «
 4. D03 shows `submitted/under_review` with application reference.
 5. Admin A05 reviews document-by-document.
 6. `more_info_required` unlocks relevant upload/fields and shows public reviewer message.
-7. Approved application creates/activates Company Membership and developer role.
+7. Approved application links the User to the Developer Company and activates the developer role.
 8. Rejected application retains reason, support path and allowed resubmission policy.
 
 ### 7.3 Project submission → publication
@@ -287,7 +287,7 @@ duplicate submit, unsaved changes guard. `404` показано як стан «
 2. Adds Unit Types, Units, media and private documents.
 3. Readiness checklist is calculated from explicit submission rules.
 4. Save draft is autosafe/manual; unsaved changes guard works.
-5. Submit creates immutable Project Content Version and status `submitted`.
+5. Submit sets status `submitted`; the project cannot be edited during review.
 6. Admin A04 sees full media/documents/financial inputs and validation summary.
 7. Request Changes creates structured request; D09 shows fields/reason and resubmit path.
 8. Approve і Publish — окремі дії.
@@ -371,7 +371,7 @@ net yield і повний Investment Analysis доступні **анонімн�
 - Стан `Analysis not ready` показує об'єкт без блоку аналізу й без score.
 - Стан `Enquiry sent` замінює CTA підтвердженням із референсом запиту.
 - CTA captures chosen Unit.
-- No listing may publish without cover image, current financial snapshot and current score.
+- No listing may publish without cover image, calculated financials and current score.
 
 ### FR-03 Analysis and score
 
@@ -570,7 +570,7 @@ MVP використовує ручне внесення чи імпорт compa
 - запропоновані значення не потрапляють у публічний listing, поки
   адміністратор не затвердить їх на A04. До затвердження панель підписана
   «Not yet visible to investors»;
-- затвердження фіксує рецензента, час і версії моделі/снапшоту;
+- затвердження фіксує рецензента й час (Audit Event);
 - поруч із кожним показником показується контрольна панель **Financial inputs**
   з джерелом кожної цифри («Developer rent claim», «Our comparable rent»,
   «Rent used for scoring»).
@@ -599,7 +599,7 @@ MVP використовує ручне внесення чи імпорт compa
 - Live calculation is deterministic and uses formula version.
 - Clearly state why personalised scenario may differ from published yield.
 - Save/name scenario requires login.
-- Калькулятор використовує ті самі формули, що й Financial Snapshot
+- Калькулятор використовує ті самі формули, що й фінансові показники Unit
   (архітектура БД §5.4), і ту саму затверджену оцінку оренди.
 
 ### FR-05 Compare
@@ -747,7 +747,7 @@ MVP використовує ручне внесення чи імпорт compa
   замок і текст **«Contact details released after Best Invest approves»** —
   жодних PII. Після затвердження в тому самому полі з'являються ім'я і
   email/телефон.
-- After Contact Release, show only approved contact fields.
+- After contact release, show only approved contact fields.
 - Developer can acknowledge/respond and record outcome.
 - SLA age indicator after introduction. Строк на перший контакт із боку
   забудовника — **п'ять робочих днів** (текст модального вікна
@@ -778,7 +778,7 @@ MVP використовує ручне внесення чи імпорт compa
 - Every decision requiring rejection/change has reason; модальне вікно не дає
   підтвердити порожню причину і показує «A reason is required before this can be sent.»
 - Approval UI shows full context and stale-record detection.
-- Publish and Contact Release require confirmation.
+- Publish and contact release require confirmation.
 - All decisions append Audit Event.
 
 **Після рішення — без Undo.** Після `Approve & connect` контакти вже
@@ -924,7 +924,7 @@ Closure blocks access immediately, explains retained records and queues export/a
 
 Ім'я та контакти забудовника не показуються в публічному каталозі й на
 сторінці об'єкта за жодних умов. Публічний підпис — «Introduced by Best
-Invest». Контакти розкриваються лише через Contact Release після згоди
+Invest». Контакти розкриваються лише через розкриття контактів на Enquiry після згоди
 інвестора та затвердження адміністратором.
 
 ### BR-08 Editable fields after publication
@@ -1100,7 +1100,7 @@ Exit: frozen v1 schema і seed data.
 
 - Unit cached fields match Project/Unit Type after rebuild;
 - published filters return only allowed records;
-- Financial Snapshot formula golden tests;
+- financial formula golden tests;
 - score components/weights totals;
 - Change Request applies once;
 - historical versions stay unchanged.
@@ -1142,7 +1142,7 @@ Feature complete only when:
 
 ## 17. Out of scope for MVP
 
-- multiple company team members/invitations in UI, хоча schema готова;
+- кілька членів команди забудовника / запрошення (у MVP один користувач на компанію);
 - in-platform chat;
 - CRM sync/export;
 - map search and location intelligence;
@@ -1164,8 +1164,8 @@ Feature complete only when:
 | Make duplicate execution | duplicate emails/contact release | Integration Job + channel idempotency |
 | AI unsupported claim | reputational/legal | structured facts, validation, human review, fallback |
 | Різні підписи статусів для ролей | broken journey/reporting | one canonical Enquiry Status |
-| Published edits without history | audit failure | Change Request/Content Version |
-| Heavy live searches/workload | cost/performance | denormalized Unit snapshot, constraints, pagination |
+| Published edits without history | audit failure | Change Request + Audit Event |
+| Heavy live searches/workload | cost/performance | denormalized Unit fields, constraints, pagination |
 | Legal text remains draft | launch blocker | named counsel/owner and approval gate |
 
 ## 19. Official implementation references

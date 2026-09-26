@@ -7,7 +7,7 @@ Publication: only after admin review
 
 ## 1. Purpose
 
-In the MVP, OpenAI performs one controlled function: it writes the readable Investment Analysis text from already verified facts, the Financial Snapshot and the Listing Score.
+In the MVP, OpenAI performs one controlled function: it writes the readable Investment Analysis text from already verified facts, the unit's financial metrics and the Listing Score.
 
 OpenAI does **not**:
 
@@ -361,7 +361,7 @@ Make/Bubble rejects the result if:
 - forbidden claims are used: guarantee, risk-free, assured return, certain appreciation;
 - `missing_data` contains a key not in the list of missing/optional fields;
 - the schema/prompt version does not match the Integration Job;
-- the linked Financial Snapshot or Listing Score is no longer current;
+- the linked Listing Score is no longer current;
 - `score_explanation` names a number of categories other than five, or describes a high score in the `risk` category as high risk;
 - any `analysis_fact` tagged `gap` is mentioned in neither `risks` nor `missing_data`;
 - a fact tagged `developer` is presented as independently verified.
@@ -374,7 +374,7 @@ The admin queue shows:
 
 - the rendered narrative;
 - all source keys with their source values alongside;
-- score model / financial snapshot versions;
+- the score model version and the financial calculation date;
 - a diff against the previous approved version;
 - validation warnings;
 - Approve, Request regeneration, Reject.
@@ -457,7 +457,7 @@ The regression eval runs whenever the model, prompt, schema, calculation payload
 - `max_output_tokens = 1800`;
 - at most one automatic repair attempt;
 - do not regenerate unless the input hash/prompt version/model policy has changed;
-- cache the analysis by `unit + financial_snapshot + score + prompt_version + model`;
+- cache the analysis by `unit + listing_score + prompt_version + model`;
 - daily/monthly OpenAI budget alert in the platform dashboard;
 - model routing: Luna primary; Terra only when eval/quality or a manual reviewer requires it.
 

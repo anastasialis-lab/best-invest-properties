@@ -185,12 +185,12 @@ Error route:
 
 **Events:** email verification, password reset (if not handled by Bubble), application received, verification decision, changes requested, project decision, enquiry received, status update.
 
-The payload contains `notification_id` and `template_key`, not arbitrary HTML. Make fetches approved template data from Bubble.
+The payload contains `job_id` and `template_key`, not arbitrary HTML. The recipient and template are stored on the Integration Job itself; Make fetches approved template data from Bubble.
 
 Steps:
 
 1. Receive job.
-2. Fetch Notification payload.
+2. Fetch the email payload by `job_id`.
 3. Router by `template_key`.
 4. Send through the email provider.
 5. Callback with the provider message id.
@@ -200,7 +200,7 @@ Rules:
 - do not mix transactional and marketing email;
 - send marketing messages only with an active Consent Record;
 - unsubscribe does not apply to security/transactional messages;
-- record template version and language on the Notification.
+- record template version and language on the Integration Job.
 
 ### MK-03 Approved introduction delivery
 
@@ -211,7 +211,7 @@ Preconditions in Bubble before the job is created:
 - Enquiry status `approved_for_intro`;
 - the investor has active consent to contact sharing;
 - Unit/Project/Company are not suspended;
-- a Contact Release exists and contains the field whitelist;
+- the contact release fields on the Enquiry are filled in (who, when, which fields);
 - admin confirmation is complete.
 
 Make steps:
@@ -255,7 +255,7 @@ Triggered after a Change Request is successfully applied and financials/score ar
 
 Because both price and availability go through admin approval, this scenario always starts from one point — after `apply_change_request`. There is no separate branch for an "immediate" availability change.
 
-Bubble prepares a list of Notification IDs for:
+Bubble creates one Integration Job per recipient:
 
 - investors who saved the Unit;
 - investors with an open Enquiry;
@@ -275,7 +275,7 @@ Events:
 
 Schedule: daily at 08:00 in the user's timezone, or one global UTC batch in the MVP.
 
-The Bubble endpoint returns a batch of Notification IDs already built according to privacy/business rules. Make sends the digest and the callback. No per-user uncontrolled Data API scans in Make.
+The Bubble endpoint returns a batch of Integration Job IDs already built according to privacy/business rules. Make sends the digest and the callback. No per-user uncontrolled Data API scans in Make.
 
 ### MK-07 Integration dead-letter alert
 
@@ -309,13 +309,13 @@ Rules:
 
 ### MK-10 Comparable rental data collection
 
-**Trigger:** schedule. The frequency depends on each provider's terms and is set in the Data Provider reference table.
+**Trigger:** schedule. The frequency depends on each provider's terms and is set in the attributes of the `Data Provider` Option Set.
 
 The market rent estimate is built from collected comparable listings, not entered manually by an analyst.
 
 Steps:
 
-1. Get from Bubble the list of active Data Providers and the parameter sets that need a fresh sample. "Needs" means the current sample is older than `Country Config.max_comparable_age_days` (default **90**) or does not exist. Bubble builds the list — Make does not decide on its own what is stale.
+1. Get from Bubble the list of active providers (the `Data Provider` Option Set) and the parameter sets that need a fresh sample. "Needs" means the current sample is older than `Country Config.max_comparable_age_days` (default **90**) or does not exist. Bubble builds the list — Make does not decide on its own what is stale.
 2. For each set, call the provider's official API or feed.
 3. Normalise the response by country, city/district, property type, number of bedrooms and floor area.
 4. Compute `listings_count`, `rent_min`, `rent_median`, `rent_max`.
@@ -333,7 +333,7 @@ Rules:
 
 **Fallback without an API.** If a portal has no permitted API or feed, the sample is entered manually through the Bubble admin. Make is not involved in that case, but the record is created with the same type and the same fields.
 
-**Legal note.** Connecting each source requires a check of its data terms of use. This is a contractual matter, not a technical one — see `terms_reference` on the Data Provider.
+**Legal note.** Connecting each source requires a check of its data terms of use. This is a contractual matter, not a technical one — see the `terms_reference` attribute in the `Data Provider` Option Set.
 
 ## 7. Idempotency and concurrency
 
@@ -364,7 +364,7 @@ In all production scenarios:
 - `Discard data if storage is full = No` for critical scenarios;
 - do not enable `Commit after each module` without a specific need; control side effects with your own channel-level idempotency.
 
-Make incomplete executions are a recovery mechanism, not long-term storage. Critical data stays in the Bubble Integration Job/Notification.
+Make incomplete executions are a recovery mechanism, not long-term storage. Critical data stays in the Bubble Integration Job.
 
 ## 9. Data Store in Make
 

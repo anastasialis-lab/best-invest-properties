@@ -8,7 +8,7 @@ API: OpenAI Responses API
 
 ## 1. Мета
 
-У MVP OpenAI виконує одну контрольовану функцію: створює читабельний текст Investment Analysis на основі вже перевірених фактів, Financial Snapshot і Listing Score.
+У MVP OpenAI виконує одну контрольовану функцію: створює читабельний текст Investment Analysis на основі вже перевірених фактів, фінансових показників юніта і Listing Score.
 
 OpenAI **не**:
 
@@ -372,7 +372,7 @@ Make/Bubble відхиляє результат, якщо:
 - використано заборонені claims: guarantee, risk-free, assured return, certain appreciation;
 - `missing_data` містить ключ, якого немає у списку missing/optional fields;
 - schema/prompt version не збігається з Integration Job;
-- пов'язаний Financial Snapshot або Listing Score уже не current;
+- пов'язаний Listing Score уже не current;
 - `score_explanation` називає кількість категорій, відмінну від п'яти,
   або описує високий бал у категорії `risk` як високий ризик;
 - будь-який `analysis_fact` із тегом `gap` не згаданий ні в `risks`,
@@ -387,7 +387,7 @@ Admin queue показує:
 
 - rendered narrative;
 - усі source keys і вихідні значення поруч;
-- score model/financial snapshot versions;
+- версію score-моделі та дату фінансового розрахунку;
 - diff з попередньою approved версією;
 - validation warnings;
 - Approve, Request regeneration, Reject.
@@ -471,7 +471,7 @@ Regression eval запускається при зміні model, prompt, schema
 - `max_output_tokens = 1800`;
 - одна автоматична repair attempt максимум;
 - не генерувати повторно, якщо не змінився input hash/prompt version/model policy;
-- cache analysis по `unit + financial_snapshot + score + prompt_version + model`;
+- cache analysis по `unit + listing_score + prompt_version + model`;
 - daily/monthly OpenAI budget alert у platform dashboard;
 - model routing: Luna primary; Terra лише коли eval/quality або manual reviewer вимагає.
 

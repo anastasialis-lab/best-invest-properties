@@ -146,7 +146,7 @@ The "Prototype" column shows the screen number in the approved prototype. `—` 
 | A05 | Developer Verification | 29 | approved |
 | A06 | AI / Analysis Review | 28 (panel) | panel inside A04, no separate screen — §6.2 |
 | A07 | Score Model Versions | 13 | approved; includes a compact versions table — FR-11b |
-| A08 | Enquiries / Contact Release | 12 + 23 | split: enquiries table on A02, decisions in the Introductions section of A03 |
+| A08 | Enquiries / contact release | 12 + 23 | split: enquiries table on A02, decisions in the Introductions section of A03 |
 | A09 | Users and Companies lookup | 30 | approved as "User Management" (investors + developer contacts) |
 | A10 | Automation Monitor | — | minimal block — §6.4 |
 | A11 | Country & Cost Settings | — | minimal form — §6.4 |
@@ -234,7 +234,7 @@ Five screens are needed for the MVP **in minimal form** — one screen each, in 
 8. "Request information/analysis" opens login/registration when anonymous.
 9. Investor reviews contact-sharing consent and submits the Enquiry.
 10. Confirmation shows the reference and `submitted` status.
-11. Admin screens the enquiry; on approval, confirms the Contact Release.
+11. Admin screens the enquiry; on approval, confirms the contact release.
 12. Make sends both introductions; the Enquiry moves to `introduced` after the required deliveries.
 13. Investor sees the history in P12; developer sees a role-safe status in D10/D11.
 
@@ -246,7 +246,7 @@ Five screens are needed for the MVP **in minimal form** — one screen each, in 
 4. D03 shows `submitted/under_review` with the application reference.
 5. Admin A05 reviews document by document.
 6. `more_info_required` unlocks the relevant uploads/fields and shows the public reviewer message.
-7. An approved application creates/activates the Company Membership and the developer role.
+7. An approved application links the User to the Developer Company and activates the developer role.
 8. A rejected application keeps the reason, support path and allowed resubmission policy.
 
 ### 7.3 Project submission → publication
@@ -255,7 +255,7 @@ Five screens are needed for the MVP **in minimal form** — one screen each, in 
 2. Adds Unit Types, Units, media and private documents.
 3. The readiness checklist is calculated from explicit submission rules.
 4. Save draft is autosave/manual; the unsaved changes guard works.
-5. Submit creates an immutable Project Content Version and status `submitted`.
+5. Submit sets status `submitted`; the project cannot be edited during review.
 6. Admin A04 sees full media/documents/financial inputs and a validation summary.
 7. Request Changes creates a structured request; D09 shows fields/reason and the resubmit path.
 8. Approve and Publish are separate actions.
@@ -320,7 +320,7 @@ Rules:
 - The `Analysis not ready` state shows the property without the analysis block and without a score.
 - The `Enquiry sent` state replaces the CTA with a confirmation and the enquiry reference.
 - The CTA captures the chosen Unit.
-- No listing may publish without a cover image, a current financial snapshot and a current score.
+- No listing may publish without a cover image, calculated financials and a current score.
 
 ### FR-03 Analysis and score
 
@@ -488,7 +488,7 @@ The "thin sample" flag is shown to the admin on the review screen and added for 
 - every row has a provenance label: `Proposed` (proposed by the analyst), `Assumption` (platform default value), `Calculated` (deterministically derived from the others);
 - derived values (acquisition cost, net rental income, yields, score) are **always** calculated by the deterministic service;
 - proposed values do not reach the public listing until the admin approves them on A04. Before approval the panel is labelled "Not yet visible to investors";
-- approval records the reviewer, time and model/snapshot versions;
+- approval records the reviewer and time (Audit Event);
 - alongside each figure, the **Financial inputs** control panel shows the source of every number ("Developer rent claim", "Our comparable rent", "Rent used for scoring").
 
 ### FR-04 Calculator
@@ -511,7 +511,7 @@ The "thin sample" flag is shown to the admin on the review screen and added for 
 - Live calculation is deterministic and uses the formula version.
 - Clearly state why a personalised scenario may differ from the published yield.
 - Saving/naming a scenario requires login.
-- The calculator uses the same formulas as the Financial Snapshot (database architecture §5.4) and the same approved rent estimate.
+- The calculator uses the same formulas as the Unit financial fields (database architecture §5.4) and the same approved rent estimate.
 
 ### FR-05 Compare
 
@@ -621,7 +621,7 @@ The "thin sample" flag is shown to the admin on the review screen and added for 
 
 - Before release the developer sees the enquiry reference, Unit/project, budget band, fit summary and stage without investor PII.
 - The Leads screen (22) shows rows with: reference (`LEAD-0412`), project/unit, budget band, stage, contact, date. Until a decision is made, the contact field shows a lock and the text **"Contact details released after Best Invest approves"** — no PII. After approval, the name and email/phone appear in the same field.
-- After the Contact Release, show only the approved contact fields.
+- After contact release, show only the approved contact fields.
 - The developer can acknowledge/respond and record the outcome.
 - SLA age indicator after introduction. The developer has **five working days** for first contact (text of the "Approve & connect" modal).
 - **Behaviour on decline:**
@@ -644,7 +644,7 @@ The "thin sample" flag is shown to the admin on the review screen and added for 
 - Type filter — five tabs; plus filters by request age, `overdue` (follow-up date in the past) and status.
 - Every decision that rejects or requests changes has a reason; the modal does not allow confirming an empty reason and shows "A reason is required before this can be sent."
 - The approval UI shows full context and stale-record detection.
-- Publish and Contact Release require confirmation.
+- Publish and contact release require confirmation.
 - All decisions append an Audit Event.
 
 **No Undo after a decision.** After `Approve & connect` the contacts are already disclosed and the emails sent, so cancellation is impossible. Rules:
@@ -765,7 +765,7 @@ Closure blocks access immediately, explains retained records and queues export/a
 
 ### BR-07 Developer anonymity
 
-The developer's name and contacts are never shown in the public catalogue or on the property page. The public label is "Introduced by Best Invest". Contacts are disclosed only through a Contact Release after investor consent and admin approval.
+The developer's name and contacts are never shown in the public catalogue or on the property page. The public label is "Introduced by Best Invest". Contacts are disclosed only through the contact release on the Enquiry, after investor consent and admin approval.
 
 ### BR-08 Editable fields after publication
 
@@ -933,7 +933,7 @@ Exit: frozen v1 schema and seed data.
 
 - Unit cached fields match Project/Unit Type after rebuild;
 - published filters return only allowed records;
-- Financial Snapshot formula golden tests;
+- financial formula golden tests;
 - score component/weight totals;
 - a Change Request applies once;
 - historical versions stay unchanged.
@@ -975,7 +975,7 @@ A feature is complete only when:
 
 ## 17. Out of scope for the MVP
 
-- multiple company team members/invitations in the UI, although the schema is ready;
+- multiple team members per developer company / invitations (one user per company in the MVP);
 - in-platform chat;
 - CRM sync/export;
 - map search and location intelligence;
@@ -997,8 +997,8 @@ A feature is complete only when:
 | Make duplicate execution | duplicate emails/contact release | Integration Job + channel idempotency |
 | AI unsupported claim | reputational/legal | structured facts, validation, human review, fallback |
 | Different status labels per role | broken journey/reporting | one canonical Enquiry Status |
-| Published edits without history | audit failure | Change Request/Content Version |
-| Heavy live searches/workload | cost/performance | denormalised Unit snapshot, constraints, pagination |
+| Published edits without history | audit failure | Change Request + Audit Event |
+| Heavy live searches/workload | cost/performance | denormalised Unit fields, constraints, pagination |
 | Legal text remains draft | launch blocker | named counsel/owner and approval gate |
 
 ## 19. Official implementation references

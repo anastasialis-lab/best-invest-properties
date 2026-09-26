@@ -188,12 +188,12 @@ Error route:
 
 **Події:** email verification, password reset (якщо не handled Bubble), application received, verification decision, changes requested, project decision, enquiry received, status update.
 
-Payload містить `notification_id` і `template_key`, а не довільний HTML. Make отримує approved template data з Bubble.
+Payload містить `job_id` і `template_key`, а не довільний HTML. Одержувач і шаблон зберігаються в самому Integration Job; Make отримує approved template data з Bubble.
 
 Кроки:
 
 1. Receive job.
-2. Fetch Notification payload.
+2. Fetch email payload за `job_id`.
 3. Router by `template_key`.
 4. Send through email provider.
 5. Callback with provider message id.
@@ -203,7 +203,7 @@ Payload містить `notification_id` і `template_key`, а не довіль
 - transactional і marketing email не змішувати;
 - marketing повідомлення відправляти лише за активною Consent Record;
 - unsubscribe не застосовується до security/transactional messages;
-- template version і language записувати в Notification.
+- template version і language записувати в Integration Job.
 
 ### MK-03 Approved introduction delivery
 
@@ -214,7 +214,7 @@ Preconditions у Bubble до створення job:
 - Enquiry status `approved_for_intro`;
 - є активна згода investor на contact sharing;
 - Unit/Project/Company не suspended;
-- Contact Release створений і містить whitelist полів;
+- на Enquiry заповнено поля розкриття контактів (хто, коли, які поля);
 - admin confirmation завершено.
 
 Кроки Make:
@@ -266,7 +266,7 @@ Trigger після успішного apply Change Request і перерахун
 сценарій завжди запускається з однієї точки — після `apply_change_request`.
 Окремої гілки для «негайної» зміни availability немає.
 
-Bubble готує список Notification IDs для:
+Bubble створює по одному Integration Job на кожного одержувача:
 
 - investors, що зберегли Unit;
 - investors з open Enquiry;
@@ -286,7 +286,7 @@ Make не виконує широкий пошук у Bubble Data API. Fan-out �
 
 Schedule: щодня о 08:00 у timezone користувача або один global UTC batch у MVP.
 
-Bubble endpoint повертає batch Notification IDs, уже сформовані по privacy/business rules. Make відправляє digest і callback. Не виконувати per-user uncontrolled Data API scans у Make.
+Bubble endpoint повертає batch Integration Job IDs, уже сформованих за privacy/business rules. Make відправляє digest і callback. Не виконувати per-user uncontrolled Data API scans у Make.
 
 ### MK-07 Integration dead-letter alert
 
@@ -329,14 +329,14 @@ Bubble з браузера, потрібен сценарій, який пові
 ### MK-10 Comparable rental data collection
 
 **Trigger:** розклад. Частота визначається умовами кожного provider і
-задається в довіднику Data Provider.
+задається в атрибутах Option Set `Data Provider`.
 
 Оцінка ринкової оренди формується зі зібраних порівняльних оголошень, а не
 вручну аналітиком.
 
 Кроки:
 
-1. Отримати з Bubble перелік активних Data Provider і наборів параметрів,
+1. Отримати з Bubble перелік активних провайдерів (Option Set `Data Provider`) і наборів параметрів,
    для яких потрібна свіжа вибірка. «Потрібна» означає: поточна вибірка
    старша за `Country Config.max_comparable_age_days` (дефолт **90**) або
    відсутня взагалі. Перелік формує Bubble — Make сам не вирішує, що
@@ -371,7 +371,7 @@ Bubble з браузера, потрібен сценарій, який пові
 
 **Юридичне застереження.** Підключення кожного джерела потребує перевірки
 умов використання даних. Це не технічне, а договірне питання — див.
-`terms_reference` у Data Provider.
+атрибут `terms_reference` в Option Set `Data Provider`.
 
 ## 7. Ідемпотентність і concurrency
 
@@ -402,7 +402,7 @@ Make webhooks за замовчуванням обробляються пара�
 - `Discard data if storage is full = No` для critical scenarios;
 - `Commit after each module` не вмикати без конкретної потреби; side effects контролювати власною channel-level idempotency.
 
-Make incomplete executions — механізм відновлення, а не довготривале сховище. Critical data лишається в Bubble Integration Job/Notification.
+Make incomplete executions — механізм відновлення, а не довготривале сховище. Critical data лишається в Bubble Integration Job.
 
 ## 9. Data Store у Make
 

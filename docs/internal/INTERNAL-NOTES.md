@@ -104,3 +104,29 @@ support mode з чотирма умовами: помітний banner на вс
 «підтверджено прототипом», посилання на Р-xx / В-xx / DEC-xx, журнал рішень
 (§19 специфікації проєкту) і розділ «Відкриті рішення» (§14 архітектури БД).
 Повна історія — у журналі змін.
+
+## 8. Спрощення бази даних до 30 типів (26.09.2026)
+
+Було 42 типи, стало 30 (+4 нові Option Sets). Усі типи в `01` тепер описані
+таблицями «Поле · Тип · Обов'язкове · Примітка».
+
+| Було | Стало |
+|---|---|
+| Company Membership | поле `developer_company` на User (один користувач на компанію) |
+| Score Criterion, Score Sub-criterion | Option Sets з атрибутами |
+| Score Weight | 5 полів `weight_*` на Score Model Version |
+| Amenity, Data Provider | Option Sets |
+| Contact Release | поля `contact_released_at` і `released_*` на Enquiry |
+| Change Item | поля `old/new_price`, `old/new_availability` на Change Request |
+| Financial Snapshot | фінансові поля на Unit + `*_used` на Listing Score (для відтворюваності score) |
+| Project Content Version | прибрано; історію дає Change Request + Audit Event |
+| Legal Document Version | прибрано; юридичні сторінки статичні, версія — у Consent Record |
+| Notification | прибрано; журнал листів — Integration Job (`recipient_user`, `template_key`) |
+
+Також прибрано версіонування налаштувань: `effective_from/to` і `version_number`
+на Country Config, Cost Rule, Market Benchmark, Document Requirement. Історію
+змін цих записів фіксує Audit Event. Історія лишилась лише для score-моделі й
+балів, згод (GDPR) і Financial Input (`superseded_by`).
+
+Формула vacancy записана як `× (1 − vacancy_rate)` замість `× occupancy_rate` —
+те саме, але узгоджено з полем `default_vacancy_rate` на Country Config.
