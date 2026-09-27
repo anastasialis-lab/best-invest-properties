@@ -1,6 +1,6 @@
 # Project Specification — Best Invest Properties MVP
 
-Date: 26 September 2026  
+Date: 27 September 2026  
 Platform: Bubble (no-code)  
 Connected services: Make, OpenAI, SendGrid (email)
 
