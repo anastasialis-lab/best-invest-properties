@@ -1,6 +1,7 @@
 # Project Specification — Best Invest Properties MVP
 
-Date: 27 September 2026  
+Version: 1.2  
+Date: 29 September 2026  
 Platform: Bubble (no-code)  
 Connected services: Make, OpenAI, SendGrid (email)
 
@@ -8,7 +9,7 @@ This document describes what the first version (MVP) of the platform does: who u
 
 ## 1. What we are building
 
-Best Invest Properties is a platform for investment property in **Spain and Cyprus**.
+Best Invest Properties is a platform for investment property in **Southern Europe**. The initial markets are **Spain and Cyprus**.
 
 - **Investors** find a specific available unit, compare its figures and score, and ask Best Invest for an introduction to the developer.
 - **Developers** get verified, submit projects and keep prices and availability up to date.
@@ -33,10 +34,10 @@ There is one admin type in the MVP. Every important admin action needs a confirm
 |---|---|
 | **Bubble** | the website, the database, all calculations (yields, score) and all emails |
 | **Make** | collects comparable rental listings from property portals and requests the AI text from OpenAI |
-| **OpenAI** | writes the investment analysis text from already verified facts |
+| **OpenAI** | writes the investment analysis text and helps prepare proposed figures and assessments for the admin to check |
 | **SendGrid** | delivers the emails that Bubble sends |
 
-The rule behind this split: **Make collects, Bubble calculates, OpenAI explains.** No financial figure ever comes from AI.
+The rule behind this split: **fixed calculations are always done by the platform; anything proposed with AI assistance is checked by the admin before it is used** (see 6.3).
 
 ## 4. Screens
 
@@ -87,12 +88,12 @@ The number in brackets is the screen number in the approved prototype.
 | Developer Verification (29) | checking a developer's documents |
 | User Management (30) | investors and developer contacts |
 | Score Editor (13) | score weights and model versions |
-| Automation Monitor (new) | failed tasks with a Retry button |
-| Country & Cost Settings (new) | taxes, costs and rent-sample settings per country |
 
 The admin menu has four items: **Dashboard · Approvals · Investors · Investment Scores**. Project Review and Developer Verification open from the Approvals queue.
 
 "New" screens are not in the prototype yet. They are simple, one screen each, in the same style.
+
+**Ideas to scope separately** (not part of this release): Country Fact Sheets, an editor for updating them, and a blog.
 
 ## 5. Main journeys
 
@@ -141,13 +142,14 @@ The admin menu has four items: **Dashboard · Approvals · Investors · Investme
 | Bedrooms | Studio, 1, 2, 3+ |
 | Strategy | Long-term rental, Short-term rental, Mixed with private use, Capital growth |
 | Completion | Ready, less than 12 months, 12–24 months |
-| Maximum price | slider from the lowest to the highest price in the catalogue (updates automatically as properties are added); by default set to the highest |
+| Maximum price | slider from €100k to €600k+ (the top position means no upper limit), so an investor can set their budget even if no current listing is that low |
 | Minimum gross yield | slider 4% – 10%, default 6% |
 | Minimum net yield | slider 3% – 8%, default 4.5% |
 
 - **Sorting:** net yield (default), gross yield, investment score, price.
 - **8 properties per page**, with page numbers and "Showing X–Y of N properties".
 - **Top 5** list next to the results, following the current sorting. On mobile it moves above the list.
+- **Capital-growth properties** (bought mainly for price growth rather than rent) are found with the Strategy filter "Capital growth". When this strategy is selected, the yield filters do not hide them. They can be sorted by investment score or price; when sorting by yield, properties without a rental yield appear at the end.
 - An investor can add properties to **Compare** straight from the cards — up to five.
 - On mobile the filters open in a slide-out panel.
 
@@ -156,6 +158,7 @@ The admin menu has four items: **Dashboard · Approvals · Investors · Investme
 ### 6.2 Property page
 
 - Price, availability, unit details, project facilities, photos, score and financial figures.
+- **Two sets of rental figures, shown separately:** the developer's claimed rent and yield, and the platform's reviewed rent estimate and calculated yield.
 - The developer's name and contacts are **never shown**. The page says "Introduced by Best Invest".
 - If the unit is sold or withdrawn, the page says so and suggests similar properties.
 - After an enquiry is sent, the button is replaced by a confirmation with the enquiry reference.
@@ -172,7 +175,16 @@ The score is out of 100 and has **five categories**:
 | Growth & Resale Potential | 15 |
 | Risk & Investor Protection | 15 |
 
-Each category gets a **rating from 0 to 10**, which is turned into points: `points = rating / 10 × category weight`.
+**Fixed calculations and AI-assisted assessments.** The platform separates two kinds of figures:
+
+| Kind | Examples | Who produces it |
+|---|---|---|
+| Fixed calculations | acquisition cost, gross yield, net yield, points from each rating, the total score | calculated by the platform, always the same way |
+| Proposed figures and assessments | market rent estimate, comparable properties, category ratings that need judgement (demand, growth, risk, value) | may be proposed with AI assistance; the admin checks and approves them before they are used |
+
+Nothing proposed with AI assistance reaches investors without the admin's approval.
+
+**Scoring methodology — draft, still to be approved.** The working proposal below is how each category would get a **rating from 0 to 10**, turned into points as `points = rating / 10 × category weight`.
 
 **Rental Income & Net Yield** — rated automatically from net yield:
 
@@ -186,7 +198,7 @@ Each category gets a **rating from 0 to 10**, which is turned into points: `poin
 |---|---|---|---|---|---|---|---|
 | Rating | 10 | 9 | 8 | 7 | 5 | 3 | 1 |
 
-**The other three categories** are assessed by the analyst using sub-criteria that add up to 10:
+**The other three categories** are assessed using sub-criteria that add up to 10:
 
 | Category | Sub-criteria (points) |
 |---|---|
@@ -204,18 +216,15 @@ The analysis screen also shows the **Sources, assumptions & gaps** block, where 
 |---|---|
 | Price, size, completion date | the developer |
 | Developer's claimed rent | the developer — stored separately, never used automatically |
-| Market rent estimate | comparable rental listings collected from approved portals |
+| Market rent estimate | comparable rental listings from approved portals, reviewed by the admin |
 | Running costs | approved averages for the country |
 | Vacancy allowance | platform settings |
 | Purchase taxes and costs | official country rates, checked by a tax consultant |
 | Acquisition cost, gross yield, net yield | calculated by the platform |
 
-**Rent estimate rules:**
+**Rent estimate:**
 
-- listings are grouped by country, district, property type, bedrooms and size; the platform calculates a range and a median;
-- fewer than **5** listings — the estimate cannot be approved;
-- **5–9** listings — approved, but marked "thin sample", and investors see this;
-- older than **90 days** — the estimate must be refreshed;
+- comparable rentals are grouped by country, district, property type, bedrooms and size, and assessed using relevant features such as a pool, parking or a gated area; the platform shows a range and a median;
 - if a portal has no data feed, the listings can be entered by hand;
 - the admin approves every estimate before it is used.
 
@@ -223,10 +232,12 @@ On Project Review the admin sees the developer's claimed rent, Best Invest's com
 
 ### 6.5 Calculator
 
-- Inputs: purchase price, cash or mortgage, deposit, interest rate, term, monthly rent, occupancy, management fee.
-- Switches: **long-term / short-term** strategy and **base / average / best case** rent.
+- Inputs: purchase price, monthly rent, occupancy, management fee. There are no mortgage, deposit, interest-rate or loan-term inputs.
+- The **long-term / short-term** switch sets the rental strategy. The **base / average / best case** switch sets the rent.
 - Country purchase costs and running costs are added automatically.
-- Errors are shown under the field, and the result is not shown until they are fixed (e.g. "Deposit cannot exceed the purchase price.").
+- A property still under development shows **no rental income before its expected completion date**.
+- **5- and 10-year projections** are shown; how they are calculated is still to be agreed.
+- Errors are shown under the field, and the result is not shown until they are fixed (e.g. "Enter a purchase price above zero.").
 - Saving a scenario needs an account.
 
 ### 6.6 Compare
@@ -247,7 +258,7 @@ On Project Review the admin sees the developer's claimed rent, Best Invest's com
 ### 6.8 Investor dashboard and settings
 
 - Dashboard: investment criteria, recommended properties, saved properties (with "price changed" / "status changed" badges), saved searches, enquiries and their status.
-- Saved searches are saved filters to reopen later. There are no email alerts for them in the MVP.
+- Saved searches are saved filters to reopen later. When a new property matching a saved search is published, the investor receives an email.
 - Settings: contact details, criteria, consents, password change, account closure (with a reason; records linked to completed introductions are kept for seven years as required by law).
 
 ### 6.9 Developer application
@@ -289,7 +300,7 @@ The document list is a setting per country, not fixed in the build. After submit
 |---|---|---|
 | Approve & connect | to the investor **and** the developer | contacts shared, status "Connected" |
 | Hold | none | status "On hold"; reason and follow-up date required |
-| Decline | to the investor only — neutral message with three similar properties, **no reason** | status "Declined"; the developer sees only a count of filtered-out requests |
+| Decline | to the investor only — neutral wording with three similar properties | status "Declined"; the admin can enter an internal free-text reason, never shown to the investor or the developer; the developer sees only a count of filtered-out requests |
 
 Before approval a warning says that contact details cannot be recalled once sent.
 
@@ -297,7 +308,7 @@ Before approval a warning says that contact details cannot be recalled once sent
 
 - **Dashboard:** five counters (registered investors, active developers, published properties, new enquiries, hot leads), the next project to review, and a table of new enquiries.
 - **Approvals:** one queue with five tabs — All, Project submissions, Developer applications, Introductions, Listing changes — plus filters by age, overdue follow-up and status.
-  - Hold, Decline, Query and Reject always need a reason; Hold and Query also need a follow-up date.
+  - Hold, Query and Reject need a reason, and Hold and Query also need a follow-up date. For Decline, the admin can enter an internal free-text reason.
   - After a decision there is no Undo: the admin can **Reopen** a held or declined request, or **Correct status**.
 - **Project Review:** the analysis panel with the figures, the proposed financial estimates with their sources, the five category scores and the sources/gaps list. Nothing is visible to investors until the admin approves it.
 - **Score Editor:** five weight sliders (0–100%, must total 100%; a warning if one category is above 50%), recalculation of all properties with a progress bar, and a small table of model versions. Going back to an older version creates a new version.
@@ -316,8 +327,16 @@ All emails are sent by the platform.
 | Enquiry received | the investor |
 | Introduction approved | the investor and the developer |
 | Enquiry on hold | nobody |
-| Enquiry declined | the investor only, without a reason |
+| Enquiry declined | the investor only, in neutral wording |
 | Price or availability of a saved property changed | investors who saved it or have an open enquiry |
+| New property published that matches a saved search | investors with that saved search |
+
+### 6.14 Legal pages
+
+- The final wording of the legal pages still needs legal review.
+- No governing law or jurisdiction is assumed yet.
+- Commission is not described as applying only in some cases.
+- The disclaimers state that projected and actual returns **may differ**.
 
 ## 7. Enquiry statuses
 
@@ -345,7 +364,7 @@ One status, shown with different wording to each user:
 2. **The developer stays anonymous** in the catalogue; contacts are shared only after investor consent and admin approval.
 3. **The developer's rent claim is never used as the market rent** without checking.
 4. **After publication only price and availability can change**, and only with admin approval.
-5. **AI never produces a financial figure**; its text is published only after admin review.
+5. **Fixed calculations are always done by the platform**; anything proposed with AI assistance — figures, assessments or text — is used only after admin approval.
 6. **A new score model never overwrites old scores** — they stay in history.
 7. **Account closure** blocks access immediately; records required by law are kept.
 8. **Privacy is enforced by the database rules**, not just by hiding things on screen.
