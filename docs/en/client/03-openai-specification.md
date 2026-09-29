@@ -19,7 +19,7 @@ How it works:
 2. OpenAI returns proposals in a fixed structure (section 6.1). Each proposal has its sources and assumptions. Where there is no source, the item is marked as a gap.
 3. The platform checks the proposals automatically, and saves them as **"awaiting review"**.
 4. The admin checks and corrects the proposals. Bubble then applies the fixed formulas for the yield and the score to the approved values.
-5. Make sends OpenAI the approved figures, the score and the reviewed facts (section 4.2), together with the fixed Stage 2 instructions (section 5.2).
+5. Make sends OpenAI the approved figures with all their components, the score, the admin-approved explanation and sources for each assessment, and the reviewed facts (section 4.2), together with the fixed Stage 2 instructions (section 5.2).
 6. OpenAI returns the text in a fixed structure (section 6.2). The platform checks it automatically: every statement must point to a supplied fact, no new numbers may appear, and words like "guaranteed" or "risk-free" are not allowed.
 7. The admin reviews the text and approves it. Only then do investors see it.
 
@@ -78,7 +78,7 @@ The primary model is the lower-cost one. Before launch both stages are tested on
 
 ## 4. Data contracts Bubble → OpenAI
 
-Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples.
+Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples, but they are consistent: the Stage 2 figures can be recalculated from the Stage 1 sources using the formulas in the Database Architecture document.
 
 ### 4.1 Stage 1 — property data and source materials
 
@@ -105,37 +105,47 @@ Neither contract contains investor data or the contact details of developer repr
     { "key": "dev.claimed_monthly_rent", "label": "Developer's claimed rent", "value": 2100, "currency": "EUR" }
   ],
   "source_materials": [
-    {
-      "source_id": "src_01",
-      "type": "rental_comparable",
-      "title": "2-bed apartment, same district, pool and parking",
-      "url": "https://example-source.test/listing/123",
-      "retrieved_at": "2026-09-20",
-      "content": { "monthly_rent": 1850, "bedrooms": 2, "indoor_area_m2": 80, "features": ["pool", "parking"] }
-    },
-    {
-      "source_id": "src_02",
-      "type": "country_costs",
-      "title": "Approved purchase costs and running costs — Spain",
-      "url": null,
-      "retrieved_at": "2026-09-15",
+    { "source_id": "src_01", "type": "rental_comparable", "title": "2-bed apartment, same district, pool",
+      "url": "https://example-source.test/listing/101", "retrieved_at": "2026-09-20",
+      "content": { "monthly_rent": 1700, "bedrooms": 2, "indoor_area_m2": 72, "features": ["pool"] } },
+    { "source_id": "src_02", "type": "rental_comparable", "title": "2-bed apartment, same district, parking",
+      "url": "https://example-source.test/listing/102", "retrieved_at": "2026-09-20",
+      "content": { "monthly_rent": 1800, "bedrooms": 2, "indoor_area_m2": 75, "features": ["parking"] } },
+    { "source_id": "src_03", "type": "rental_comparable", "title": "2-bed apartment, same district, pool and parking",
+      "url": "https://example-source.test/listing/103", "retrieved_at": "2026-09-20",
+      "content": { "monthly_rent": 1900, "bedrooms": 2, "indoor_area_m2": 80, "features": ["pool", "parking"] } },
+    { "source_id": "src_04", "type": "rental_comparable", "title": "2-bed apartment, same district, gated area",
+      "url": "https://example-source.test/listing/104", "retrieved_at": "2026-09-21",
+      "content": { "monthly_rent": 1950, "bedrooms": 2, "indoor_area_m2": 79, "features": ["pool", "gated_area"] } },
+    { "source_id": "src_05", "type": "rental_comparable", "title": "2-bed apartment, same district, pool, parking, gated area",
+      "url": "https://example-source.test/listing/105", "retrieved_at": "2026-09-21",
+      "content": { "monthly_rent": 2050, "bedrooms": 2, "indoor_area_m2": 84, "features": ["pool", "parking", "gated_area"] } },
+    { "source_id": "src_06", "type": "country_costs", "title": "Approved purchase costs and running costs — Spain",
+      "url": null, "retrieved_at": "2026-09-15",
       "content": {
         "purchase_costs": [
-          { "label": "Purchase tax", "rate": 0.10 },
+          { "label": "Purchase tax", "rate_of_price": 0.10 },
           { "label": "Notary and registry", "amount": 1500 }
         ],
         "running_costs": [
-          { "label": "Community fees", "annual_amount": 1200 }
-        ]
-      }
-    }
+          { "label": "Management", "rate_of_effective_rent": 0.10 },
+          { "label": "Maintenance (community fees)", "annual_amount": 1200 },
+          { "label": "Insurance", "annual_amount": 300 },
+          { "label": "Property tax", "annual_amount": 600 }
+        ],
+        "vacancy_rate": 0.10
+      } },
+    { "source_id": "src_07", "type": "sale_prices_summary", "title": "New-build asking prices per m², same district",
+      "url": "https://example-source.test/district-prices", "retrieved_at": "2026-09-18",
+      "content": { "median_price_per_m2": 3900, "listings_count": 12 } }
   ],
   "comparables_summary": {
-    "count": 7,
+    "source_ids": ["src_01", "src_02", "src_03", "src_04", "src_05"],
+    "count": 5,
     "rent_min": 1700,
     "rent_median": 1900,
     "rent_max": 2050,
-    "note": "technical processing of the sample by Bubble, not an approved figure"
+    "note": "calculated by Bubble from the listed comparables; technical processing, not an approved figure"
   },
   "requested_items": [
     "expected_monthly_rent",
@@ -153,13 +163,13 @@ Neither contract contains investor data or the contact details of developer repr
 **What to notice:**
 
 - `source_materials` are the only allowed basis for proposals. Each one has a `source_id`, a link (where one exists) and a date;
+- `comparables_summary` lists the `source_ids` it was calculated from, so every comparable behind the range and the median can be checked. It is calculated by Bubble and given for context only;
 - `developer_information` is the developer's claim and is never treated as independently verified;
-- `comparables_summary` is calculated by Bubble and is given for context only;
 - a requested item without supporting sources is returned as a gap, not guessed.
 
-### 4.2 Stage 2 — approved figures and score
+### 4.2 Stage 2 — approved figures, assessments and score
 
-This is sent only after the admin has approved the Stage 1 values and Bubble has calculated the figures and score.
+This is sent only after the admin has approved the Stage 1 values and Bubble has calculated the figures and score. It carries every component of the calculation and the admin-approved explanation and sources for each assessment.
 
 ```json
 {
@@ -175,19 +185,38 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
     "bedrooms": 2,
     "bathrooms": 2,
     "indoor_area_m2": 78,
+    "features": ["pool", "parking", "gated_area"],
     "completion_date": "2027-06-30",
     "availability": "available"
   },
   "financials": {
     "currency": "EUR",
     "price": 280000,
+    "purchase_costs": {
+      "items": [
+        { "label": "Purchase tax (10% of price)", "amount": 28000 },
+        { "label": "Notary and registry", "amount": 1500 }
+      ],
+      "total": 29500
+    },
+    "total_acquisition_cost": 309500,
     "expected_monthly_rent": 1900,
-    "occupancy_rate": 0.9,
     "annual_gross_rent": 22800,
-    "purchase_costs": 28000,
-    "annual_net_income": 17248,
+    "vacancy_rate": 0.10,
+    "annual_effective_rent": 20520,
+    "annual_operating_costs": {
+      "items": [
+        { "label": "Management (10% of effective rent)", "amount": 2052 },
+        { "label": "Maintenance (community fees)", "amount": 1200 },
+        { "label": "Insurance", "amount": 300 },
+        { "label": "Property tax", "amount": 600 }
+      ],
+      "total": 4152
+    },
+    "annual_net_income": 16368,
     "gross_yield": 0.0814,
-    "net_yield": 0.056,
+    "net_yield": 0.0529,
+    "source_ids": ["src_01", "src_02", "src_03", "src_04", "src_05", "src_06"],
     "approved_at": "2026-09-22T09:30:00Z",
     "calculation_version": "fin-v3",
     "calculated_at": "2026-09-22T10:00:00Z"
@@ -211,19 +240,50 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
       }
     ]
   },
-  "approved_facts": [
+  "approved_assessments": [
     {
-      "key": "project.completion_date",
-      "value": "2027-06-30",
-      "label": "Expected completion",
-      "source_type": "project_verified"
+      "key": "assessment.demand",
+      "explanation": "Five comparable long-let 2-bed apartments in the same district, with similar features, are advertised at €1,700–€2,050 per month.",
+      "source_ids": ["src_01", "src_02", "src_03", "src_04", "src_05"],
+      "approved_at": "2026-09-22T09:30:00Z"
+    },
+    {
+      "key": "assessment.value",
+      "explanation": "The price is about €3,590 per m², below the district median asking price for new builds of €3,900 per m².",
+      "source_ids": ["src_07"],
+      "approved_at": "2026-09-22T09:30:00Z"
+    },
+    {
+      "key": "assessment.growth",
+      "explanation": "New-build asking prices in the district are based on 12 current listings. No forecast of future prices is made.",
+      "source_ids": ["src_07"],
+      "approved_at": "2026-09-22T09:30:00Z"
+    },
+    {
+      "key": "assessment.risk",
+      "explanation": "The developer has been verified by Best Invest. The unit is off-plan, with expected completion on 30 June 2027; no rental income is assumed before then. No service charge schedule has been supplied.",
+      "source_ids": ["project.developer_verified", "project.completion_date", "fact.service_charge"],
+      "approved_at": "2026-09-22T09:30:00Z"
     }
+  ],
+  "sources": [
+    { "source_id": "src_01", "title": "2-bed apartment, same district, pool", "url": "https://example-source.test/listing/101", "retrieved_at": "2026-09-20" },
+    { "source_id": "src_02", "title": "2-bed apartment, same district, parking", "url": "https://example-source.test/listing/102", "retrieved_at": "2026-09-20" },
+    { "source_id": "src_03", "title": "2-bed apartment, same district, pool and parking", "url": "https://example-source.test/listing/103", "retrieved_at": "2026-09-20" },
+    { "source_id": "src_04", "title": "2-bed apartment, same district, gated area", "url": "https://example-source.test/listing/104", "retrieved_at": "2026-09-21" },
+    { "source_id": "src_05", "title": "2-bed apartment, same district, pool, parking, gated area", "url": "https://example-source.test/listing/105", "retrieved_at": "2026-09-21" },
+    { "source_id": "src_06", "title": "Approved purchase costs and running costs — Spain", "url": null, "retrieved_at": "2026-09-15" },
+    { "source_id": "src_07", "title": "New-build asking prices per m², same district", "url": "https://example-source.test/district-prices", "retrieved_at": "2026-09-18" }
+  ],
+  "approved_facts": [
+    { "key": "project.completion_date", "value": "2027-06-30", "label": "Expected completion", "source_type": "project_verified" },
+    { "key": "project.developer_verified", "value": true, "label": "Developer verified by Best Invest", "source_type": "admin_verified" }
   ],
   "analysis_facts": [
     {
       "key": "fact.rent_comparables",
       "tag": "source",
-      "body": "Comparable long-let rentals in the same district, reviewed by the admin."
+      "body": "Five comparable long-let rentals in the same district, reviewed by the admin."
     },
     {
       "key": "fact.developer_inputs",
@@ -241,9 +301,24 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
 }
 ```
 
+The figures in the example follow the formulas in the Database Architecture document:
+
+| Figure | Calculation | Result |
+|---|---|---:|
+| Purchase costs | 10% × €280,000 + €1,500 | €29,500 |
+| Total acquisition cost | €280,000 + €29,500 | €309,500 |
+| Annual gross rent | €1,900 × 12 | €22,800 |
+| Annual effective rent | €22,800 × (1 − 0.10) | €20,520 |
+| Annual operating costs | €2,052 + €1,200 + €300 + €600 | €4,152 |
+| Annual net income | €20,520 − €4,152 | €16,368 |
+| Gross yield | €22,800 / €280,000 | 8.14% |
+| Net yield | €16,368 / €309,500 | 5.29% |
+
 **What to notice:**
 
-- every figure in `financials` and `score` has been approved by the admin or calculated by Bubble from approved values;
+- every figure in `financials` and `score` has been approved by the admin or calculated by Bubble from approved values, and all components of each calculation are included;
+- `approved_assessments` carries the admin-approved explanation and sources for each category that needs judgement, so the text can explain the points without guessing;
+- every `source_id` used in `financials` or `approved_assessments` is listed in `sources` or `approved_facts`, or is an `analysis_facts` key;
 - `score.components` contains exactly **five** items with keys `income`, `demand`, `value`, `growth`, `risk` and maximums 30/20/20/15/15;
 - the `analysis_facts` array carries tags `source` / `developer` / `estimate` / `gap` — the model may cite them as sources and **must** mention every `gap` fact under risks or missing_data;
 - for the `risk` category the payload includes `scale_direction` (higher points = lower risk), so the model does not invert it in the text.
@@ -302,13 +377,15 @@ round, or replace financial values. Never invent market conditions, legal rules,
 taxes, neighbourhood claims, demand, future appreciation, guarantees, or advice.
 
 The financial figures, score, verdict, and score components are approved inputs.
-Explain them; do not challenge or change them. There are exactly five score
-categories; never invent, merge, or omit one. For the "Risk & Investor
+Explain them; do not challenge or change them. Explain each category's points
+only with its approved explanation and sources in approved_assessments; never
+add reasons of your own. There are exactly five score categories; never invent,
+merge, or omit one. For the "Risk & Investor
 Protection" category a higher number of points means LOWER assessed risk — never
 describe a high score in that category as high risk.
 
 Every strength and risk must cite one or more source_keys that exist in the
-input. If evidence is missing, add the key to missing_data rather than guessing.
+input (a source_id, an assessment key, or a fact key). If evidence is missing, add the key to missing_data rather than guessing.
 Any analysis_fact tagged "gap" must appear either in risks or in missing_data.
 Facts tagged "developer" must be attributed to the developer and never
 presented as independently verified.
@@ -465,7 +542,7 @@ After parsing, the platform checks text lengths, 2–4 strengths, 1–4 risks, a
 
 Structured Outputs guarantees that the answer has the right structure, but **not** that it is factually correct. That is why the automatic checks and the admin review are always required. Any change to the number of score categories or to the input structure requires a new prompt version; the schema version changes only when the output structure changes.
 
-## 7. Full request examples
+## 7. Request examples (shortened)
 
 ### 7.1 Stage 1 — proposals
 
@@ -490,7 +567,7 @@ Structured Outputs guarantees that the answer has the right structure, but **not
     }
   ],
   "text": {
-    "format": { "type": "json_schema", "name": "proposed_inputs", "strict": true, "schema": {} }
+    "format": { "type": "json_schema", "name": "proposed_inputs", "strict": true, "schema": "<full schema from 6.1>" }
   }
 }
 ```
@@ -518,10 +595,12 @@ Structured Outputs guarantees that the answer has the right structure, but **not
     }
   ],
   "text": {
-    "format": { "type": "json_schema", "name": "investment_analysis", "strict": true, "schema": {} }
+    "format": { "type": "json_schema", "name": "investment_analysis", "strict": true, "schema": "<full schema from 6.2>" }
   }
 }
 ```
+
+In both examples the prompt, the input JSON and the `schema` value are shortened with placeholders. In the real request, `schema` contains the full schema from 6.1 or 6.2, and the prompt and input are sent in full.
 
 The model is not given web search or any other tools, so it cannot bring in facts from outside the supplied data.
 
