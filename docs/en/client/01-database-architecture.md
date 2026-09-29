@@ -1,8 +1,9 @@
 # Database Architecture — Best Invest Properties
 
-Date: 26 September 2026  
+Version: 1.2  
+Date: 29 September 2026  
 Storage: Bubble database  
-Participating systems: Bubble, Make, OpenAI API
+Participating systems: Bubble, Make, OpenAI API, SendGrid
 
 ## 1. Purpose and principles
 
@@ -12,14 +13,14 @@ The model must support the three real MVP loops:
 - a developer gets verified, submits a project and maintains price/availability;
 - an admin checks documents, publishes content and controls introductions, the score and the AI narrative.
 
-There is one database — Bubble. It holds **30 data types** and **23 Option Sets**.
+There is one database — Bubble. It holds **30 data types** and **21 Option Sets**.
 
 Principles:
 
 1. **Bubble is the source of truth.** The Make Data Store is not a business database.
 2. **Unit is the public listing object.** Project describes the building/complex, Unit Type the repeated configuration, Unit the specific offer.
 3. **A single property does not get its own table.** It is a project with one type and one unit.
-4. **Finance is deterministic.** AI never writes price, rent, yield, score or tax.
+4. **Fixed calculations are deterministic.** Bubble applies the fixed formulas for acquisition cost, yields, points and the total score, always the same way, to approved values only. Inputs and assessments — for example rent, operating costs, purchase costs and the category assessments — may be proposed with AI assistance from documented sources. They are stored as pending and used only after the admin approves them.
 5. **History only where it is needed:** the score model and scores, user consents, and the sources of financial figures. Other changes overwrite the value, and the Audit Event records who changed it and when.
 6. **Privacy by default.** New types are created private; only whitelisted fields of published listings are public.
 7. **Minimal denormalisation for Bubble.** Fields needed by privacy rules and frequent searches are duplicated on the protected record.
@@ -55,7 +56,7 @@ Option Sets are for fixed, rarely changing, non-secret values. Bubble states exp
 | Project Status | `draft`, `submitted`, `under_review`, `changes_requested`, `approved`, `published`, `paused`, `sold_out`, `archived`, `rejected` |
 | Publication Status | `not_published`, `published`, `hidden`, `archived` |
 | Unit Availability | `available`, `reserved`, `sold`, `withdrawn` |
-| Financial Input Source | `developer_claim`, `portal_comparable`, `analyst_verified`, `platform_default`, `calculated` |
+| Financial Input Source | `developer_claim`, `portal_comparable`, `ai_proposed`, `analyst_verified`, `platform_default`, `calculated` |
 | Analysis Fact Tag | `source`, `developer`, `estimate`, `gap` |
 | Change Request Status | `submitted`, `queried`, `approved`, `rejected`, `applied`, `cancelled` |
 | Enquiry Status | `submitted`, `screening`, `on_hold`, `declined`, `approved_for_intro`, `introduced`, `developer_responded`, `qualified`, `closed_won`, `closed_lost`, `cancelled` |
@@ -64,16 +65,14 @@ Option Sets are for fixed, rarely changing, non-secret values. Bubble states exp
 | Analysis Status | `queued`, `generating`, `generated`, `failed`, `stale`, `published` |
 | Job Status | `queued`, `processing`, `succeeded`, `retry_wait`, `failed`, `dead_letter`, `cancelled` |
 | Document Kind | `company_registration`, `licence`, `ownership`, `planning`, `title`, `brochure`, `floor_plan`, `legal`, `other` |
-| Financing Mode | `cash`, `mortgage` |
 | Strategy | `long_term_rental`, `short_term_rental`, `capital_growth`, `mixed` |
 | Score Criterion | 5 criteria — see below |
-| Score Sub-criterion | 13 sub-criteria — see below |
 | Amenity | `communal_pool`, `gym`, `gated_area`, `underground_parking`, `tennis_golf`, `concierge`, `lift`, `landscaped_gardens` |
-| Data Provider | approved portals / market-data providers; attributes: `name`, `country`, `access_method` (`api` / `feed` / `manual`), `terms_reference`, `fetch_frequency_days`, `is_active` |
+| Data Provider | approved rental data sources; attributes: `name`, `country`, `access_method` (`api` / `feed` / `manual`), `terms_reference`, `is_active` |
 | Media Kind | `photo`, `floor_plan`, `brochure`, `document` |
 | Consent Type | `terms`, `privacy`, `marketing`, `contact_sharing` |
 
-**What is not an Option Set.** Country Config, Cost Rule, Document Requirement and Market Benchmark are data types, because the admin edits them from the admin area without a deploy (screen A11). Legal texts (Terms, Privacy, Cookie, disclaimers) are static pages; the version the user agreed to is stored on the Consent Record.
+**What is not an Option Set.** Country Config, Cost Rule, Document Requirement and Market Benchmark are data types, because their values change without a deploy. There is no separate settings screen for them in the MVP. Legal texts (Terms, Privacy, Cookie, disclaimers) are static pages; the version the user agreed to is stored on the Consent Record.
 
 **`Unit Availability`.** A developer may set only `available`, `reserved` or `sold`, and every such change goes through a Change Request with approval. Only an admin sets `withdrawn`. This must be enforced in the backend workflow whitelist, not in the UI.
 
@@ -81,33 +80,13 @@ Option Sets are for fixed, rarely changing, non-secret values. Bubble states exp
 
 | key | label | max_points | default_weight | Note |
 |---|---|---:|---:|---|
-| `income` | Rental Income & Net Yield | 30 | 0.30 | rating derived automatically from net yield bands |
-| `demand` | Rental Demand & Tenant Quality | 20 | 0.20 | from sub-criteria |
-| `value` | Purchase Value & Market Position | 20 | 0.20 | from the deviation of price per m² from the Market Benchmark |
-| `growth` | Growth & Resale Potential | 15 | 0.15 | from sub-criteria |
-| `risk` | Risk & Investor Protection | 15 | 0.15 | from sub-criteria; more points = **lower** risk, scale label mandatory in the UI |
+| `income` | Rental Income & Net Yield | 30 | 0.30 | based on the property's net yield |
+| `demand` | Rental Demand & Tenant Quality | 20 | 0.20 | assessed; may be proposed with AI assistance, approved by the admin |
+| `value` | Purchase Value & Market Position | 20 | 0.20 | assessed; may be proposed with AI assistance, approved by the admin |
+| `growth` | Growth & Resale Potential | 15 | 0.15 | assessed; may be proposed with AI assistance, approved by the admin |
+| `risk` | Risk & Investor Protection | 15 | 0.15 | assessed, as above; more points = **lower** risk, scale label mandatory in the UI |
 
-Each criterion gets a `rating` of 0–10, then `weighted_points = rating / 10 × weight`. The full scales are in FR-03b of the project specification.
-
-### Score Sub-criterion — attributes
-
-| criterion | key | label | max_points |
-|---|---|---|---:|
-| demand | `market_activity` | Market activity and number of comparable listings | 3 |
-| demand | `year_round` | Year-round demand | 3 |
-| demand | `tenant_mix` | Diversity of potential tenants | 2 |
-| demand | `seasonality` | Seasonality and vacancy risk | 2 |
-| growth | `price_trend` | Price trend | 4 |
-| growth | `liquidity` | Liquidity and number of transactions | 3 |
-| growth | `infrastructure` | Infrastructure and economic factors | 2 |
-| growth | `data_quality` | Recency and completeness of data | 1 |
-| risk | `legal_title` | Legal status / title | 3 |
-| risk | `permits` | Building permits and documents | 2 |
-| risk | `payment_protection` | Payment / escrow protection | 2 |
-| risk | `developer_check` | Developer check | 2 |
-| risk | `stage_risk` | Construction stage risk | 1 |
-
-The `max_points` of each criterion's sub-criteria add up to **10**.
+The total score is the sum of the five criterion points (maximum 100). The detailed scoring methodology — the rating scale and how a rating becomes points — will be agreed separately. The fields below store the rating and the points without fixing that scale.
 
 ### Role-specific Enquiry status labels
 
@@ -140,7 +119,7 @@ An empty label means the record is not shown to that role at all — this is enf
 | 5.1 People and access | User, Investor Profile, Developer Company, Developer Application, Verification Document, Consent Record |
 | 5.2 Market settings | Country Config, Cost Rule, Document Requirement, Market Benchmark |
 | 5.3 Catalogue | Project, Unit Type, Unit, Media Asset |
-| 5.4 Finance, rent, score | Financial Input, Rental Comparable Set, Analysis Fact, Score Model Version, Listing Score, Score Component, Score Sub-component, AI Analysis |
+| 5.4 Finance, rent, score | Financial Input, Rental Comparable Set, Rental Comparable Listing, Analysis Fact, Score Model Version, Listing Score, Score Component, AI Analysis |
 | 5.5 Investor and enquiries | Saved Unit, Saved Search, Calculator Scenario, Enquiry, Enquiry Status Event, Change Request |
 | 5.6 System | Integration Job, Audit Event |
 
@@ -258,11 +237,6 @@ Consent is never overwritten: every change is a new record. This is a GDPR requi
 | default_maintenance_rate | number | yes | |
 | default_insurance_annual_eur | number | yes | |
 | legal_disclaimer | text | no | |
-| min_comparable_listings | number | yes | default **5** — below this the sample **cannot be approved** |
-| sufficient_comparable_listings | number | yes | default **10** — below this the sample is approved with a "thin sample" flag |
-| max_comparable_age_days | number | yes | default **90** — after this the sample is stale |
-
-Sample thresholds are stored per country because market liquidity differs: Nicosia has fewer listings than Málaga. A median of four listings is not a market figure — one outlier moves it too much, so 5 is the absolute minimum. From 10 listings the median is stable. 90 days is a quarter: no need to re-collect every week, and the estimate keeps up with the market. The admin changes all values without code changes.
 
 #### Cost Rule
 
@@ -280,7 +254,7 @@ Sample thresholds are stored per country because market liquidity differs: Nicos
 | source_checked_at | date | yes | |
 | approved_by | text | no | who checked the rate (consultant) |
 
-Do not store all tax rules as one text. Edited from the admin area (A11); the value is overwritten and the Audit Event records the change history.
+Do not store all tax rules as one text. When a value changes, it is overwritten and the Audit Event records the change history.
 
 #### Document Requirement
 
@@ -300,7 +274,7 @@ The three `required_for_*` fields express the three levels on the application sc
 
 #### Market Benchmark
 
-Needed for the `Purchase Value & Market Position` criterion, which compares the price per m² with the district median.
+Reference data that can support the `Purchase Value & Market Position` assessment, e.g. the median asking price per m² for new builds in a district. How it is used in the rating is part of the scoring methodology, to be agreed separately.
 
 | Field | Type | Required | Note |
 |---|---|---:|---|
@@ -370,7 +344,9 @@ The central listing record. It also holds the current financial metrics — ther
 | availability | Unit Availability | yes | |
 | has_pending_change | yes/no | yes | a Change Request is in progress — the portal row shows "pending approval" |
 | monthly_rent_eur | number | no | approved rent used for scoring |
-| purchase_costs_eur | number | no | calculated from Cost Rules |
+| purchase_costs_eur | number | no | calculated from approved inputs |
+| acquisition_cost_eur | number | no | calculated: price + purchase costs |
+| annual_operating_costs_eur | number | no | calculated from approved inputs |
 | annual_net_income_eur | number | no | calculated |
 | gross_yield | number | no | calculated |
 | net_yield | number | no | calculated |
@@ -397,10 +373,11 @@ annual_effective_rent = annual_gross_rent × (1 − vacancy_rate)
 gross_yield = annual_gross_rent / price
 annual_net_income = annual_effective_rent
   - management - maintenance - insurance - property_tax - other_costs
-net_yield = annual_net_income / (price + purchase_costs)
+acquisition_cost = price + purchase_costs
+net_yield = annual_net_income / acquisition_cost
 ```
 
-Inputs are approved Financial Inputs (rent comes from comparable listings via Make), plus the Country Config settings and Cost Rules for the country. The values used for a particular score are recorded on the Listing Score.
+Inputs are approved Financial Inputs (rent comes from reviewed comparable rentals), plus the Country Config settings and Cost Rules for the country. The values used for a particular score are recorded on the Listing Score.
 
 #### Media Asset
 
@@ -422,17 +399,21 @@ Public photos/brochures and private documents are different records with differe
 
 #### Financial Input
 
-The Project Review screen shows a panel where every figure has its own source, and three rent values side by side (claimed by the developer, Best Invest's comparable estimate, and the one actually used for scoring). So each input value is a separate record.
+The Project Review screen shows a panel where every figure has its own source and assumptions, and three rent values side by side (claimed by the developer, Best Invest's comparable estimate, and the one actually used for scoring). So each input value is a separate record.
 
 | Field | Type | Required | Note |
 |---|---|---:|---|
 | unit | Unit | yes | |
-| input_key | text | yes | `monthly_rent`, `recurring_costs`, `vacancy_allowance`, … |
+| input_key | text | yes | `monthly_rent`, `annual_operating_costs`, `purchase_costs`, `vacancy_allowance`, `claimed_yield`, … |
 | label | text | yes | label in the review |
-| value_number | number | yes | |
+| value_number | number | no | empty when the item is marked as a gap |
+| is_gap | yes/no | yes | no source supports a value |
 | source | Financial Input Source | yes | |
-| source_reference | text | no | "Larnaca district, 14 lettings" |
+| source_reference | text | no | "Larnaca district, 5 comparable lettings" |
+| sources_json | text | no | the sources used: id, link or document, date |
+| assumptions | text | no | required for `ai_proposed` |
 | comparable_set | Rental Comparable Set | no | required for `portal_comparable` |
+| integration_job | Integration Job | no | the AI request that produced an `ai_proposed` value |
 | is_used_for_scoring | yes/no | yes | only one active value per `input_key` |
 | review_status | Review Status | yes | `pending` until approved by the admin |
 | approved_at | date | no | |
@@ -442,7 +423,9 @@ Rules:
 
 - only values with `review_status = approved` reach the public listing;
 - the Unit's financial metrics are calculated **only** from approved Financial Inputs;
-- a value with `source = developer_claim` can never have `is_used_for_scoring = yes` without separate analyst approval (BR-02);
+- a value with `source = developer_claim` can never have `is_used_for_scoring = yes` without separate admin approval;
+- a value with `source = ai_proposed` must have at least one source in `sources_json` and its assumptions; it is `pending` until the admin approves it. A correction by the admin is saved as a new record with `source = analyst_verified`;
+- a gap (`is_gap = yes`) never has a value and can never be used for scoring;
 - `source = portal_comparable` requires a `comparable_set` with `review_status = approved`;
 - for rent there are always at least two records: the developer's claim (`developer_claim`) and the value derived from comparable listings (`portal_comparable`) — these are shown side by side on Project Review;
 - `developer_claim` never turns into `portal_comparable` automatically;
@@ -450,24 +433,24 @@ Rules:
 
 #### Rental Comparable Set
 
-The result of collecting comparable rental listings via Make. One record = one sample for one parameter set on a given date.
+One sample of comparable rentals for one parameter set on a given date. The individual listings are stored as Rental Comparable Listing records, so every figure can be traced back to its sources.
 
 | Field | Type | Required | Note |
 |---|---|---:|---|
 | public_id | text | yes | |
-| provider | Data Provider | yes | Option Set |
-| retrieved_at | date | yes | date the data was retrieved |
-| country | Country Config | yes | normalisation parameter |
-| city | text | yes | normalisation parameter |
+| retrieved_at | date | yes | date the sample was put together |
+| country | Country Config | yes | matching parameter |
+| city | text | yes | matching parameter |
 | area_name | text | no | district |
-| property_type | text | yes | normalisation parameter |
-| bedrooms | number | yes | normalisation parameter |
+| property_type | text | yes | matching parameter |
+| bedrooms | number | yes | matching parameter |
 | area_m2_min | number | no | sample floor-area bound |
 | area_m2_max | number | no | sample floor-area bound |
-| listings_count | number | yes | number of comparable listings |
-| rent_min_eur | number | yes | lower end of the range |
-| rent_median_eur | number | yes | median — basis of the base estimate |
-| rent_max_eur | number | yes | upper end of the range |
+| features | list of Amenity | no | relevant features used to assess the match, e.g. pool, parking, gated area |
+| listings_count | number | yes | calculated by Bubble from the linked listings |
+| rent_min_eur | number | yes | calculated by Bubble |
+| rent_median_eur | number | yes | calculated by Bubble |
+| rent_max_eur | number | yes | calculated by Bubble |
 | collection_method | text | yes | `api` / `feed` / `manual_import` / `manual_entry` |
 | integration_job | Integration Job | no | empty for manual entry |
 | review_status | Review Status | yes | `pending` until checked by the admin |
@@ -475,16 +458,36 @@ The result of collecting comparable rental listings via Make. One record = one s
 
 Rules:
 
+- the count, range and median are technical processing of the sample by Bubble, not an approved figure;
 - a sample with `review_status ≠ approved` cannot be a source for a Financial Input and is not shown to the investor;
-- `listings_count` below `Country Config.min_comparable_listings` (default **5**) **blocks approval**;
-- `listings_count` between the minimum and `sufficient_comparable_listings` (default **10**) is approved with a **thin sample** flag: shown to the admin on review and added for the investor as an Analysis Fact tagged `estimate`;
-- a sample older than `max_comparable_age_days` (default **90**) gets `is_current = no` and cannot be the source of a new Financial Input; published values do not disappear but are queued for refresh;
+- relevant features are factors in assessing the match; a comparable does not have to match on every one;
 - a new sample does not overwrite the previous one: the old one gets `is_current = no`;
-- a manual fallback (`manual_import` / `manual_entry`) is stored with the same type and fields, so the provenance of the figure stays visible.
+- where there is no suitable source, the admin enters documented comparables by hand (`manual_entry`) — they are stored the same way. Otherwise the estimate stays `pending`; no rent estimate is ever invented.
 
-> The legal basis for using each portal's data (API terms, data licence) is
-> checked before connecting it. The link to the terms is the `terms_reference`
-> attribute in the `Data Provider` Option Set.
+> The access method and the right to use each source's data are checked before
+> it is connected. The link to the terms is the `terms_reference` attribute in
+> the `Data Provider` Option Set.
+
+#### Rental Comparable Listing
+
+One comparable rental in a sample, with its source.
+
+| Field | Type | Required | Note |
+|---|---|---:|---|
+| public_id | text | yes | source id used in the analysis, e.g. `src_01` |
+| comparable_set | Rental Comparable Set | yes | |
+| provider | Data Provider | no | Option Set; empty for a manually documented comparable |
+| source_url | text | no | link to the listing; required unless a document is attached |
+| source_document | file | no | private; evidence for a manually entered comparable |
+| retrieved_at | date | yes | date the listing was retrieved |
+| monthly_rent_eur | number | yes | |
+| property_type | text | yes | |
+| bedrooms | number | yes | |
+| area_name | text | no | |
+| indoor_area_m2 | number | no | |
+| features | list of Amenity | no | where this data is available |
+
+Every listing has a link or a document and a date, so each comparable behind the range and the median can be checked. The records are not edited; a new collection creates a new sample.
 
 #### Analysis Fact
 
@@ -547,25 +550,16 @@ The `*_used` fields record the inputs the score was calculated from, so the scor
 |---|---|---:|---|
 | listing_score | Listing Score | yes | |
 | criterion | Score Criterion | yes | Option Set |
-| raw_value | number | no | e.g. net yield or deviation from the median; empty for assessed criteria |
-| rating | number | yes | 0–10 |
-| weighted_points | number | yes | `rating / 10 × weight × 100` |
-| explanation | text | no | deterministic explanation for the analysis screen |
+| raw_value | number | no | e.g. net yield for `income`; empty for assessed criteria |
+| rating | number | yes | on the scale set by the scoring methodology (to be agreed) |
+| weighted_points | number | yes | calculated by Bubble from the rating and the criterion weight |
+| explanation | text | no | for assessed criteria: the admin-approved explanation; may be proposed with AI assistance |
+| sources_json | text | no | the sources behind the assessment: id, link or document, date |
+| proposed_by | text | no | `ai` / `admin` |
+| review_status | Review Status | yes | assessed criteria are `pending` until the admin approves them |
+| approved_at | date | no | |
 
-Each Listing Score has exactly five components; they add up to the total score within `0.01`.
-
-#### Score Sub-component
-
-The actual assessment of a sub-criterion for a specific Listing Score.
-
-| Field | Type | Required | Note |
-|---|---|---:|---|
-| listing_score | Listing Score | yes | |
-| sub_criterion | Score Sub-criterion | yes | Option Set |
-| points_awarded | number | yes | no more than the sub-criterion's `max_points` |
-| note | text | no | analyst comment |
-
-The sum of `points_awarded` within a criterion gives its `rating`.
+Each Listing Score has exactly five components; they add up to the total score within `0.01`. A score is published only when every assessed component is approved. The approved explanation and sources are passed to OpenAI for the analysis text, so the text can explain the points without guessing.
 
 #### AI Analysis
 
@@ -591,6 +585,8 @@ The sum of `points_awarded` within a criterion gives its `rating`.
 
 Only `review_status = approved` is published, and only while the linked Listing Score is still `is_current = yes`.
 
+AI Analysis holds only the analysis text (the second AI stage). Proposed inputs and assessments from the first stage are stored as Financial Inputs (`source = ai_proposed`) and Score Components (`review_status = pending`).
+
 ### 5.5 Investor and enquiries
 
 #### Saved Unit
@@ -615,10 +611,12 @@ Only `review_status = approved` is published, and only while the linked Listing 
 | bedrooms | list of text | no | `studio`, `1`, `2`, `3+` |
 | strategies | list of Strategy | no | |
 | completion | list of text | no | `ready`, `lt_12m`, `12_24m` |
-| price_max_eur | number | no | |
+| price_max_eur | number | no | empty = no upper limit (the slider's top position, €600k+) |
 | gross_yield_min | number | no | |
 | net_yield_min | number | no | |
 | is_active | yes/no | yes | |
+
+When a new property matching an active saved search is published, Bubble sends the investor an email through an Integration Job (`template_key = saved_search_match`); the idempotency key prevents a second email for the same property and search.
 
 #### Calculator Scenario
 
@@ -630,16 +628,13 @@ Only `review_status = approved` is published, and only while the linked Listing 
 | name | text | yes | |
 | strategy | Strategy | yes | long / short term |
 | rent_scenario | text | yes | `base` / `average` / `best` |
-| financing_mode | Financing Mode | yes | |
 | purchase_price_eur | number | yes | |
-| deposit_eur | number | no | for `mortgage` |
-| interest_rate | number | no | for `mortgage` |
-| term_years | number | no | for `mortgage` |
 | monthly_rent_eur | number | yes | |
 | occupancy_rate | number | yes | |
 | management_fee_rate | number | yes | |
 | annual_net_income_eur | number | yes | result at save time |
-| cash_on_cash_return | number | no | result at save time |
+
+There are no mortgage, deposit, interest-rate or loan-term fields in the MVP.
 
 #### Enquiry
 
@@ -663,7 +658,7 @@ The contact release fields are stored right here — there is no separate type f
 | released_investor_email | text | no | |
 | released_investor_phone | text | no | |
 | released_developer_contact | text | no | developer contact the investor sees |
-| developer_outcome | text | no | lead outcome (D11): `viewing_booked` / `reserved` / `not_interested` |
+| developer_outcome | text | no | lead outcome: `viewing_booked` / `reserved` / `not_interested` |
 | closed_at | date | no | |
 
 The developer **never** gets access to the investor's User record. Before release the `released_*` fields are empty; the privacy rule returns them to the developer only once `contact_released_at` is filled in.
@@ -677,7 +672,7 @@ The developer **never** gets access to the investor's User record. Before releas
 | to_status | Enquiry Status | yes | |
 | actor_user | User | no | empty for automatic transitions |
 | reason_private | text | no | required for `on_hold` / `declined`; never shown to the investor |
-| note_investor | text | no | what the investor sees in the history (P12) |
+| note_investor | text | no | what the investor sees in the status history |
 
 A status never changes without a Status Event. These records are what the investor sees as the status history.
 
@@ -702,7 +697,7 @@ One request = one change to one unit, or a content review request.
 | submitted_at | date | yes | |
 | decided_at | date | no | |
 
-After publication the developer changes only price and availability; both go through **prior** approval. Locked fields (project name, location, completion date, unit mix, specification, media) change through `content_review`. The Change Request is kept after it is applied — this is the change history on screen D08.
+After publication the developer changes only price and availability; both go through **prior** approval. Locked fields (project name, location, completion date, unit mix, specification, media) change through `content_review`. The Change Request is kept after it is applied — this is the change history on the Project & Units screen.
 
 ### 5.6 System
 
@@ -713,7 +708,7 @@ Every asynchronous action: Make calls and every email sent by Bubble.
 | Field | Type | Required | Note |
 |---|---|---:|---|
 | public_id | text | yes | correlation id |
-| job_type | text | yes | `ai_analysis_generate`, `email`, `introduction`, `rental_comparables`, `score_rescore_batch`, … |
+| job_type | text | yes | `ai_proposals_generate`, `ai_analysis_generate`, `email`, `introduction`, `rental_comparables`, `score_rescore_batch`, … |
 | entity_type | text | yes | |
 | entity_public_id | text | yes | |
 | recipient_user | User | no | for emails |
@@ -726,7 +721,7 @@ Every asynchronous action: Make calls and every email sent by Bubble.
 | provider_message_id | text | no | email id / OpenAI response id |
 | completed_at | date | no | |
 
-Uniqueness is enforced by `idempotency_key`. The Job is checked before the action (a Make call or sending an email); if it is `succeeded`, the repeat ends without side effects. This same type is the log of sent emails: a failed email appears on screen A10 with a Retry button.
+Uniqueness is enforced by `idempotency_key`. The Job is checked before the action (a Make call or sending an email); if it is `succeeded`, the repeat ends without side effects. This same type is the log of sent emails. Failed jobs are logged and the team is notified; there is no separate monitoring screen in the MVP.
 
 #### Audit Event
 
@@ -741,7 +736,7 @@ Uniqueness is enforced by `idempotency_key`. The Job is checked before the actio
 | reason | text | no | |
 | source | text | yes | `bubble_ui` / `bubble_backend` / `make` / `openai` |
 
-Audit Event is append-only; user workflows may not change or delete records. It records who changed settings (rates, thresholds, documents) and when, instead of keeping separate versions of each record.
+Audit Event is append-only; user workflows may not change or delete records. It records who changed settings (rates, weights, documents) and when, instead of keeping separate versions of each record.
 
 ## 6. Status transitions
 
@@ -757,7 +752,7 @@ published → paused | sold_out | archived
 
 The admin performs `approved → published` as a separate action. Publishing is not allowed without approved verification, at least one available unit, a cover photo, calculated financials, a current score, and an approved AI analysis or an explicit deterministic-only fallback.
 
-A developer can **submit** a project with an incomplete set of units (modal: "12 units declared · 3 entered. You can submit and add the rest before publication"). So unit completeness is a condition of `approved → published`, not of `draft → submitted`. In addition, publishing requires every Financial Input used in the score to have `review_status = approved`.
+A developer can **submit** a project with an incomplete set of units (modal: "12 units declared · 3 entered. You can submit and add the rest before publication"). So unit completeness is a condition of `approved → published`, not of `draft → submitted`. In addition, publishing requires every Financial Input used in the score and every assessed Score Component to have `review_status = approved`.
 
 ### Enquiry decision
 
@@ -765,9 +760,9 @@ A developer can **submit** a project with an incomplete set of units (modal: "12
 |---|---|---|
 | Approve & connect | `qualified → approved_for_intro → introduced` | to both parties |
 | Hold | `qualified → on_hold` | none |
-| Decline | `qualified → declined` | investor only, neutral text without a reason |
+| Decline | `qualified → declined` | investor only, in neutral wording |
 
-`on_hold` and `declined` require `reason_private`. The text the investor sees on a decline comes from a template and does **not** contain the reason. `on_hold` additionally requires `follow_up_date` on the Enquiry.
+`on_hold` and `declined` require `reason_private` — for Decline it is a short free-text internal note that neither the investor nor the developer sees. The text the investor sees on a decline comes from a template and does **not** contain the reason. `on_hold` additionally requires `follow_up_date` on the Enquiry.
 
 ### Developer Application lifecycle
 
@@ -804,7 +799,7 @@ submitted | screening | qualified → cancelled
 | Media Asset public | published records | published records | own company | full |
 | Media Asset private | none | none | own company | full |
 | Financial Input | none | none | own project, `approved` only | full |
-| Rental Comparable Set | none | none | none | full |
+| Rental Comparable Set / Rental Comparable Listing | none | none | none | full |
 | Analysis Fact / Listing Score / Score Component | published subset | published subset | own project | full |
 | AI Analysis | approved/published only | approved/published only | own project published view | full |
 | Enquiry | none | own, investor-safe fields | own company; `released_*` fields only after release | full |
