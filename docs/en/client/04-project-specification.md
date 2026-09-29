@@ -234,7 +234,7 @@ On Project Review the admin sees the developer's claimed rent, Best Invest's com
 
 - Dashboard: investment criteria, recommended properties, saved properties (with "price changed" / "status changed" badges), saved searches, enquiries and their status.
 - Saved searches are saved filters to reopen later. When a new property matching a saved search is published, the investor receives an email.
-- Settings: contact details, criteria, consents, password change, account closure (with a reason; records linked to completed introductions are kept for seven years as required by law).
+- Settings: contact details, criteria, consents, password change, account closure (with a reason; records linked to completed introductions are kept in line with the platform's retention policy, whose retention period is subject to legal review).
 
 ### 6.9 Developer application
 
