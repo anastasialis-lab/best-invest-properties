@@ -78,7 +78,7 @@ The primary model is the lower-cost one. Before launch both stages are tested on
 
 ## 4. Data contracts Bubble → OpenAI
 
-Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples. The financial figures in Stage 2 can be recalculated from the Stage 1 sources using the formulas in the Database Architecture document. The score of 77 and the category points are **illustrative only**: they cannot be recalculated until the scoring methodology is agreed.
+Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples, but they are consistent: the Stage 2 figures can be recalculated from the Stage 1 sources using the formulas in the Database Architecture document.
 
 ### 4.1 Stage 1 — property data and source materials
 
@@ -301,7 +301,7 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
 }
 ```
 
-The financial figures in the example follow the formulas in the Database Architecture document:
+The figures in the example follow the formulas in the Database Architecture document:
 
 | Figure | Calculation | Result |
 |---|---|---:|
