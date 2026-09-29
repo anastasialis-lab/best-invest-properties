@@ -58,9 +58,7 @@ The number in brackets is the screen number in the approved prototype.
 | Forgot password (24) | password reset |
 | Investor Dashboard (09) | saved properties, saved searches, enquiries |
 | Account Settings (25) | contact details, criteria, consents, password, account closure |
-| Enquiry Detail (new) | one enquiry with its status history |
 | Privacy (17), Terms (18) | legal pages |
-| Cookie Policy, disclaimers (new) | legal pages in the same layout |
 
 ### Developer
 
@@ -75,7 +73,6 @@ The number in brackets is the screen number in the approved prototype.
 | My Projects (20) | list of the developer's projects |
 | Project & Units (21) | units, prices, availability, change history |
 | Leads (22) | enquiries about the developer's units |
-| Lead Detail (new) | one lead and its outcome |
 
 ### Admin
 
@@ -90,8 +87,6 @@ The number in brackets is the screen number in the approved prototype.
 | Score Editor (13) | score weights and model versions |
 
 The admin menu has four items: **Dashboard · Approvals · Investors · Investment Scores**. Project Review and Developer Verification open from the Approvals queue.
-
-"New" screens are not in the prototype yet. They are simple, one screen each, in the same style.
 
 **Ideas to scope separately** (not part of this release): Country Fact Sheets, an editor for updating them, and a blog.
 
@@ -184,27 +179,7 @@ The score is out of 100 and has **five categories**:
 
 Nothing proposed with AI assistance reaches investors without the admin's approval.
 
-**Scoring methodology — draft, still to be approved.** The working proposal below is how each category would get a **rating from 0 to 10**, turned into points as `points = rating / 10 × category weight`.
-
-**Rental Income & Net Yield** — rated automatically from net yield:
-
-| Net yield | < 2% | 2–2.99% | 3–3.99% | 4–4.99% | 5–5.99% | 6–6.99% | 7–7.99% | ≥ 8% |
-|---|---|---|---|---|---|---|---|---|
-| Rating | 0 | 2 | 4 | 6 | 7 | 8 | 9 | 10 |
-
-**Purchase Value & Market Position** — the price per m² compared with the median for new builds in the district:
-
-| Compared with the median | ≥ 15% cheaper | 10–15% cheaper | 5–10% cheaper | within ±5% | 5–10% dearer | 10–15% dearer | > 15% dearer |
-|---|---|---|---|---|---|---|---|
-| Rating | 10 | 9 | 8 | 7 | 5 | 3 | 1 |
-
-**The other three categories** are assessed using sub-criteria that add up to 10:
-
-| Category | Sub-criteria (points) |
-|---|---|
-| Rental Demand & Tenant Quality | market activity (3), year-round demand (3), tenant variety (2), seasonality and vacancy risk (2) |
-| Growth & Resale Potential | price trend (4), liquidity (3), infrastructure and economy (2), data quality (1) |
-| Risk & Investor Protection | legal title (3), building permits (2), payment/escrow protection (2), developer check (2), construction stage (1) |
+The total score is the sum of the five category points (maximum 100). **Rental Income & Net Yield** is based on the property's net yield. The detailed scoring methodology will be agreed separately.
 
 For **Risk & Investor Protection**, more points means **lower** risk — this is written next to the scale.
 
@@ -236,7 +211,7 @@ On Project Review the admin sees the developer's claimed rent, Best Invest's com
 - The **long-term / short-term** switch sets the rental strategy. The **base / average / best case** switch sets the rent.
 - Country purchase costs and running costs are added automatically.
 - A property still under development shows **no rental income before its expected completion date**.
-- **5- and 10-year projections** are shown; how they are calculated is still to be agreed.
+- **5- and 10-year projections** have been requested; how they are calculated and whether they are included in the first release are still to be agreed.
 - Errors are shown under the field, and the result is not shown until they are fixed (e.g. "Enter a purchase price above zero.").
 - Saving a scenario needs an account.
 
@@ -300,7 +275,7 @@ The document list is a setting per country, not fixed in the build. After submit
 |---|---|---|
 | Approve & connect | to the investor **and** the developer | contacts shared, status "Connected" |
 | Hold | none | status "On hold"; reason and follow-up date required |
-| Decline | to the investor only — neutral wording with three similar properties | status "Declined"; the admin can enter an internal free-text reason, never shown to the investor or the developer; the developer sees only a count of filtered-out requests |
+| Decline | to the investor only — a neutral message with three similar properties | status "Declined"; the admin enters a short reason in a free-text field — an internal note that neither the investor nor the developer sees; the developer sees only a count of filtered-out requests |
 
 Before approval a warning says that contact details cannot be recalled once sent.
 
@@ -308,7 +283,7 @@ Before approval a warning says that contact details cannot be recalled once sent
 
 - **Dashboard:** five counters (registered investors, active developers, published properties, new enquiries, hot leads), the next project to review, and a table of new enquiries.
 - **Approvals:** one queue with five tabs — All, Project submissions, Developer applications, Introductions, Listing changes — plus filters by age, overdue follow-up and status.
-  - Hold, Query and Reject need a reason, and Hold and Query also need a follow-up date. For Decline, the admin can enter an internal free-text reason.
+  - Hold, Query and Reject need a reason, and Hold and Query also need a follow-up date. For Decline, the admin enters a short reason in a free-text field — an internal note that neither the investor nor the developer sees; the investor receives a neutral message.
   - After a decision there is no Undo: the admin can **Reopen** a held or declined request, or **Correct status**.
 - **Project Review:** the analysis panel with the figures, the proposed financial estimates with their sources, the five category scores and the sources/gaps list. Nothing is visible to investors until the admin approves it.
 - **Score Editor:** five weight sliders (0–100%, must total 100%; a warning if one category is above 50%), recalculation of all properties with a progress bar, and a small table of model versions. Going back to an older version creates a new version.
