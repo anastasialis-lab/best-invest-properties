@@ -13,7 +13,7 @@ The model must support the three real MVP loops:
 - a developer gets verified, submits a project and maintains price/availability;
 - an admin checks documents, publishes content and controls introductions, the score and the AI narrative.
 
-There is one database — Bubble. It holds **30 data types** and **21 Option Sets**.
+There is one database — Bubble. It holds **31 data types** and **21 Option Sets**.
 
 Principles:
 
@@ -112,14 +112,14 @@ An empty label means the record is not shown to that role at all — this is enf
 
 ## 5. Data types
 
-30 types in six groups.
+31 types in six groups.
 
 | Group | Types |
 |---|---|
 | 5.1 People and access | User, Investor Profile, Developer Company, Developer Application, Verification Document, Consent Record |
 | 5.2 Market settings | Country Config, Cost Rule, Document Requirement, Market Benchmark |
 | 5.3 Catalogue | Project, Unit Type, Unit, Media Asset |
-| 5.4 Finance, rent, score | Financial Input, Rental Comparable Set, Rental Comparable Listing, Analysis Fact, Score Model Version, Listing Score, Score Component, AI Analysis |
+| 5.4 Finance, rent, score | Financial Input, Rental Comparable Set, Rental Comparable Listing, Analysis Fact, Score Model Version, Score Assessment, Listing Score, Score Component, AI Analysis |
 | 5.5 Investor and enquiries | Saved Unit, Saved Search, Calculator Scenario, Enquiry, Enquiry Status Event, Change Request |
 | 5.6 System | Integration Job, Audit Event |
 
@@ -527,6 +527,33 @@ Weight rules:
 - the weights are the same for Cyprus and Spain;
 - `Revert` creates a **new** version with the previous parameters rather than deleting history.
 
+#### Score Assessment
+
+A proposed or approved assessment for one of the four assessed criteria (`demand`, `value`, `growth`, `risk`) of a unit. It exists **before** any score is calculated, so a proposal or a gap can be stored and reviewed without a Listing Score.
+
+| Field | Type | Required | Note |
+|---|---|---:|---|
+| public_id | text | yes | |
+| unit | Unit | yes | |
+| criterion | Score Criterion | yes | only `demand`, `value`, `growth`, `risk` |
+| rating | number | no | empty for a gap; on the scale set by the scoring methodology (to be agreed) |
+| is_gap | yes/no | yes | no source supports an assessment |
+| explanation | text | no | required unless it is a gap |
+| assumptions | text | no | |
+| sources_json | text | no | the sources used: id, link or document, date; required unless it is a gap |
+| source | Financial Input Source | yes | `ai_proposed` or `analyst_verified` |
+| integration_job | Integration Job | no | the AI request that produced an `ai_proposed` assessment |
+| review_status | Review Status | yes | `pending` until the admin approves it |
+| approved_at | date | no | |
+| superseded_by | Score Assessment | no | a correction or a new proposal does not overwrite the old one |
+
+Rules:
+
+- an AI proposal is always stored as `pending`; the admin approves it or saves a correction as a new record with `source = analyst_verified`;
+- a gap can never be approved as a rating;
+- per unit and criterion only one approved, not superseded assessment is used;
+- Bubble calculates a Listing Score only when all four assessed criteria have an approved assessment.
+
 #### Listing Score
 
 | Field | Type | Required | Note |
@@ -546,20 +573,20 @@ The `*_used` fields record the inputs the score was calculated from, so the scor
 
 #### Score Component
 
+Created by Bubble when the score is calculated, from approved values only.
+
 | Field | Type | Required | Note |
 |---|---|---:|---|
 | listing_score | Listing Score | yes | |
 | criterion | Score Criterion | yes | Option Set |
+| assessment | Score Assessment | no | the approved assessment used; required for `demand`, `value`, `growth`, `risk` |
 | raw_value | number | no | e.g. net yield for `income`; empty for assessed criteria |
-| rating | number | yes | on the scale set by the scoring methodology (to be agreed) |
+| rating | number | yes | copied from the approved assessment, or derived from net yield for `income` |
 | weighted_points | number | yes | calculated by Bubble from the rating and the criterion weight |
-| explanation | text | no | for assessed criteria: the admin-approved explanation; may be proposed with AI assistance |
-| sources_json | text | no | the sources behind the assessment: id, link or document, date |
-| proposed_by | text | no | `ai` / `admin` |
-| review_status | Review Status | yes | assessed criteria are `pending` until the admin approves them |
-| approved_at | date | no | |
+| explanation | text | no | copy of the approved explanation at calculation time |
+| sources_json | text | no | copy of the approved sources at calculation time |
 
-Each Listing Score has exactly five components; they add up to the total score within `0.01`. A score is published only when every assessed component is approved. The approved explanation and sources are passed to OpenAI for the analysis text, so the text can explain the points without guessing.
+Each Listing Score has exactly five components; they add up to the total score within `0.01`. The copies keep the score reproducible even if a later assessment supersedes the one used. The approved explanation and sources are passed to OpenAI for the analysis text, so the text can explain the points without guessing.
 
 #### AI Analysis
 
@@ -585,7 +612,7 @@ Each Listing Score has exactly five components; they add up to the total score w
 
 Only `review_status = approved` is published, and only while the linked Listing Score is still `is_current = yes`.
 
-AI Analysis holds only the analysis text (the second AI stage). Proposed inputs and assessments from the first stage are stored as Financial Inputs (`source = ai_proposed`) and Score Components (`review_status = pending`).
+AI Analysis holds only the analysis text (the second AI stage). Proposed inputs and assessments from the first stage are stored as Financial Inputs (`source = ai_proposed`) and Score Assessments (`review_status = pending`).
 
 ### 5.5 Investor and enquiries
 
@@ -752,7 +779,7 @@ published → paused | sold_out | archived
 
 The admin performs `approved → published` as a separate action. Publishing is not allowed without approved verification, at least one available unit, a cover photo, calculated financials, a current score, and an approved AI analysis or an explicit deterministic-only fallback.
 
-A developer can **submit** a project with an incomplete set of units (modal: "12 units declared · 3 entered. You can submit and add the rest before publication"). So unit completeness is a condition of `approved → published`, not of `draft → submitted`. In addition, publishing requires every Financial Input used in the score and every assessed Score Component to have `review_status = approved`.
+A developer can **submit** a project with an incomplete set of units (modal: "12 units declared · 3 entered. You can submit and add the rest before publication"). So unit completeness is a condition of `approved → published`, not of `draft → submitted`. In addition, publishing requires every Financial Input used in the score and every Score Assessment used in the score to have `review_status = approved`.
 
 ### Enquiry decision
 
@@ -801,6 +828,7 @@ submitted | screening | qualified → cancelled
 | Financial Input | none | none | own project, `approved` only | full |
 | Rental Comparable Set / Rental Comparable Listing | none | none | none | full |
 | Analysis Fact / Listing Score / Score Component | published subset | published subset | own project | full |
+| Score Assessment | none | none | none | full |
 | AI Analysis | approved/published only | approved/published only | own project published view | full |
 | Enquiry | none | own, investor-safe fields | own company; `released_*` fields only after release | full |
 | Enquiry Status Event | none | own, without `reason_private` | own company, without `reason_private` | full |
