@@ -1,18 +1,19 @@
 # Design System — Best Invest Properties
 
-Date: 25 September 2026  
-Source: the approved prototype
+Version: 1.2  
+Date: 29 September 2026  
+Source: the approved prototype and the agreed page background
 
-This is the visual style of the approved prototype: colours, font, shapes and the main interface elements. Every value is taken directly from the prototype.
+This is the visual style of the approved prototype: colours, font, shapes and the main interface elements. Values are taken from the prototype; the page background follows the later agreement that every page uses the same background as the landing page.
 
 ## 1. The look in short
 
-- **Light and calm.** Every page sits on a very light blue background with white cards.
+- **One shared background.** Every page uses the landing page background: the coastal photo with a turquoise gradient overlay. Content sits on white cards and panels on top of it.
 - **Blue for everything functional.** Text, links and buttons use shades of deep blue.
 - **One warm accent — gold.** It marks the active menu item, key developer actions, the "TOP INVESTMENT" badge and the logo.
 - **One font — Archivo.** Headings are bold and in capital letters.
 - **Soft, rounded shapes.** Buttons are pill-shaped, cards have rounded corners and a soft blue shadow.
-- **Mostly light, with a few dark accents.** The landing hero and some screen headers use deep navy; everything else is light, including the admin area.
+- **Light content areas.** Cards, forms, tables and panels are white or very light blue, including in the admin area.
 
 ## 2. Colours
 
@@ -32,7 +33,8 @@ This is the visual style of the approved prototype: colours, font, shapes and th
 
 | | Name | HEX | Used for |
 |---|---|---|---|
-| <span class="sw" style="background:#F7FCFF"></span> | Page background | `#F7FCFF` | the background of every page |
+| — | Page background | landing photo + gradient | every page: the landing page's coastal photo with a turquoise gradient overlay (base colour `#123A50` while the photo loads) |
+| <span class="sw" style="background:#F7FCFF"></span> | Very light blue | `#F7FCFF` | light panels and underlays inside content areas |
 | <span class="sw" style="background:#FFFFFF"></span> | White | `#FFFFFF` | cards, tables, panels |
 | <span class="sw" style="background:#EAF2F8"></span> | Panel blue | `#EAF2F8` | side navigation in the developer portal and admin area |
 | <span class="sw" style="background:#F0F7FC"></span> | Field blue | `#F0F7FC` | form fields |
@@ -50,7 +52,7 @@ This is the visual style of the approved prototype: colours, font, shapes and th
 
 The prototype also uses a number of close shades of these colours for small details (borders, the gold gradient in the logo, secondary labels). They are listed in the technical version of this document.
 
-Borders and shadows are tinted with blue rather than grey — this is what keeps the light pages from looking grey.
+Borders and shadows are tinted with blue rather than grey — this is what keeps the light cards and panels from looking grey.
 
 ## 3. Font
 
@@ -138,11 +140,10 @@ The exact screen width at which the site switches to the mobile layout is set du
 
 ## 7. Accessibility
 
-The main colour combinations meet the international accessibility standard (WCAG 2.2, level AA — a contrast of at least 4.5 : 1):
+The main colour combinations on cards and panels meet the international accessibility standard (WCAG 2.2, level AA — a contrast of at least 4.5 : 1):
 
 | Text on background | Contrast |
 |---|---:|
-| Deep navy on the page background | 11.3 : 1 |
 | Slate paragraph text on white | 7.8 : 1 |
 | White on primary blue | 7.3 : 1 |
 | Deep navy on gold | 6.0 : 1 |
@@ -150,7 +151,13 @@ The main colour combinations meet the international accessibility standard (WCAG
 
 Also:
 
+- text placed directly on the photo background is checked against its actual underlay (the photo together with the gradient overlay) on each screen, not against a single colour;
 - the light placeholder colour in empty fields is used only as a placeholder, never for real text;
 - a status is always shown with text, not colour alone;
 - the direction of the "Risk & Investor Protection" score is always explained in words (more points = lower risk);
 - every button and tappable element is at least 44 × 44 px.
+
+## 8. Logo and brand visuals
+
+- **Logo.** The final approved logo — the version with stars and column details — will be added to this document when it is ready.
+- **Brand visual.** The illustration with buildings and the slogan "Ranking the most profitable properties in Europe" is a separate brand visual, not a variant of the logo.
