@@ -1,36 +1,52 @@
 # OpenAI Specification — Best Invest Properties
 
-Date: 25 September 2026  
+Version: 1.2  
+Date: 29 September 2026  
 API: OpenAI Responses API  
 Called through: Make  
 Publication: only after admin review
 
 ## 1. What OpenAI does on the platform
 
-OpenAI does one thing: it writes the readable **Investment Analysis** text for a property, based on facts and figures the platform has already verified and calculated.
+OpenAI works in **two separate stages**:
+
+1. **Proposed inputs and assessments.** From the property data and the source materials it is given, OpenAI proposes figures and assessments for the admin to check.
+2. **Analysis text.** After the admin has approved the values and the score, OpenAI writes the readable **Investment Analysis** text.
 
 How it works:
 
-1. The platform calculates the property's figures and score.
-2. Make sends OpenAI the verified facts (section 4) together with fixed instructions (section 5).
-3. OpenAI returns the text in a fixed structure (section 6).
-4. The platform checks the text automatically: every statement must point to a supplied fact, no new numbers may appear, and words like "guaranteed" or "risk-free" are not allowed.
-5. The admin reviews the text and approves it. Only then do investors see it.
+1. Make sends OpenAI the property data and the source materials, each with its link and date (section 4.1), together with the fixed Stage 1 instructions (section 5.1).
+2. OpenAI returns proposals in a fixed structure (section 6.1). Each proposal has its sources and assumptions. Where there is no source, the item is marked as a gap.
+3. The platform checks the proposals automatically, and saves them as **"awaiting review"**.
+4. The admin checks and corrects the proposals. Bubble then applies the fixed formulas for the yield and the score to the approved values.
+5. Make sends OpenAI the approved figures, the score and the reviewed facts (section 4.2), together with the fixed Stage 2 instructions (section 5.2).
+6. OpenAI returns the text in a fixed structure (section 6.2). The platform checks it automatically: every statement must point to a supplied fact, no new numbers may appear, and words like "guaranteed" or "risk-free" are not allowed.
+7. The admin reviews the text and approves it. Only then do investors see it.
 
 OpenAI does **not**:
 
-- calculate price, rent, tax, purchase costs, yield or score;
+- apply the formulas for acquisition cost, yield, points or the total score;
+- invent a figure or a source — without a source, the item is marked as a gap;
 - decide on its own what a "good investment" is;
 - search the internet;
-- see the investor's name, email, phone or any other investor data;
-- publish anything without admin approval;
+- see the investor's name, email, phone or any other investor data, or the contact details of developer representatives;
+- publish anything, or have anything used, without admin approval;
 - replace a financial, legal or investment adviser.
 
-If OpenAI is unavailable, the property page still shows the score breakdown and the financial table, with the note "Narrative analysis is being reviewed".
+If OpenAI is unavailable, unchecked data is not published. Approved figures stay visible, and the property page still shows the score breakdown with the note "Narrative analysis is being reviewed".
 
 ## 2. What is in the MVP
 
-**In the MVP — the investment analysis text:**
+**Stage 1 — proposed inputs and assessments** for the admin to check:
+
+- the expected monthly rent;
+- annual operating costs;
+- the data needed for the total acquisition cost (purchase taxes and costs);
+- qualitative assessments for the categories that need judgement: Rental Demand & Tenant Quality, Purchase Value & Market Position, Growth & Resale Potential, Risk & Investor Protection.
+
+Every proposal is based only on the supplied source materials and has its sources and assumptions. The developer's claimed rent is never used as the proposed rent. These proposals appear on the Project Review screen next to their sources. The admin approves or corrects each one before it is used.
+
+**Stage 2 — the investment analysis text:**
 
 - a short neutral summary;
 - 2–4 strengths, each linked to the facts it is based on;
@@ -38,8 +54,6 @@ If OpenAI is unavailable, the property page still shows the score breakdown and 
 - an explanation of the score, without changing it;
 - a list of missing data;
 - the standard disclaimer.
-
-**Not AI — the financial estimates on the Project Review screen.** These figures come from comparable rental listings, approved country cost averages and platform settings, and the formulas are calculated by the platform. OpenAI does not produce any financial figure.
 
 **Not in the MVP:**
 
@@ -52,18 +66,100 @@ If OpenAI is unavailable, the property page still shows the score breakdown and 
 endpoint: POST /v1/responses
 primary model: gpt-5.6-luna
 fallback / manual high-quality regeneration: gpt-5.6-terra
-reasoning.effort: low
 store: false
 tools: []
 text.format: json_schema, strict: true
-max_output_tokens: 1800
+
+Stage 1 (proposals):     reasoning.effort: medium, max_output_tokens: 2500
+Stage 2 (analysis text): reasoning.effort: low,    max_output_tokens: 1800
 ```
 
-The primary model is the lower-cost one, which suits short, structured texts. Before launch it is tested on a set of example properties; if the quality is not good enough, the platform switches to the higher-quality model. The model name is a setting, so switching requires no development work.
+The primary model is the lower-cost one. Before launch both stages are tested on a set of example properties. If the quality is not good enough, the platform switches to the higher-quality model. The model name is a setting, so switching requires no development work.
 
-## 4. Data contract Bubble → OpenAI
+## 4. Data contracts Bubble → OpenAI
 
-This is the exact data the platform sends to OpenAI for one property. It contains only verified facts about the property, its figures and its score — **no investor data**. The numbers are an example.
+Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples.
+
+### 4.1 Stage 1 — property data and source materials
+
+```json
+{
+  "schema_version": "1.0",
+  "proposal_id": "prp_01J...",
+  "unit_public_id": "unt_01J...",
+  "locale": "en",
+  "property": {
+    "country": "Spain",
+    "city": "Alicante",
+    "area_name": "Example area",
+    "property_type": "Apartment",
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "indoor_area_m2": 78,
+    "features": ["pool", "parking", "gated_area"],
+    "completion_date": "2027-06-30",
+    "availability": "available"
+  },
+  "developer_information": [
+    { "key": "dev.price", "label": "Purchase price", "value": 280000, "currency": "EUR" },
+    { "key": "dev.claimed_monthly_rent", "label": "Developer's claimed rent", "value": 2100, "currency": "EUR" }
+  ],
+  "source_materials": [
+    {
+      "source_id": "src_01",
+      "type": "rental_comparable",
+      "title": "2-bed apartment, same district, pool and parking",
+      "url": "https://example-source.test/listing/123",
+      "retrieved_at": "2026-09-20",
+      "content": { "monthly_rent": 1850, "bedrooms": 2, "indoor_area_m2": 80, "features": ["pool", "parking"] }
+    },
+    {
+      "source_id": "src_02",
+      "type": "country_costs",
+      "title": "Approved purchase costs and running costs — Spain",
+      "url": null,
+      "retrieved_at": "2026-09-15",
+      "content": {
+        "purchase_costs": [
+          { "label": "Purchase tax", "rate": 0.10 },
+          { "label": "Notary and registry", "amount": 1500 }
+        ],
+        "running_costs": [
+          { "label": "Community fees", "annual_amount": 1200 }
+        ]
+      }
+    }
+  ],
+  "comparables_summary": {
+    "count": 7,
+    "rent_min": 1700,
+    "rent_median": 1900,
+    "rent_max": 2050,
+    "note": "technical processing of the sample by Bubble, not an approved figure"
+  },
+  "requested_items": [
+    "expected_monthly_rent",
+    "annual_operating_costs",
+    "purchase_costs",
+    "assessment.demand",
+    "assessment.value",
+    "assessment.growth",
+    "assessment.risk"
+  ],
+  "rating_scale": "set by the scoring methodology (to be agreed)"
+}
+```
+
+**What to notice:**
+
+- `source_materials` are the only allowed basis for proposals. Each one has a `source_id`, a link (where one exists) and a date;
+- `developer_information` is the developer's claim and is never treated as independently verified;
+- `comparables_summary` is calculated by Bubble and is given for context only;
+- a requested item without supporting sources is returned as a gap, not guessed.
+
+### 4.2 Stage 2 — approved figures and score
+
+This is sent only after the admin has approved the Stage 1 values and Bubble has calculated the figures and score.
 
 ```json
 {
@@ -92,57 +188,24 @@ This is the exact data the platform sends to OpenAI for one property. It contain
     "annual_net_income": 17248,
     "gross_yield": 0.0814,
     "net_yield": 0.056,
+    "approved_at": "2026-09-22T09:30:00Z",
     "calculation_version": "fin-v3",
-    "calculated_at": "2026-09-17T10:00:00Z"
+    "calculated_at": "2026-09-22T10:00:00Z"
   },
   "score": {
     "total": 77,
     "verdict": "strong",
     "model_version": "score-v5",
     "components": [
-      {
-        "key": "income",
-        "label": "Rental Income & Net Yield",
-        "raw_value": 0.056,
-        "rating": 7,
-        "weighted_points": 21,
-        "max_points": 30,
-        "source_key": "financials.net_yield"
-      },
-      {
-        "key": "demand",
-        "label": "Rental Demand & Tenant Quality",
-        "raw_value": null,
-        "rating": 8,
-        "weighted_points": 16,
-        "max_points": 20,
-        "source_key": "assessment.demand"
-      },
-      {
-        "key": "value",
-        "label": "Purchase Value & Market Position",
-        "raw_value": -0.08,
-        "rating": 8,
-        "weighted_points": 16,
-        "max_points": 20,
-        "source_key": "assessment.value"
-      },
-      {
-        "key": "growth",
-        "label": "Growth & Resale Potential",
-        "raw_value": null,
-        "rating": 8,
-        "weighted_points": 12,
-        "max_points": 15,
-        "source_key": "assessment.growth"
-      },
+      { "key": "income", "label": "Rental Income & Net Yield", "points": 21, "max_points": 30, "source_key": "financials.net_yield" },
+      { "key": "demand", "label": "Rental Demand & Tenant Quality", "points": 16, "max_points": 20, "source_key": "assessment.demand" },
+      { "key": "value", "label": "Purchase Value & Market Position", "points": 16, "max_points": 20, "source_key": "assessment.value" },
+      { "key": "growth", "label": "Growth & Resale Potential", "points": 12, "max_points": 15, "source_key": "assessment.growth" },
       {
         "key": "risk",
         "label": "Risk & Investor Protection",
         "scale_direction": "higher_points_mean_lower_risk",
-        "raw_value": null,
-        "rating": 8,
-        "weighted_points": 12,
+        "points": 12,
         "max_points": 15,
         "source_key": "assessment.risk"
       }
@@ -160,7 +223,7 @@ This is the exact data the platform sends to OpenAI for one property. It contain
     {
       "key": "fact.rent_comparables",
       "tag": "source",
-      "body": "Comparable long-let asking prices in the same district, sampled from public listing portals."
+      "body": "Comparable long-let rentals in the same district, reviewed by the admin."
     },
     {
       "key": "fact.developer_inputs",
@@ -180,15 +243,15 @@ This is the exact data the platform sends to OpenAI for one property. It contain
 
 **What to notice:**
 
+- every figure in `financials` and `score` has been approved by the admin or calculated by Bubble from approved values;
 - `score.components` contains exactly **five** items with keys `income`, `demand`, `value`, `growth`, `risk` and maximums 30/20/20/15/15;
 - the `analysis_facts` array carries tags `source` / `developer` / `estimate` / `gap` — the model may cite them as sources and **must** mention every `gap` fact under risks or missing_data;
-- `raw_value` for non-financial categories may be `null` — the model must not invent a numeric basis where there is none.
+- for the `risk` category the payload includes `scale_direction` (higher points = lower risk), so the model does not invert it in the text.
 
-For the `risk` category the payload includes `scale_direction` (higher points = lower risk), so the model does not invert it in the text.
-
-Do not send:
+**Do not send, in either stage:**
 
 - investor identity/contact;
+- contact details of developer representatives;
 - developer verification documents;
 - exact private address;
 - admin private notes;
@@ -196,9 +259,40 @@ Do not send:
 - Make/Bubble secrets;
 - full legal text where a versioned disclaimer key is enough.
 
-## 5. System/developer prompt
+## 5. System/developer prompts
 
-These are the instructions OpenAI receives with every request. They are fixed in the platform and cannot be changed by developers or investors. Prompt version: `bip-investment-analysis-v1`.
+These instructions are fixed in the platform and cannot be changed by developers or investors. The property JSON is passed as `input_text` after the instructions. Do not mix the prompt and the data in one free-text block.
+
+### 5.1 Stage 1 — proposals
+
+Prompt version: `bip-proposals-v1`.
+
+```text
+You prepare proposed inputs and assessments for Best Invest Properties. An admin
+reviews everything you return; nothing is published or used without approval.
+
+Use only the property data and the source_materials in the supplied JSON. Do not
+use outside knowledge. Never invent figures, sources, market conditions, legal
+rules, taxes, demand or future appreciation.
+
+For each requested item, propose a value only if the source_materials support
+it, and cite the source_ids you used. List your assumptions. If the sources do
+not support a value, return value null with status "gap" and add the item to
+missing_data.
+
+developer_information is the developer's claim, never independently verified.
+Never use the developer's claimed rent as the expected rent.
+
+Do not calculate acquisition cost, yield, net income, points or the total score;
+the platform does this. For the "Risk & Investor Protection" assessment a higher
+rating means LOWER assessed risk.
+
+Return only JSON matching the supplied strict schema.
+```
+
+### 5.2 Stage 2 — analysis text
+
+Prompt version: `bip-investment-analysis-v1`.
 
 ```text
 You write factual investment-property analysis for Best Invest Properties.
@@ -207,11 +301,11 @@ Use only facts present in the supplied JSON. Never calculate, infer, estimate,
 round, or replace financial values. Never invent market conditions, legal rules,
 taxes, neighbourhood claims, demand, future appreciation, guarantees, or advice.
 
-The score, verdict, and score components are deterministic inputs. Explain them;
-do not challenge or change them. There are exactly five score categories; never
-invent, merge, or omit one. For the "Risk & Investor Protection" category a
-higher number of points means LOWER assessed risk — never describe a high score
-in that category as high risk.
+The financial figures, score, verdict, and score components are approved inputs.
+Explain them; do not challenge or change them. There are exactly five score
+categories; never invent, merge, or omit one. For the "Risk & Investor
+Protection" category a higher number of points means LOWER assessed risk — never
+describe a high score in that category as high risk.
 
 Every strength and risk must cite one or more source_keys that exist in the
 input. If evidence is missing, add the key to missing_data rather than guessing.
@@ -221,17 +315,86 @@ presented as independently verified.
 
 Use neutral, professional language. Avoid certainty about returns. Do not use
 “guaranteed”, “safe”, “best”, “will increase”, “risk-free”, or equivalent claims.
-State clearly that all financial figures are estimates based on the displayed
-assumptions and that the content is not financial, tax, or legal advice.
+State clearly that projected and actual returns may differ, that all financial
+figures are estimates based on the displayed assumptions, and that the content
+is not financial, tax, or legal advice.
 
 Return only JSON matching the supplied strict schema.
 ```
 
-The property JSON is passed as `input_text` after the developer instruction. Do not mix the prompt and the facts in one free-text block.
+## 6. Structured Output schemas
 
-## 6. Structured Output schema
+OpenAI must answer in exactly these structures. Any answer in a different shape is rejected automatically.
 
-OpenAI must answer in exactly this structure — a headline, a summary, strengths, risks, an explanation of the score, missing data and the disclaimer. Any answer in a different shape is rejected automatically.
+### 6.1 Stage 1 — proposals
+
+```json
+{
+  "name": "proposed_inputs",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "schema_version": { "type": "string", "enum": ["1.0"] },
+      "proposals": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "item_key": {
+              "type": "string",
+              "enum": [
+                "expected_monthly_rent",
+                "annual_operating_costs",
+                "purchase_costs",
+                "assessment.demand",
+                "assessment.value",
+                "assessment.growth",
+                "assessment.risk"
+              ]
+            },
+            "status": { "type": "string", "enum": ["proposed", "gap"] },
+            "value": { "type": ["number", "null"] },
+            "unit": { "type": "string", "enum": ["EUR_per_month", "EUR_per_year", "EUR", "rating"] },
+            "breakdown": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "label": { "type": "string" },
+                  "amount": { "type": "number" },
+                  "source_ids": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["label", "amount", "source_ids"]
+              }
+            },
+            "rationale": { "type": "string" },
+            "assumptions": { "type": "array", "items": { "type": "string" } },
+            "source_ids": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["item_key", "status", "value", "unit", "breakdown", "rationale", "assumptions", "source_ids"]
+        }
+      },
+      "missing_data": { "type": "array", "items": { "type": "string" } }
+    },
+    "required": ["schema_version", "proposals", "missing_data"]
+  }
+}
+```
+
+After parsing, the platform checks that:
+
+- every requested item appears exactly once;
+- a `proposed` item has a value and at least one `source_id` that exists in the input;
+- a `gap` item has `value: null` and appears in `missing_data`;
+- the proposed rent is not simply the developer's claimed rent.
+
+The proposals are then saved as **"awaiting review"** for the admin.
+
+### 6.2 Stage 2 — analysis text
 
 ```json
 {
@@ -298,11 +461,41 @@ OpenAI must answer in exactly this structure — a headline, a summary, strength
 }
 ```
 
-Structured Outputs guarantees conformance to the supported JSON schema, but **not** factual correctness. After parsing, application validation is mandatory and separately checks text lengths, 2–4 strengths, 1–4 risks and at least one source key per item.
+After parsing, the platform checks text lengths, 2–4 strengths, 1–4 risks, at least one source key per item, and that no number appears that is not in the input.
 
-Any change to the number of score categories or to the structure of `analysis_facts` requires a new prompt version; the schema version changes only when the output structure changes.
+Structured Outputs guarantees that the answer has the right structure, but **not** that it is factually correct. That is why the automatic checks and the admin review are always required. Any change to the number of score categories or to the input structure requires a new prompt version; the schema version changes only when the output structure changes.
 
-## 7. Full request example
+## 7. Full request examples
+
+### 7.1 Stage 1 — proposals
+
+```json
+{
+  "model": "gpt-5.6-luna",
+  "store": false,
+  "reasoning": { "effort": "medium" },
+  "max_output_tokens": 2500,
+  "metadata": {
+    "use_case": "bip_proposed_inputs",
+    "prompt_version": "bip-proposals-v1",
+    "proposal_id": "prp_01J..."
+  },
+  "instructions": "<versioned Stage 1 prompt>",
+  "input": [
+    {
+      "role": "user",
+      "content": [
+        { "type": "input_text", "text": "<property data and source materials JSON>" }
+      ]
+    }
+  ],
+  "text": {
+    "format": { "type": "json_schema", "name": "proposed_inputs", "strict": true, "schema": {} }
+  }
+}
+```
+
+### 7.2 Stage 2 — analysis text
 
 ```json
 {
@@ -312,38 +505,39 @@ Any change to the number of score categories or to the structure of `analysis_fa
   "max_output_tokens": 1800,
   "metadata": {
     "use_case": "bip_investment_analysis",
-    "prompt_version": "v1",
+    "prompt_version": "bip-investment-analysis-v1",
     "analysis_id": "ana_01J..."
   },
-  "instructions": "<versioned developer prompt>",
+  "instructions": "<versioned Stage 2 prompt>",
   "input": [
     {
       "role": "user",
       "content": [
-        {
-          "type": "input_text",
-          "text": "<validated property snapshot JSON>"
-        }
+        { "type": "input_text", "text": "<approved property snapshot JSON>" }
       ]
     }
   ],
   "text": {
-    "format": {
-      "type": "json_schema",
-      "name": "investment_analysis",
-      "strict": true,
-      "schema": {}
-    }
+    "format": { "type": "json_schema", "name": "investment_analysis", "strict": true, "schema": {} }
   }
 }
 ```
 
-The model is not given web search or any other tools, so it cannot bring in facts from outside. `store: false` means OpenAI does not keep the request or the answer.
+The model is not given web search or any other tools, so it cannot bring in facts from outside the supplied data.
+
+**How OpenAI keeps the data.** Under OpenAI's published data controls:
+
+- `store: false` means the response is **not saved as application state** for later retrieval through the API. It does not mean that OpenAI keeps no record of the request.
+- By default, API requests and responses may be kept in **abuse-monitoring logs for up to 30 days**, or longer where required by law or needed to protect OpenAI's services or others from harm.
+- Data sent to the API is **not used to train OpenAI models** unless the organisation opts in.
+- **Zero Data Retention** is available only to eligible customers approved by OpenAI. Whether the platform needs it is to be decided before launch.
 
 ## 8. Official OpenAI sources
 
 - [Models and model selection](https://developers.openai.com/api/docs/models)
 - [GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)
 - [Responses API: create response](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
+- [Data controls in the OpenAI platform](https://developers.openai.com/api/docs/guides/your-data)
+- [How your data is used to improve model performance](https://openai.com/policies/how-your-data-is-used-to-improve-model-performance/)
 - [Moderations API](https://developers.openai.com/api/reference/cli/resources/moderations)
 - [Evals API](https://developers.openai.com/api/reference/java/resources/evals/methods/create)
