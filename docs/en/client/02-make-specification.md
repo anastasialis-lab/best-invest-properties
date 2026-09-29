@@ -46,11 +46,11 @@ Each task has a unique key, so a repeated step after a network error does not cr
 
 ## 3. Automations in the MVP
 
-The MVP needs **two** Make automations.
+The MVP has **two** Make automations. Automatic rental data collection works only for a source whose access has been agreed; until then, comparables are entered by hand (see 4.1).
 
 | # | Automation | When it runs | What it does |
 |---|---|---|---|
-| 1 | Rental data collection | when a property's rental data needs to be prepared or refreshed | gets comparable rental listings from approved sources, where a source allows it, and returns them to Bubble for admin review |
+| 1 | Rental data collection | when a property's rental data needs to be prepared or refreshed | for each agreed source, gets comparable rental listings and returns them to Bubble for admin review |
 | 2 | AI investment analysis | in two stages: (a) when a property is prepared for review; (b) after the required values and the score have been checked | (a) asks OpenAI for proposed inputs and assessments with sources and assumptions; (b) asks OpenAI to write the analysis text |
 
 The specific rental data sources, how they can be accessed and how their data may be used are still to be confirmed. Automatic collection is possible only where a source provides suitable, permitted access.
@@ -86,13 +86,14 @@ This automation has two separate stages.
 
 **Stage 1 — proposed inputs and assessments.**
 
-- Make sends OpenAI the property information needed for the analysis, including information provided by the developer.
-- OpenAI may propose the following, each supported by sources:
+- Make first sends the model the data collected from checked sources — for example the comparable rentals and the country cost data — with each source's link and date, together with the property information needed for the analysis, including information provided by the developer.
+- Based only on this data, OpenAI may propose the following, each with a reference to its source:
   - the expected rent;
   - annual operating costs;
   - the data needed for the total acquisition cost;
   - qualitative assessments for the categories that need judgement.
-- Every proposal comes with its sources and assumptions, and missing data is marked as a gap.
+- Every proposal comes with its sources and assumptions.
+- If there is no source for a figure, OpenAI does not invent it: the figure is left empty and marked as a gap.
 - The proposals are saved as **"awaiting review"**. The admin checks and corrects them, and only then does Bubble apply the fixed formulas for the yield and the score.
 
 **Stage 2 — analysis text.**
