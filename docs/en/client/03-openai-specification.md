@@ -1,6 +1,6 @@
 # OpenAI Specification — Best Invest Properties
 
-Version: 1.2  
+Version: 1.3  
 Date: 29 September 2026  
 API: OpenAI Responses API  
 Called through: Make  
@@ -78,7 +78,7 @@ The primary model is the lower-cost one. Before launch both stages are tested on
 
 ## 4. Data contracts Bubble → OpenAI
 
-Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples, but they are consistent: the Stage 2 figures can be recalculated from the Stage 1 sources using the formulas in the Database Architecture document.
+Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples. The financial figures in the Stage 2 example can be recalculated from the Stage 1 inputs using the formulas in the Database Architecture document. The score of 77 is illustrative; its calculation depends on the scoring methodology to be agreed separately.
 
 ### 4.1 Stage 1 — property data and source materials
 
