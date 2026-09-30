@@ -1,7 +1,7 @@
 # OpenAI Specification — Best Invest Properties
 
-Version: 1.3  
-Date: 29 September 2026  
+Version: 1.4  
+Date: 30 September 2026  
 API: OpenAI Responses API  
 Called through: Make  
 Publication: only after admin review
@@ -42,7 +42,10 @@ If OpenAI is unavailable, unchecked data is not published. Approved figures stay
 - the expected monthly rent;
 - annual operating costs;
 - the data needed for the total acquisition cost (purchase taxes and costs);
-- qualitative assessments for the categories that need judgement: Rental Demand & Tenant Quality, Purchase Value & Market Position, Growth & Resale Potential, Risk & Investor Protection.
+- the estimated fair market value, from comparable properties, with a reliability note;
+- ratings from 0 to 10 for the categories that need judgement — Rental Demand & Tenant Quality, Growth & Resale Potential, Risk & Investor Protection — following the rating rules in the Project Specification (6.3). For Growth & Resale and Risk, a rating for each internal component is proposed as well.
+
+The ratings for Rental Income & Net Yield and Purchase Value & Market Position are not proposed by AI: the platform derives them from the approved figures using the fixed tables in the Project Specification (6.3).
 
 Every proposal is based only on the supplied source materials and has its sources and assumptions. The developer's claimed rent is never used as the proposed rent. These proposals appear on the Project Review screen next to their sources. The admin approves or corrects each one before it is used.
 
@@ -78,7 +81,7 @@ The primary model is the lower-cost one. Before launch both stages are tested on
 
 ## 4. Data contracts Bubble → OpenAI
 
-Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples. The financial figures in the Stage 2 example can be recalculated from the Stage 1 inputs using the formulas in the Database Architecture document. The score of 77 is illustrative; its calculation depends on the scoring methodology to be agreed separately.
+Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples. The financial figures in the Stage 2 example can be recalculated from the Stage 1 inputs using the formulas in the Database Architecture document. The points for Rental Income & Net Yield (21/30) and Purchase Value & Market Position (16/20) follow the fixed tables in the Project Specification (6.3). The points for the other three categories, and therefore the total of 77, are illustrative: scoring guidelines for those categories are still to be provided.
 
 ### 4.1 Stage 1 — property data and source materials
 
@@ -135,9 +138,9 @@ Neither contract contains investor data or the contact details of developer repr
         ],
         "vacancy_rate": 0.10
       } },
-    { "source_id": "src_07", "type": "sale_prices_summary", "title": "New-build asking prices per m², same district",
+    { "source_id": "src_07", "type": "sale_prices_summary", "title": "Asking prices per m² for comparable new-build 2-bed apartments, same district",
       "url": "https://example-source.test/district-prices", "retrieved_at": "2026-09-18",
-      "content": { "median_price_per_m2": 3900, "listings_count": 12 } }
+      "content": { "median_price_per_m2": 4500, "listings_count": 12 } }
   ],
   "comparables_summary": {
     "source_ids": ["src_01", "src_02", "src_03", "src_04", "src_05"],
@@ -151,12 +154,18 @@ Neither contract contains investor data or the contact details of developer repr
     "expected_monthly_rent",
     "annual_operating_costs",
     "purchase_costs",
+    "estimated_fair_market_value",
     "assessment.demand",
-    "assessment.value",
     "assessment.growth",
     "assessment.risk"
   ],
-  "rating_scale": "set by the scoring methodology (to be agreed)"
+  "rating_rules": {
+    "scale": "0-10",
+    "demand_levels": "level descriptions 0-10 from the Project Specification, 6.3",
+    "growth_levels": "level descriptions 0-10 from the Project Specification, 6.3",
+    "growth_components": { "capital_appreciation": 0.50, "rental_appreciation": 0.25, "resale_liquidity": 0.25 },
+    "risk_components": { "legal_owner_protection": 0.35, "property_operational_costs": 0.25, "regulatory_risk": 0.20, "physical_market_security_risks": 0.20 }
+  }
 }
 ```
 
@@ -165,7 +174,8 @@ Neither contract contains investor data or the contact details of developer repr
 - `source_materials` are the only allowed basis for proposals. Each one has a `source_id`, a link (where one exists) and a date;
 - `comparables_summary` lists the `source_ids` it was calculated from, so every comparable behind the range and the median can be checked. It is calculated by Bubble and given for context only;
 - `developer_information` is the developer's claim and is never treated as independently verified;
-- a requested item without supporting sources is returned as a gap, not guessed.
+- a requested item without supporting sources is returned as a gap, not guessed;
+- `rating_rules` carries the rating rules provided so far. Scoring guidelines for which evidence leads to a higher or lower rating are still to be provided, so the level descriptions guide the proposed ratings and the admin reviews every one.
 
 ### 4.2 Stage 2 — approved figures, assessments and score
 
@@ -200,6 +210,13 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
       "total": 29500
     },
     "total_acquisition_cost": 309500,
+    "estimated_fair_market_value": {
+      "amount": 351000,
+      "basis": "78 m² × €4,500 per m² (median asking price of comparable new builds)",
+      "reliability_note": "Based on 12 current asking prices, not completed sales.",
+      "source_ids": ["src_07"]
+    },
+    "position_vs_market_value": -0.118,
     "expected_monthly_rent": 1900,
     "annual_gross_rent": 22800,
     "vacancy_rate": 0.10,
@@ -228,7 +245,7 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
     "components": [
       { "key": "income", "label": "Rental Income & Net Yield", "points": 21, "max_points": 30, "source_key": "financials.net_yield" },
       { "key": "demand", "label": "Rental Demand & Tenant Quality", "points": 16, "max_points": 20, "source_key": "assessment.demand" },
-      { "key": "value", "label": "Purchase Value & Market Position", "points": 16, "max_points": 20, "source_key": "assessment.value" },
+      { "key": "value", "label": "Purchase Value & Market Position", "points": 16, "max_points": 20, "source_key": "financials.position_vs_market_value" },
       { "key": "growth", "label": "Growth & Resale Potential", "points": 12, "max_points": 15, "source_key": "assessment.growth" },
       {
         "key": "risk",
@@ -248,14 +265,14 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
       "approved_at": "2026-09-22T09:30:00Z"
     },
     {
-      "key": "assessment.value",
-      "explanation": "The price is about €3,590 per m², below the district median asking price for new builds of €3,900 per m².",
+      "key": "financials.position_vs_market_value",
+      "explanation": "The total acquisition cost of €309,500 is about 11.8% below the estimated fair market value of €351,000. The estimate is based on 12 current asking prices, not completed sales.",
       "source_ids": ["src_07"],
       "approved_at": "2026-09-22T09:30:00Z"
     },
     {
       "key": "assessment.growth",
-      "explanation": "New-build asking prices in the district are based on 12 current listings. No forecast of future prices is made.",
+      "explanation": "Current asking prices for comparable new builds in the district are available; no forecast of future prices is made.",
       "source_ids": ["src_07"],
       "approved_at": "2026-09-22T09:30:00Z"
     },
@@ -301,7 +318,7 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
 }
 ```
 
-The figures in the example follow the formulas in the Database Architecture document:
+The financial figures and the two table-based ratings in the example are calculated as follows:
 
 | Figure | Calculation | Result |
 |---|---|---:|
@@ -313,6 +330,10 @@ The figures in the example follow the formulas in the Database Architecture docu
 | Annual net income | €20,520 − €4,152 | €16,368 |
 | Gross yield | €22,800 / €280,000 | 8.14% |
 | Net yield | €16,368 / €309,500 | 5.29% |
+| Rental Income & Net Yield | 5.29% is in the 5–5.99% band → rating 7 → 7 / 10 × 30 | 21 points |
+| Estimated fair market value | 78 m² × €4,500 | €351,000 |
+| Position versus market value | (€309,500 − €351,000) / €351,000 | 11.8% below |
+| Purchase Value & Market Position | 10–14.9% below → rating 8 → 8 / 10 × 20 | 16 points |
 
 **What to notice:**
 
@@ -358,9 +379,17 @@ missing_data.
 developer_information is the developer's claim, never independently verified.
 Never use the developer's claimed rent as the expected rent.
 
-Do not calculate acquisition cost, yield, net income, points or the total score;
-the platform does this. For the "Risk & Investor Protection" assessment a higher
-rating means LOWER assessed risk.
+Do not calculate acquisition cost, yield, net income, points or the total score,
+and do not rate Rental Income or Purchase Value; the platform does this.
+
+For estimated_fair_market_value, use only the comparable properties in the
+source_materials and add a reliability_note on the quality of that evidence.
+
+Rate demand, growth and risk from 0 to 10 using the level descriptions in
+rating_rules, based on evidence in the sources, not opinion. For growth and
+risk, also rate each component listed in rating_rules. If the evidence is
+insufficient, say so in the reliability_note. For the "Risk & Investor
+Protection" assessment a higher rating means LOWER assessed risk.
 
 Return only JSON matching the supplied strict schema.
 ```
@@ -426,8 +455,8 @@ OpenAI must answer in exactly these structures. Any answer in a different shape 
                 "expected_monthly_rent",
                 "annual_operating_costs",
                 "purchase_costs",
+                "estimated_fair_market_value",
                 "assessment.demand",
-                "assessment.value",
                 "assessment.growth",
                 "assessment.risk"
               ]
@@ -448,11 +477,25 @@ OpenAI must answer in exactly these structures. Any answer in a different shape 
                 "required": ["label", "amount", "source_ids"]
               }
             },
+            "components": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "key": { "type": "string" },
+                  "rating": { "type": ["number", "null"] },
+                  "source_ids": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["key", "rating", "source_ids"]
+              }
+            },
             "rationale": { "type": "string" },
             "assumptions": { "type": "array", "items": { "type": "string" } },
+            "reliability_note": { "type": "string" },
             "source_ids": { "type": "array", "items": { "type": "string" } }
           },
-          "required": ["item_key", "status", "value", "unit", "breakdown", "rationale", "assumptions", "source_ids"]
+          "required": ["item_key", "status", "value", "unit", "breakdown", "components", "rationale", "assumptions", "reliability_note", "source_ids"]
         }
       },
       "missing_data": { "type": "array", "items": { "type": "string" } }
@@ -467,7 +510,9 @@ After parsing, the platform checks that:
 - every requested item appears exactly once;
 - a `proposed` item has a value and at least one `source_id` that exists in the input;
 - a `gap` item has `value: null` and appears in `missing_data`;
-- the proposed rent is not simply the developer's claimed rent.
+- the proposed rent is not simply the developer's claimed rent;
+- a rating is between 0 and 10;
+- growth and risk proposals rate each component listed in `rating_rules`.
 
 The proposals are then saved as **"awaiting review"** for the admin.
 

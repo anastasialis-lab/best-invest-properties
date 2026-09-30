@@ -1,7 +1,7 @@
 # Project Specification — Best Invest Properties MVP
 
-Version: 1.2  
-Date: 29 September 2026  
+Version: 1.3  
+Date: 30 September 2026  
 Platform: Bubble (no-code)  
 Connected services: Make, OpenAI, SendGrid (email)
 
@@ -175,13 +175,91 @@ The score is out of 100 and has **five categories**:
 | Kind | Examples | Who produces it |
 |---|---|---|
 | Fixed calculations | acquisition cost, gross yield, net yield, points from each rating, the total score | calculated by the platform, always the same way |
-| Proposed figures and assessments | market rent estimate, comparable properties, category ratings that need judgement (demand, growth, risk, value) | may be proposed with AI assistance; the admin checks and approves them before they are used |
+| Proposed figures and assessments | market rent estimate, operating costs, estimated fair market value, comparable properties, category ratings that need judgement (demand, growth, risk) | may be proposed with AI assistance; the admin checks and approves them before they are used |
 
 Nothing proposed with AI assistance reaches investors without the admin's approval.
 
-The total score is the sum of the five category points (maximum 100). **Rental Income & Net Yield** is based on the property's net yield. The detailed scoring methodology will be agreed separately.
+**How the score is calculated.** Each category gets a **rating from 0 to 10**. The platform turns it into points: `points = rating / 10 × category weight`. The total score is the sum of the five category points (maximum 100).
 
-For **Risk & Investor Protection**, more points means **lower** risk — this is written next to the scale.
+**1. Rental Income & Net Yield (30).** Rated from the net yield:
+
+| Net yield | Rating |
+|---|---:|
+| < 2% | 0 |
+| 2–2.49% | 1 |
+| 2.5–2.99% | 2 |
+| 3–3.49% | 3 |
+| 3.5–3.99% | 4 |
+| 4–4.49% | 5 |
+| 4.5–4.99% | 6 |
+| 5–5.99% | 7 |
+| 6–6.99% | 8 |
+| 7–7.99% | 9 |
+| ≥ 8% | 10 |
+
+For example, a net yield of 5.6% gives 7/10, which is 21/30. Net rental income is the gross rental income minus vacancy, management, maintenance, insurance, property tax, community fees and other recurring costs. Costs are counted here only; the Risk category assesses whether they are uncertain or likely to rise, so they are not counted twice.
+
+**2. Rental Demand & Tenant Quality (20).** How easy the property is to rent, and who is likely to rent it. Factors include occupancy, vacancy periods, time to find a tenant, the likely tenant profile, long-term versus short-term demand, competing properties, supply and demand, and seasonality. The rating must be based on evidence, not simply an AI opinion:
+
+| Rating | Description |
+|---:|---|
+| 0 | Extremely weak demand; severe vacancy risk |
+| 1 | Very weak |
+| 2 | Weak |
+| 3 | Below average |
+| 4 | Slightly below average |
+| 5 | Average |
+| 6 | Moderately strong |
+| 7 | Strong |
+| 8 | Very strong |
+| 9 | Exceptional |
+| 10 | Extremely strong and diversified demand |
+
+**3. Purchase Value & Market Position (20).** Compares the **total acquisition cost** (price plus purchase taxes, legal, notary and registration fees, furniture and other acquisition costs) with the **estimated fair market value**. The fair market value is estimated from comparable properties (€/m², similar new and resale properties in the same area, property type, floor, view, amenities, parking, terrace and condition) and must come with a **reliability note**.
+
+| Position versus estimated fair market value | Rating |
+|---|---:|
+| ≥ 30% overpriced | 0 |
+| 25–29.9% above | 1 |
+| 20–24.9% above | 2 |
+| 15–19.9% above | 3 |
+| 10–14.9% above | 4 |
+| 5–9.9% above | 5 |
+| Around market value | 6 |
+| 5–9.9% below | 7 |
+| 10–14.9% below | 8 |
+| 15–19.9% below | 9 |
+| ≥ 20% below | 10 |
+
+**4. Growth & Resale Potential (15).** Assessed from three internal components: future capital appreciation (50%), future rental appreciation (25%) and resale liquidity (25%). The category rating combines them in these proportions (for example 8, 7 and 9 give 8.0/10).
+
+| Rating | Description |
+|---:|---|
+| 0 | Very weak |
+| 1 | Extremely limited |
+| 2 | Weak |
+| 3 | Below average |
+| 4 | Slightly below average |
+| 5 | Average |
+| 6 | Moderately positive |
+| 7 | Strong |
+| 8 | Very strong |
+| 9 | Exceptional |
+| 10 | Extremely strong |
+
+**5. Risk & Investor Protection (15).** In the original scoring proposal this category is also called "Risk, Costs & Investor Protection"; the interface keeps the name "Risk & Investor Protection". Assessed from four internal components: legal/owner protection (35%), property/operational costs (25%), regulatory risk (20%) and physical/market/security risks (20%). Country-level legal risk and property-level security are assessed separately. More points means **lower** risk — this is written next to the scale.
+
+**Data reliability.** Where the available sources are insufficient, the assessment is shown as **preliminary**, with a disclaimer and a short note on data quality; estimates and missing information are identified.
+
+**What is shown in the MVP:** the five category scores, the total score and the net yield, with a short explanation for each category. The internal factors and components guide the analysis but are not shown as separate items.
+
+**Still to be agreed:**
+
+- scoring guidelines for Rental Demand, Growth & Resale and Risk — the rules for which evidence leads to a higher or lower rating beyond the level descriptions above (to follow in a separate e-mail);
+- level descriptions for Risk & Investor Protection;
+- the score thresholds for the "Strong Investment" and "Solid Investment" labels.
+
+**Later, after the MVP:** detailed sub-scores in the interface, tenant-profile percentages and a numerical Data Confidence score.
 
 The analysis screen also shows the **Sources, assumptions & gaps** block, where every fact is tagged `SOURCE`, `DEVELOPER`, `ESTIMATE` or `GAP`. If the AI text is not ready, the page still shows the score breakdown.
 
@@ -195,6 +273,7 @@ The analysis screen also shows the **Sources, assumptions & gaps** block, where 
 | Running costs | approved averages for the country |
 | Vacancy allowance | platform settings |
 | Purchase taxes and costs | official country rates, checked by a tax consultant |
+| Estimated fair market value | comparable properties, with a reliability note; may be proposed with AI assistance, reviewed by the admin |
 | Acquisition cost, gross yield, net yield | calculated by the platform |
 
 **Rent estimate:**

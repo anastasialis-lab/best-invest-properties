@@ -1,7 +1,7 @@
 # Database Architecture — Best Invest Properties
 
-Version: 1.2  
-Date: 29 September 2026  
+Version: 1.3  
+Date: 30 September 2026  
 Storage: Bubble database  
 Participating systems: Bubble, Make, OpenAI API, SendGrid
 
@@ -80,13 +80,17 @@ Option Sets are for fixed, rarely changing, non-secret values. Bubble states exp
 
 | key | label | max_points | default_weight | Note |
 |---|---|---:|---:|---|
-| `income` | Rental Income & Net Yield | 30 | 0.30 | based on the property's net yield |
-| `demand` | Rental Demand & Tenant Quality | 20 | 0.20 | assessed; may be proposed with AI assistance, approved by the admin |
-| `value` | Purchase Value & Market Position | 20 | 0.20 | assessed; may be proposed with AI assistance, approved by the admin |
-| `growth` | Growth & Resale Potential | 15 | 0.15 | assessed; may be proposed with AI assistance, approved by the admin |
-| `risk` | Risk & Investor Protection | 15 | 0.15 | assessed, as above; more points = **lower** risk, scale label mandatory in the UI |
+| `income` | Rental Income & Net Yield | 30 | 0.30 | rating from the net yield table (Project Specification 6.3) |
+| `demand` | Rental Demand & Tenant Quality | 20 | 0.20 | assessed against the level descriptions; may be proposed with AI assistance, approved by the admin |
+| `value` | Purchase Value & Market Position | 20 | 0.20 | rating from the table of total acquisition cost versus the approved estimated fair market value |
+| `growth` | Growth & Resale Potential | 15 | 0.15 | assessed; components: capital appreciation 50%, rental appreciation 25%, resale liquidity 25% |
+| `risk` | Risk & Investor Protection | 15 | 0.15 | assessed; components: legal/owner protection 35%, property/operational costs 25%, regulatory risk 20%, physical/market/security risks 20%; more points = **lower** risk, scale label mandatory in the UI |
 
-The total score is the sum of the five criterion points (maximum 100). The detailed scoring methodology — the rating scale and how a rating becomes points — will be agreed separately. The fields below store the rating and the points without fixing that scale.
+Each criterion gets a `rating` from 0 to 10; `weighted_points = rating / 10 × weight × 100`. The total score is the sum of the five criterion points (maximum 100). The rating tables and level descriptions are in the Project Specification (6.3). The label of `risk` in the original scoring proposal is "Risk, Costs & Investor Protection"; the interface keeps "Risk & Investor Protection".
+
+- **Provided:** the weights; the tables for `income` and `value`; the level descriptions for `demand` and `growth`; the components and their shares for `growth` and `risk`.
+- **Still open:** scoring guidelines for which evidence leads to a higher or lower rating for `demand`, `growth` and `risk`; level descriptions for `risk`; the score thresholds for the `Score Verdict` labels.
+- **Later:** showing sub-scores, tenant-profile percentages and a numerical Data Confidence score in the interface.
 
 ### Role-specific Enquiry status labels
 
@@ -274,7 +278,7 @@ The three `required_for_*` fields express the three levels on the application sc
 
 #### Market Benchmark
 
-Reference data that can support the `Purchase Value & Market Position` assessment, e.g. the median asking price per m² for new builds in a district. How it is used in the rating is part of the scoring methodology, to be agreed separately.
+Reference data on comparable properties, e.g. the median asking price per m² in a district. It can support the estimated fair market value used for `Purchase Value & Market Position`, together with the comparables for the specific property.
 
 | Field | Type | Required | Note |
 |---|---|---:|---|
@@ -404,7 +408,7 @@ The Project Review screen shows a panel where every figure has its own source an
 | Field | Type | Required | Note |
 |---|---|---:|---|
 | unit | Unit | yes | |
-| input_key | text | yes | `monthly_rent`, `annual_operating_costs`, `purchase_costs`, `vacancy_allowance`, `claimed_yield`, … |
+| input_key | text | yes | `monthly_rent`, `annual_operating_costs`, `purchase_costs`, `vacancy_allowance`, `estimated_fair_market_value`, `claimed_yield`, … |
 | label | text | yes | label in the review |
 | value_number | number | no | empty when the item is marked as a gap |
 | is_gap | yes/no | yes | no source supports a value |
@@ -412,6 +416,7 @@ The Project Review screen shows a panel where every figure has its own source an
 | source_reference | text | no | "Larnaca district, 5 comparable lettings" |
 | sources_json | text | no | the sources used: id, link or document, date |
 | assumptions | text | no | required for `ai_proposed` |
+| reliability_note | text | no | required for `estimated_fair_market_value`: how reliable the evidence is |
 | comparable_set | Rental Comparable Set | no | required for `portal_comparable` |
 | integration_job | Integration Job | no | the AI request that produced an `ai_proposed` value |
 | is_used_for_scoring | yes/no | yes | only one active value per `input_key` |
@@ -529,14 +534,16 @@ Weight rules:
 
 #### Score Assessment
 
-A proposed or approved assessment for one of the four assessed criteria (`demand`, `value`, `growth`, `risk`) of a unit. It exists **before** any score is calculated, so a proposal or a gap can be stored and reviewed without a Listing Score.
+A proposed or approved assessment for one of the three assessed criteria (`demand`, `growth`, `risk`) of a unit. `income` and `value` are not assessed: Bubble derives their ratings from the tables. It exists **before** any score is calculated, so a proposal or a gap can be stored and reviewed without a Listing Score.
 
 | Field | Type | Required | Note |
 |---|---|---:|---|
 | public_id | text | yes | |
 | unit | Unit | yes | |
-| criterion | Score Criterion | yes | only `demand`, `value`, `growth`, `risk` |
-| rating | number | no | empty for a gap; on the scale set by the scoring methodology (to be agreed) |
+| criterion | Score Criterion | yes | only `demand`, `growth`, `risk` |
+| rating | number | no | 0–10; empty for a gap |
+| component_ratings_json | text | no | for `growth` and `risk`: the rating of each component (0–10) |
+| is_preliminary | yes/no | yes | the evidence is insufficient; the investor sees a disclaimer |
 | is_gap | yes/no | yes | no source supports an assessment |
 | explanation | text | no | required unless it is a gap |
 | assumptions | text | no | |
@@ -552,7 +559,8 @@ Rules:
 - an AI proposal is always stored as `pending`; the admin approves it or saves a correction as a new record with `source = analyst_verified`;
 - a gap can never be approved as a rating;
 - per unit and criterion only one approved, not superseded assessment is used;
-- Bubble calculates a Listing Score only when all four assessed criteria have an approved assessment.
+- for `growth` and `risk`, the rating combines the component ratings in the component shares (for example 8, 7 and 9 for growth give 8.0);
+- Bubble calculates a Listing Score only when `demand`, `growth` and `risk` have an approved assessment and the estimated fair market value is approved.
 
 #### Listing Score
 
@@ -561,7 +569,8 @@ Rules:
 | unit | Unit | yes | |
 | model_version | Score Model Version | yes | |
 | total_score | number | yes | 0–100 |
-| verdict | Score Verdict | yes | |
+| verdict | Score Verdict | yes | the score thresholds for the labels are still to be agreed |
+| is_preliminary | yes/no | yes | yes if any assessment used is preliminary |
 | price_eur_used | number | yes | price at calculation time |
 | monthly_rent_eur_used | number | yes | rent at calculation time |
 | net_yield_used | number | yes | |
@@ -579,10 +588,10 @@ Created by Bubble when the score is calculated, from approved values only.
 |---|---|---:|---|
 | listing_score | Listing Score | yes | |
 | criterion | Score Criterion | yes | Option Set |
-| assessment | Score Assessment | no | the approved assessment used; required for `demand`, `value`, `growth`, `risk` |
-| raw_value | number | no | e.g. net yield for `income`; empty for assessed criteria |
-| rating | number | yes | copied from the approved assessment, or derived from net yield for `income` |
-| weighted_points | number | yes | calculated by Bubble from the rating and the criterion weight |
+| assessment | Score Assessment | no | the approved assessment used; required for `demand`, `growth`, `risk` |
+| raw_value | number | no | net yield for `income`; position versus estimated fair market value for `value`; empty for assessed criteria |
+| rating | number | yes | 0–10: from the tables for `income` and `value`, copied from the approved assessment for the others |
+| weighted_points | number | yes | `rating / 10 × weight × 100` |
 | explanation | text | no | copy of the approved explanation at calculation time |
 | sources_json | text | no | copy of the approved sources at calculation time |
 
