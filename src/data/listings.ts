@@ -108,7 +108,11 @@ export const SRC_ROWS = (
   ] as { tag: SrcTag; body: string }[]
 ).map((s) => ({ ...s, bg: SRC_BG[s.tag], fg: SRC_FG[s.tag] }));
 
-const NET_PTS = (n: number) => (n >= 7 ? 10 : n >= 6 ? 9 : n >= 5 ? 7 : n >= 4 ? 5 : 3);
+// Net yield (%) → rating 0–10, per the agreed Rental Income & Net Yield table.
+const NET_YIELD_BANDS: Array<[number, number]> = [
+  [8, 10], [7, 9], [6, 8], [5, 7], [4.5, 6], [4, 5], [3.5, 4], [3, 3], [2.5, 2], [2, 1],
+];
+const NET_PTS = (n: number) => NET_YIELD_BANDS.find(([min]) => n >= min)?.[1] ?? 0;
 
 // Splits a headline score across the five categories: the income band is
 // derived from net yield, the remainder is shared out by category weight with

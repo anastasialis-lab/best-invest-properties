@@ -38,25 +38,6 @@ const SRC_ROWS = [
   { tag: 'GAP', body: 'No completed rental history: the project is pre-completion.' },
 ];
 
-const FACT_SHEETS: Record<string, Array<{ k: string; v: string }>> = {
-  Cyprus: [
-    { k: 'Ownership by non-EU buyers', v: 'Permitted · Council of Ministers permit' },
-    { k: 'Property transfer fees', v: '3–8% · waived where VAT applies' },
-    { k: 'VAT on new build', v: '19% · 5% reduced rate on first home' },
-    { k: 'Annual property tax', v: 'None · municipal rates only' },
-    { k: 'Rental income tax', v: 'Progressive PIT + 3% defence levy' },
-    { k: 'Title deed at completion', v: 'Yes · developer to deliver' },
-  ],
-  Spain: [
-    { k: 'Ownership by non-EU buyers', v: 'Permitted · NIE number required' },
-    { k: 'Transfer tax (resale)', v: '6–10% · set by region' },
-    { k: 'VAT on new build', v: '10% + 1–1.5% stamp duty' },
-    { k: 'Annual property tax', v: 'IBI · 0.4–1.1% of cadastral value' },
-    { k: 'Rental income tax', v: '19% non-resident EU · 24% non-EU' },
-    { k: 'Title registration', v: 'Notary deed + Land Registry' },
-  ],
-};
-
 export function PropertyDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -64,8 +45,6 @@ export function PropertyDetailPage() {
   const { detailState, setDetailState, srcOpen, setSrcOpen, showToast } = useAppStore();
 
   const listing = LISTINGS.find((p) => p.id === id) ?? LISTINGS[0];
-  const country = listing.location.split(', ')[1] ?? 'Cyprus';
-  const factRows = FACT_SHEETS[country] ?? FACT_SHEETS.Cyprus;
 
   return (
     <div style={{ background: 'linear-gradient(180deg,#E5F6FF 0%,#EFF9FF 210px,#F7FCFF 430px)' }}>
@@ -142,20 +121,6 @@ export function PropertyDetailPage() {
                 ))}
               </div>
 
-              <div style={{ marginTop: 4, background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: 20 }}>
-                <div style={{ fontSize: 11.5, letterSpacing: '.2em', color: color.action, marginBottom: 6 }}>FACT SHEET</div>
-                <div style={{ fontWeight: 600, letterSpacing: '-.006em', fontSize: 19, color: color.link, marginBottom: 3 }}>Fact Sheet — {country}</div>
-                <div style={{ fontSize: 14, lineHeight: 1.55, color: color.faint, marginBottom: 14 }}>Law and investment basics for the country this property sits in.</div>
-                {factRows.map((f) => (
-                  <div key={f.k} style={{ display: 'flex', justifyContent: 'space-between', gap: 14, padding: '9px 0', borderBottom: `1px solid ${line(0.08)}`, fontSize: 16.5 }}>
-                    <span style={{ minWidth: 0, color: color.body }}>{f.k}</span>
-                    <span style={{ flex: 'none', maxWidth: '52%', textAlign: 'right', fontWeight: 600, color: color.link }}>{f.v}</span>
-                  </div>
-                ))}
-                <div style={{ marginTop: 12, fontSize: 13.5, lineHeight: 1.55, color: color.faint }}>
-                  Indicative figures for orientation only — to be confirmed with local legal and tax counsel before purchase.
-                </div>
-              </div>
             </div>
 
             <div style={{ order: 1, flex: '1 1 360px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
