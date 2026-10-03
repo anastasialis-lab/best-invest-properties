@@ -1,7 +1,7 @@
 # Project Specification — Best Invest Properties MVP
 
-Version: 1.3  
-Date: 30 September 2026  
+Version: 1.4  
+Date: 2 October 2026  
 Platform: Bubble (no-code)  
 Connected services: Make, OpenAI, SendGrid (email)
 
@@ -84,7 +84,7 @@ The number in brackets is the screen number in the approved prototype.
 | Project Review (28) | full review of a submitted project, including the analysis |
 | Developer Verification (29) | checking a developer's documents |
 | User Management (30) | investors and developer contacts |
-| Score Editor (13) | score weights and model versions |
+| Score Editor (13) | score model versions |
 
 The admin menu has four items: **Dashboard · Approvals · Investors · Investment Scores**. Project Review and Developer Verification open from the Approvals queue.
 
@@ -152,7 +152,7 @@ The admin menu has four items: **Dashboard · Approvals · Investors · Investme
 
 ### 6.2 Property page
 
-- Price, availability, unit details, project facilities, photos, score and financial figures.
+- Price, availability, unit details, project facilities, photos, the Investment Score (out of 10) with its verdict label, and the financial figures, including gross and net yield.
 - **Two sets of rental figures, shown separately:** the developer's claimed rent and yield, and the platform's reviewed rent estimate and calculated yield.
 - The developer's name and contacts are **never shown**. The page says "Introduced by Best Invest".
 - If the unit is sold or withdrawn, the page says so and suggests similar properties.
@@ -160,108 +160,69 @@ The admin menu has four items: **Dashboard · Approvals · Investors · Investme
 
 ### 6.3 Investment score
 
-The score is out of 100 and has **five categories**:
+The Investment Score has **five criteria**. Each criterion is scored **0, 1 or 2**, and the Investment Score is their sum, **from 0 to 10**. There are no weights.
 
-| Category | Points |
-|---|---:|
-| Rental Income & Net Yield | 30 |
-| Rental Demand & Tenant Quality | 20 |
-| Purchase Value & Market Position | 20 |
-| Growth & Resale Potential | 15 |
-| Risk & Investor Protection | 15 |
+The prototype still shows the earlier model (scores out of 100 and the earlier category names) as static examples. The model below is a requirement for the MVP; it is not yet built in Bubble.
 
-**Fixed calculations and AI-assisted assessments.** The platform separates two kinds of figures:
-
-| Kind | Examples | Who produces it |
-|---|---|---|
-| Fixed calculations | acquisition cost, gross yield, net yield, points from each rating, the total score | calculated by the platform, always the same way |
-| Proposed figures and assessments | market rent estimate, operating costs, estimated fair market value, comparable properties, category ratings that need judgement (demand, growth, risk) | may be proposed with AI assistance; the admin checks and approves them before they are used |
-
-Nothing proposed with AI assistance reaches investors without the admin's approval.
-
-**How the score is calculated.** Each category gets a **rating from 0 to 10**. The platform turns it into points: `points = rating / 10 × category weight`. The total score is the sum of the five category points (maximum 100).
-
-**1. Rental Income & Net Yield (30).** Rated from the net yield:
-
-| Net yield | Rating |
-|---|---:|
-| < 2% | 0 |
-| 2–2.49% | 1 |
-| 2.5–2.99% | 2 |
-| 3–3.49% | 3 |
-| 3.5–3.99% | 4 |
-| 4–4.49% | 5 |
-| 4.5–4.99% | 6 |
-| 5–5.99% | 7 |
-| 6–6.99% | 8 |
-| 7–7.99% | 9 |
-| ≥ 8% | 10 |
-
-For example, a net yield of 5.6% gives 7/10, which is 21/30. Net rental income is the gross rental income minus vacancy, management, maintenance, insurance, property tax, community fees and other recurring costs. Costs are counted here only; the Risk category assesses whether they are uncertain or likely to rise, so they are not counted twice.
-
-**2. Rental Demand & Tenant Quality (20).** How easy the property is to rent, and who is likely to rent it. Factors include occupancy, vacancy periods, time to find a tenant, the likely tenant profile, long-term versus short-term demand, competing properties, supply and demand, and seasonality. The rating must be based on evidence, not simply an AI opinion:
-
-| Rating | Description |
+| Score | Price |
 |---:|---|
-| 0 | Extremely weak demand; severe vacancy risk |
-| 1 | Very weak |
-| 2 | Weak |
-| 3 | Below average |
-| 4 | Slightly below average |
-| 5 | Average |
-| 6 | Moderately strong |
-| 7 | Strong |
-| 8 | Very strong |
-| 9 | Exceptional |
-| 10 | Extremely strong and diversified demand |
+| 0 | above market value |
+| 1 | fair market value |
+| 2 | below market value |
 
-**3. Purchase Value & Market Position (20).** Compares the **total acquisition cost** (price plus purchase taxes, legal, notary and registration fees, furniture and other acquisition costs) with the **estimated fair market value**. The fair market value is estimated from comparable properties (€/m², similar new and resale properties in the same area, property type, floor, view, amenities, parking, terrace and condition) and must come with a **reliability note**.
-
-| Position versus estimated fair market value | Rating |
-|---|---:|
-| ≥ 30% overpriced | 0 |
-| 25–29.9% above | 1 |
-| 20–24.9% above | 2 |
-| 15–19.9% above | 3 |
-| 10–14.9% above | 4 |
-| 5–9.9% above | 5 |
-| Around market value | 6 |
-| 5–9.9% below | 7 |
-| 10–14.9% below | 8 |
-| 15–19.9% below | 9 |
-| ≥ 20% below | 10 |
-
-**4. Growth & Resale Potential (15).** Assessed from three internal components: future capital appreciation (50%), future rental appreciation (25%) and resale liquidity (25%). The category rating combines them in these proportions (for example 8, 7 and 9 give 8.0/10).
-
-| Rating | Description |
+| Score | Rental Yield |
 |---:|---|
-| 0 | Very weak |
-| 1 | Extremely limited |
-| 2 | Weak |
-| 3 | Below average |
-| 4 | Slightly below average |
-| 5 | Average |
-| 6 | Moderately positive |
-| 7 | Strong |
-| 8 | Very strong |
-| 9 | Exceptional |
-| 10 | Extremely strong |
+| 0 | <4% netto yield |
+| 1 | 4-6% netto yield |
+| 2 | >6% netto yield |
 
-**5. Risk & Investor Protection (15).** In the original scoring proposal this category is also called "Risk, Costs & Investor Protection"; the interface keeps the name "Risk & Investor Protection". Assessed from four internal components: legal/owner protection (35%), property/operational costs (25%), regulatory risk (20%) and physical/market/security risks (20%). Country-level legal risk and property-level security are assessed separately. More points means **lower** risk — this is written next to the scale.
+**Rental Demand** has two scales:
+
+| Score | Rental Demand — Long Term | Rental Demand — Short Term |
+|---:|---|---|
+| 0 | <90% occupancy per year (>10% vacancy) | <65% |
+| 1 | 90%-95% occupancy | 65%-80% |
+| 2 | >95% occupancy | >80% |
+
+| Score | Capital Growth |
+|---:|---|
+| 0 | prices already among highest for similar countries and settings |
+| 1 | prices moderate |
+| 2 | prices lower to comparable properties elsewhere |
+
+| Score | Owner Protection & Eviction Efficiency |
+|---:|---|
+| 0 | Significant tenant protection, difficult/slow eviction or elevated unlawful-occupation risk (Spain) |
+| 1 | Reasonable owner protection but meaningful tenant protections/delays (Portugal, Malta, Greece) |
+| 2 | Strong owner rights + efficient eviction + low unlawful-occupation risk (Cyprus, Croatia, Montenegro) |
+
+The descriptions above are taken from the scoring file "SCORING 5 CRITERIA 0-1-2". The countries in brackets for Owner Protection are examples from that file. They are not an automatic country-to-score rule and have not been checked as legal facts: each property's score needs its own sources.
+
+**Who sets each score.**
+
+| Criterion | How the score is set |
+|---|---|
+| Rental Yield | by the platform, from the approved net yield |
+| Price, Rental Demand, Capital Growth, Owner Protection & Eviction Efficiency | may be proposed with AI assistance, with an explanation and sources; the admin checks and approves it |
+
+The Investment Score is calculated by the platform as the sum of the five approved scores. Rental Demand is scored on the Long Term or the Short Term scale, and the scale used is recorded with the score.
+
+**Missing data is not a zero.** A score of 0 is a negative assessment under the rubric. If the evidence for a criterion is insufficient, the criterion gets no score and is marked as **needing review**; the Investment Score is not shown until all five criteria are approved.
+
+**Financial figures stay separate.** Acquisition cost, gross yield, net yield and the calculator remain separate figures on the platform; the Investment Score does not replace them. Nothing proposed with AI assistance reaches investors without the admin's approval.
+
+**Verdict labels.** The overall result is shown with one of five labels: **Top Investment, Very Good Investment, Good Investment, Average Investment, Below Average Investment.** The score ranges for these labels have not been set yet.
 
 **Data reliability.** Where the available sources are insufficient, the assessment is shown as **preliminary**, with a disclaimer and a short note on data quality; estimates and missing information are identified.
 
-**What is shown in the MVP:** the five category scores, the total score and the net yield, with a short explanation for each category. The internal factors and components guide the analysis but are not shown as separate items.
+**Still to be agreed before scoring is built:**
 
-**Still to be agreed:**
+- the score ranges (out of 10) for the five verdict labels;
+- which Rental Demand scale (Long Term or Short Term) applies to a property suitable for both strategies.
 
-- scoring guidelines for Rental Demand, Growth & Resale and Risk — the rules for which evidence leads to a higher or lower rating beyond the level descriptions above (to follow in a separate e-mail);
-- level descriptions for Risk & Investor Protection;
-- the score thresholds for the "Strong Investment" and "Solid Investment" labels.
+**Later, after the MVP:** tenant-profile percentages and a numerical Data Confidence score.
 
-**Later, after the MVP:** detailed sub-scores in the interface, tenant-profile percentages and a numerical Data Confidence score.
-
-The analysis screen also shows the **Sources, assumptions & gaps** block, where every fact is tagged `SOURCE`, `DEVELOPER`, `ESTIMATE` or `GAP`. If the AI text is not ready, the page still shows the score breakdown.
+The analysis screen also shows the **Sources, assumptions & gaps** block, where every fact is tagged `SOURCE`, `DEVELOPER`, `ESTIMATE` or `GAP`. If the AI text is not ready, the page still shows the five criterion scores.
 
 ### 6.4 Where the figures come from
 
@@ -273,7 +234,7 @@ The analysis screen also shows the **Sources, assumptions & gaps** block, where 
 | Running costs | approved averages for the country |
 | Vacancy allowance | platform settings |
 | Purchase taxes and costs | official country rates, checked by a tax consultant |
-| Estimated fair market value | comparable properties, with a reliability note; may be proposed with AI assistance, reviewed by the admin |
+| Estimated fair market value (evidence for the Price score) | comparable properties, with a reliability note; may be proposed with AI assistance, reviewed by the admin |
 | Acquisition cost, gross yield, net yield | calculated by the platform |
 
 **Rent estimate:**
@@ -297,7 +258,7 @@ On Project Review the admin sees the developer's claimed rent, Best Invest's com
 ### 6.6 Compare
 
 - Up to **five** properties; adding a sixth shows a message.
-- Rows: price and acquisition cost, rent and net yield for base / average / best case, gross yield, investment score, the five score categories, size, completion.
+- Rows: price and acquisition cost, rent and net yield for base / average / best case, gross yield, Investment Score (out of 10), the five criterion scores (0–2), size, completion.
 - The best value in each row is highlighted.
 
 ### 6.7 Registration and sign-in
@@ -364,8 +325,8 @@ Before approval a warning says that contact details cannot be recalled once sent
 - **Approvals:** one queue with five tabs — All, Project submissions, Developer applications, Introductions, Listing changes — plus filters by age, overdue follow-up and status.
   - Hold, Query and Reject need a reason, and Hold and Query also need a follow-up date. For Decline, the admin enters a short reason in a free-text field — an internal note that neither the investor nor the developer sees; the investor receives a neutral message.
   - After a decision there is no Undo: the admin can **Reopen** a held or declined request, or **Correct status**.
-- **Project Review:** the analysis panel with the figures, the proposed financial estimates with their sources, the five category scores and the sources/gaps list. Nothing is visible to investors until the admin approves it.
-- **Score Editor:** five weight sliders (0–100%, must total 100%; a warning if one category is above 50%), recalculation of all properties with a progress bar, and a small table of model versions. Going back to an older version creates a new version.
+- **Project Review:** the analysis panel with the figures, the proposed financial estimates with their sources, the five proposed criterion scores (0–2) with their explanations and sources, and the sources/gaps list. Nothing is visible to investors until the admin approves it.
+- **Score Editor:** recalculation of all properties with a progress bar, and a small table of model versions. Going back to an older version creates a new version. The weight sliders shown in the prototype belong to the earlier weighted model; the current model has no weights.
 - **User Management:** a list of users with the Suspend action (reason required).
 
 ### 6.13 Emails

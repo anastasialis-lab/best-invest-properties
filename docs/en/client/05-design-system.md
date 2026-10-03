@@ -1,7 +1,7 @@
 # Design System — Best Invest Properties
 
-Version: 1.2  
-Date: 29 September 2026  
+Version: 1.3  
+Date: 2 October 2026  
 Source: the approved prototype and the agreed page background
 
 This is the visual style of the approved prototype: colours, font, shapes and the main interface elements. Values are taken from the prototype; the page background follows the later agreement that every page uses the same background as the landing page.
@@ -154,7 +154,7 @@ Also:
 - text placed directly on the photo background is checked against its actual underlay (the photo together with the gradient overlay) on each screen, not against a single colour;
 - the light placeholder colour in empty fields is used only as a placeholder, never for real text;
 - a status is always shown with text, not colour alone;
-- the direction of the "Risk & Investor Protection" score is always explained in words (more points = lower risk);
+- the Investment Score is shown as a number out of 10, with the five criterion scores (0–2), and its verdict label — Top Investment, Very Good Investment, Good Investment, Average Investment or Below Average Investment — is always shown as text. Colours for the verdict labels are not set until their score ranges are decided;
 - every button and tappable element is at least 44 × 44 px.
 
 ## 8. Logo and brand visuals

@@ -1,7 +1,7 @@
 # Make Automation — Best Invest Properties
 
-Version: 1.2  
-Date: 29 September 2026  
+Version: 1.3  
+Date: 2 October 2026  
 Automation service: Make  
 Main system: Bubble
 
@@ -11,8 +11,8 @@ Make is the automation service that connects the platform to outside services: r
 
 The platform separates two kinds of figures (see Project Specification, 6.3):
 
-- **Inputs and assessments** — for example the market rent estimate, comparable rentals, annual operating costs, the data needed for the total acquisition cost, and the category ratings that need judgement. These can be collected from sources or proposed with AI assistance. The admin checks, corrects if needed and approves them before they are used.
-- **Fixed calculations** — acquisition cost, gross yield, net yield and the weighted score. Bubble applies these formulas, always the same way, to the values the admin has approved.
+- **Inputs and assessments** — for example the market rent estimate, comparable rentals, annual operating costs, the data needed for the total acquisition cost, and the criterion scores (0, 1 or 2) that need judgement. These can be collected from sources or proposed with AI assistance. The admin checks, corrects if needed and approves them before they are used.
+- **Fixed calculations** — acquisition cost, gross yield, net yield, the Rental Yield score and the Investment Score (0–10, the sum of the five approved criterion scores). Bubble applies these formulas, always the same way, to the values the admin has approved.
 
 | System | Role |
 |---|---|
@@ -91,7 +91,7 @@ This automation has two separate stages.
   - the expected rent;
   - annual operating costs;
   - the data needed for the total acquisition cost;
-  - qualitative assessments for the categories that need judgement.
+  - a score of 0, 1 or 2 for Price, Rental Demand, Capital Growth and Owner Protection & Eviction Efficiency, each with an explanation and sources. If the evidence is insufficient, the criterion is returned as needing review, with no score.
 - Every proposal comes with its sources and assumptions.
 - If there is no source for a figure, OpenAI does not invent it: the figure is left empty and marked as a gap.
 - The proposals are saved as **"awaiting review"**. The admin checks and corrects them, and only then does Bubble apply the fixed formulas for the yield and the score.

@@ -1,7 +1,7 @@
 # OpenAI Specification — Best Invest Properties
 
-Version: 1.4  
-Date: 30 September 2026  
+Version: 1.5  
+Date: 2 October 2026  
 API: OpenAI Responses API  
 Called through: Make  
 Publication: only after admin review
@@ -25,15 +25,15 @@ How it works:
 
 OpenAI does **not**:
 
-- apply the formulas for acquisition cost, yield, points or the total score;
-- invent a figure or a source — without a source, the item is marked as a gap;
+- apply the formulas for acquisition cost and yield, or set the Rental Yield score or the Investment Score;
+- invent a figure, a score or a source — without a source, a figure is marked as a gap and a score as needing review;
 - decide on its own what a "good investment" is;
 - search the internet;
 - see the investor's name, email, phone or any other investor data, or the contact details of developer representatives;
 - publish anything, or have anything used, without admin approval;
 - replace a financial, legal or investment adviser.
 
-If OpenAI is unavailable, unchecked data is not published. Approved figures stay visible, and the property page still shows the score breakdown with the note "Narrative analysis is being reviewed".
+If OpenAI is unavailable, unchecked data is not published. Approved figures stay visible, and the property page still shows the five criterion scores with the note "Narrative analysis is being reviewed".
 
 ## 2. What is in the MVP
 
@@ -43,9 +43,9 @@ If OpenAI is unavailable, unchecked data is not published. Approved figures stay
 - annual operating costs;
 - the data needed for the total acquisition cost (purchase taxes and costs);
 - the estimated fair market value, from comparable properties, with a reliability note;
-- ratings from 0 to 10 for the categories that need judgement — Rental Demand & Tenant Quality, Growth & Resale Potential, Risk & Investor Protection — following the rating rules in the Project Specification (6.3). For Growth & Resale and Risk, a rating for each internal component is proposed as well.
+- a score of **0, 1 or 2** for each of the four criteria that need judgement — **Price**, **Rental Demand**, **Capital Growth** and **Owner Protection & Eviction Efficiency** — following the score descriptions in the Project Specification (6.3), each with an explanation, the input data used and its sources. For Rental Demand, the scale used (Long Term or Short Term) is stated with the score.
 
-The ratings for Rental Income & Net Yield and Purchase Value & Market Position are not proposed by AI: the platform derives them from the approved figures using the fixed tables in the Project Specification (6.3).
+The **Rental Yield** score is not proposed by AI: the platform sets it from the approved net yield. The Investment Score (0–10) is calculated by the platform as the sum of the five approved scores. Where the evidence is insufficient, the criterion is returned as **needing review** with no score; missing data is never scored as 0. The country examples in the Owner Protection descriptions are not an automatic country-to-score rule and are not treated as checked legal facts.
 
 Every proposal is based only on the supplied source materials and has its sources and assumptions. The developer's claimed rent is never used as the proposed rent. These proposals appear on the Project Review screen next to their sources. The admin approves or corrects each one before it is used.
 
@@ -81,7 +81,7 @@ The primary model is the lower-cost one. Before launch both stages are tested on
 
 ## 4. Data contracts Bubble → OpenAI
 
-Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples. The financial figures in the Stage 2 example can be recalculated from the Stage 1 inputs using the formulas in the Database Architecture document. The points for Rental Income & Net Yield (21/30) and Purchase Value & Market Position (16/20) follow the fixed tables in the Project Specification (6.3). The points for the other three categories, and therefore the total of 77, are illustrative: scoring guidelines for those categories are still to be provided.
+Neither contract contains investor data or the contact details of developer representatives. The numbers, sources and links are examples. The financial figures in the Stage 2 example can be recalculated from the Stage 1 inputs using the formulas in the Database Architecture document. The Rental Yield score (1) follows the score description in the Project Specification (6.3). The other four scores are admin-approved examples, so the Investment Score of 5/10 is illustrative. No verdict label is shown in the example, because the score ranges for the labels have not been decided.
 
 ### 4.1 Stage 1 — property data and source materials
 
@@ -100,6 +100,7 @@ Neither contract contains investor data or the contact details of developer repr
     "bathrooms": 2,
     "indoor_area_m2": 78,
     "features": ["pool", "parking", "gated_area"],
+    "rental_strategy": "long_term_rental",
     "completion_date": "2027-06-30",
     "availability": "available"
   },
@@ -140,7 +141,13 @@ Neither contract contains investor data or the contact details of developer repr
       } },
     { "source_id": "src_07", "type": "sale_prices_summary", "title": "Asking prices per m² for comparable new-build 2-bed apartments, same district",
       "url": "https://example-source.test/district-prices", "retrieved_at": "2026-09-18",
-      "content": { "median_price_per_m2": 4500, "listings_count": 12 } }
+      "content": { "median_price_per_m2": 4500, "listings_count": 12 } },
+    { "source_id": "src_08", "type": "occupancy_data", "title": "Long-term rental occupancy, same district, last 12 months",
+      "url": "https://example-source.test/district-occupancy", "retrieved_at": "2026-09-19",
+      "content": { "long_term_occupancy_rate": 0.93 } },
+    { "source_id": "src_09", "type": "legal_summary", "title": "Summary of tenancy and eviction rules (example source)",
+      "url": "https://example-source.test/tenancy-rules", "retrieved_at": "2026-09-17",
+      "content": { "summary": "Example text from the source describing tenant protections, eviction procedures and their typical duration." } }
   ],
   "comparables_summary": {
     "source_ids": ["src_01", "src_02", "src_03", "src_04", "src_05"],
@@ -155,16 +162,23 @@ Neither contract contains investor data or the contact details of developer repr
     "annual_operating_costs",
     "purchase_costs",
     "estimated_fair_market_value",
-    "assessment.demand",
-    "assessment.growth",
-    "assessment.risk"
+    "score.price",
+    "score.rental_demand",
+    "score.capital_growth",
+    "score.owner_protection"
   ],
-  "rating_rules": {
-    "scale": "0-10",
-    "demand_levels": "level descriptions 0-10 from the Project Specification, 6.3",
-    "growth_levels": "level descriptions 0-10 from the Project Specification, 6.3",
-    "growth_components": { "capital_appreciation": 0.50, "rental_appreciation": 0.25, "resale_liquidity": 0.25 },
-    "risk_components": { "legal_owner_protection": 0.35, "property_operational_costs": 0.25, "regulatory_risk": 0.20, "physical_market_security_risks": 0.20 }
+  "demand_scale": "long_term",
+  "scoring_rubric": {
+    "allowed_scores": [0, 1, 2],
+    "price": { "0": "above market value", "1": "fair market value", "2": "below market value" },
+    "rental_demand_long_term": { "0": "<90% occupancy per year (>10% vacancy)", "1": "90%-95% occupancy", "2": ">95% occupancy" },
+    "rental_demand_short_term": { "0": "<65%", "1": "65%-80%", "2": ">80%" },
+    "capital_growth": { "0": "prices already among highest for similar countries and settings", "1": "prices moderate", "2": "prices lower to comparable properties elsewhere" },
+    "owner_protection": {
+      "0": "Significant tenant protection, difficult/slow eviction or elevated unlawful-occupation risk",
+      "1": "Reasonable owner protection but meaningful tenant protections/delays",
+      "2": "Strong owner rights + efficient eviction + low unlawful-occupation risk"
+    }
   }
 }
 ```
@@ -174,12 +188,13 @@ Neither contract contains investor data or the contact details of developer repr
 - `source_materials` are the only allowed basis for proposals. Each one has a `source_id`, a link (where one exists) and a date;
 - `comparables_summary` lists the `source_ids` it was calculated from, so every comparable behind the range and the median can be checked. It is calculated by Bubble and given for context only;
 - `developer_information` is the developer's claim and is never treated as independently verified;
-- a requested item without supporting sources is returned as a gap, not guessed;
-- `rating_rules` carries the rating rules provided so far. Scoring guidelines for which evidence leads to a higher or lower rating are still to be provided, so the level descriptions guide the proposed ratings and the admin reviews every one.
+- a requested figure without supporting sources is returned as a gap, and a requested score as `needs_review` with no score — never as 0;
+- `scoring_rubric` carries the score descriptions from the Project Specification (6.3). The country examples given there for Owner Protection are left out on purpose: the score must come from the property's own sources;
+- `demand_scale` tells the model which Rental Demand scale to use. Which scale applies to a property suitable for both long-term and short-term rental is still to be decided.
 
 ### 4.2 Stage 2 — approved figures, assessments and score
 
-This is sent only after the admin has approved the Stage 1 values and Bubble has calculated the figures and score. It carries every component of the calculation and the admin-approved explanation and sources for each assessment.
+This is sent only after the admin has approved the Stage 1 values and Bubble has calculated the figures and the Investment Score. It carries every component of the calculation and the admin-approved explanation and sources for each criterion score.
 
 ```json
 {
@@ -196,6 +211,7 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
     "bathrooms": 2,
     "indoor_area_m2": 78,
     "features": ["pool", "parking", "gated_area"],
+    "rental_strategy": "long_term_rental",
     "completion_date": "2027-06-30",
     "availability": "available"
   },
@@ -239,47 +255,41 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
     "calculated_at": "2026-09-22T10:00:00Z"
   },
   "score": {
-    "total": 77,
-    "verdict": "strong",
-    "model_version": "score-v5",
+    "total": 5,
+    "max_total": 10,
+    "verdict": null,
+    "model_version": "score-v6",
     "components": [
-      { "key": "income", "label": "Rental Income & Net Yield", "points": 21, "max_points": 30, "source_key": "financials.net_yield" },
-      { "key": "demand", "label": "Rental Demand & Tenant Quality", "points": 16, "max_points": 20, "source_key": "assessment.demand" },
-      { "key": "value", "label": "Purchase Value & Market Position", "points": 16, "max_points": 20, "source_key": "financials.position_vs_market_value" },
-      { "key": "growth", "label": "Growth & Resale Potential", "points": 12, "max_points": 15, "source_key": "assessment.growth" },
-      {
-        "key": "risk",
-        "label": "Risk & Investor Protection",
-        "scale_direction": "higher_points_mean_lower_risk",
-        "points": 12,
-        "max_points": 15,
-        "source_key": "assessment.risk"
-      }
+      { "key": "price", "label": "Price", "score": 2, "max_score": 2, "source_key": "score.price" },
+      { "key": "rental_yield", "label": "Rental Yield", "score": 1, "max_score": 2, "source_key": "financials.net_yield" },
+      { "key": "rental_demand", "label": "Rental Demand", "score": 1, "max_score": 2, "demand_scale": "long_term", "source_key": "score.rental_demand" },
+      { "key": "capital_growth", "label": "Capital Growth", "score": 1, "max_score": 2, "source_key": "score.capital_growth" },
+      { "key": "owner_protection", "label": "Owner Protection & Eviction Efficiency", "score": 0, "max_score": 2, "source_key": "score.owner_protection" }
     ]
   },
   "approved_assessments": [
     {
-      "key": "assessment.demand",
-      "explanation": "Five comparable long-let 2-bed apartments in the same district, with similar features, are advertised at €1,700–€2,050 per month.",
-      "source_ids": ["src_01", "src_02", "src_03", "src_04", "src_05"],
-      "approved_at": "2026-09-22T09:30:00Z"
-    },
-    {
-      "key": "financials.position_vs_market_value",
-      "explanation": "The total acquisition cost of €309,500 is about 11.8% below the estimated fair market value of €351,000. The estimate is based on 12 current asking prices, not completed sales.",
+      "key": "score.price",
+      "explanation": "The total acquisition cost of €309,500 is about 11.8% below the estimated fair market value of €351,000, so the property is below market value. The estimate is based on 12 current asking prices, not completed sales.",
       "source_ids": ["src_07"],
       "approved_at": "2026-09-22T09:30:00Z"
     },
     {
-      "key": "assessment.growth",
-      "explanation": "Current asking prices for comparable new builds in the district are available; no forecast of future prices is made.",
+      "key": "score.rental_demand",
+      "explanation": "Long-term occupancy in the district over the last 12 months was 93%, which is in the 90%-95% band of the Long Term scale.",
+      "source_ids": ["src_08"],
+      "approved_at": "2026-09-22T09:30:00Z"
+    },
+    {
+      "key": "score.capital_growth",
+      "explanation": "Example explanation: the admin assessed prices as moderate on the basis of current asking prices for comparable new builds; no forecast of future prices is made.",
       "source_ids": ["src_07"],
       "approved_at": "2026-09-22T09:30:00Z"
     },
     {
-      "key": "assessment.risk",
-      "explanation": "The developer has been verified by Best Invest. The unit is off-plan, with expected completion on 30 June 2027; no rental income is assumed before then. No service charge schedule has been supplied.",
-      "source_ids": ["project.developer_verified", "project.completion_date", "fact.service_charge"],
+      "key": "score.owner_protection",
+      "explanation": "Example explanation: the admin assessed tenant protections and eviction procedures on the basis of the cited source for this property.",
+      "source_ids": ["src_09"],
       "approved_at": "2026-09-22T09:30:00Z"
     }
   ],
@@ -290,7 +300,9 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
     { "source_id": "src_04", "title": "2-bed apartment, same district, gated area", "url": "https://example-source.test/listing/104", "retrieved_at": "2026-09-21" },
     { "source_id": "src_05", "title": "2-bed apartment, same district, pool, parking, gated area", "url": "https://example-source.test/listing/105", "retrieved_at": "2026-09-21" },
     { "source_id": "src_06", "title": "Approved purchase costs and running costs — Spain", "url": null, "retrieved_at": "2026-09-15" },
-    { "source_id": "src_07", "title": "New-build asking prices per m², same district", "url": "https://example-source.test/district-prices", "retrieved_at": "2026-09-18" }
+    { "source_id": "src_07", "title": "Asking prices per m² for comparable new-build 2-bed apartments, same district", "url": "https://example-source.test/district-prices", "retrieved_at": "2026-09-18" },
+    { "source_id": "src_08", "title": "Long-term rental occupancy, same district, last 12 months", "url": "https://example-source.test/district-occupancy", "retrieved_at": "2026-09-19" },
+    { "source_id": "src_09", "title": "Summary of tenancy and eviction rules (example source)", "url": "https://example-source.test/tenancy-rules", "retrieved_at": "2026-09-17" }
   ],
   "approved_facts": [
     { "key": "project.completion_date", "value": "2027-06-30", "label": "Expected completion", "source_type": "project_verified" },
@@ -318,7 +330,7 @@ This is sent only after the admin has approved the Stage 1 values and Bubble has
 }
 ```
 
-The financial figures and the two table-based ratings in the example are calculated as follows:
+The financial figures and the Rental Yield score in the example are calculated as follows:
 
 | Figure | Calculation | Result |
 |---|---|---:|
@@ -330,19 +342,20 @@ The financial figures and the two table-based ratings in the example are calcula
 | Annual net income | €20,520 − €4,152 | €16,368 |
 | Gross yield | €22,800 / €280,000 | 8.14% |
 | Net yield | €16,368 / €309,500 | 5.29% |
-| Rental Income & Net Yield | 5.29% is in the 5–5.99% band → rating 7 → 7 / 10 × 30 | 21 points |
 | Estimated fair market value | 78 m² × €4,500 | €351,000 |
 | Position versus market value | (€309,500 − €351,000) / €351,000 | 11.8% below |
-| Purchase Value & Market Position | 10–14.9% below → rating 8 → 8 / 10 × 20 | 16 points |
+| Rental Yield score | 5.29% is in the "4-6% netto yield" band | 1 |
+| Investment Score | 2 + 1 + 1 + 1 + 0 | 5 / 10 |
 
 **What to notice:**
 
 - every figure in `financials` and `score` has been approved by the admin or calculated by Bubble from approved values, and all components of each calculation are included;
-- `approved_assessments` carries the admin-approved explanation and sources for each category that needs judgement, so the text can explain the points without guessing;
+- `approved_assessments` carries the admin-approved explanation and sources for each criterion score that needs judgement, so the text can explain the scores without guessing;
 - every `source_id` used in `financials` or `approved_assessments` is listed in `sources` or `approved_facts`, or is an `analysis_facts` key;
-- `score.components` contains exactly **five** items with keys `income`, `demand`, `value`, `growth`, `risk` and maximums 30/20/20/15/15;
+- `score.components` contains exactly **five** items with keys `price`, `rental_yield`, `rental_demand`, `capital_growth`, `owner_protection`; each score is 0, 1 or 2, and `total` is their sum (0–10);
+- `verdict` is empty until the score ranges for the five labels are decided;
 - the `analysis_facts` array carries tags `source` / `developer` / `estimate` / `gap` — the model may cite them as sources and **must** mention every `gap` fact under risks or missing_data;
-- for the `risk` category the payload includes `scale_direction` (higher points = lower risk), so the model does not invert it in the text.
+- `rental_demand` carries `demand_scale`, so the text names the scale the score was given on.
 
 **Do not send, in either stage:**
 
@@ -379,17 +392,18 @@ missing_data.
 developer_information is the developer's claim, never independently verified.
 Never use the developer's claimed rent as the expected rent.
 
-Do not calculate acquisition cost, yield, net income, points or the total score,
-and do not rate Rental Income or Purchase Value; the platform does this.
+Do not calculate acquisition cost, yield, net income or the Investment Score,
+and do not score Rental Yield; the platform does this.
 
 For estimated_fair_market_value, use only the comparable properties in the
 source_materials and add a reliability_note on the quality of that evidence.
 
-Rate demand, growth and risk from 0 to 10 using the level descriptions in
-rating_rules, based on evidence in the sources, not opinion. For growth and
-risk, also rate each component listed in rating_rules. If the evidence is
-insufficient, say so in the reliability_note. For the "Risk & Investor
-Protection" assessment a higher rating means LOWER assessed risk.
+Score Price, Rental Demand, Capital Growth and Owner Protection & Eviction
+Efficiency with 0, 1 or 2 only, using the descriptions in scoring_rubric and
+the evidence in the sources, not opinion. For Rental Demand use the scale named
+in demand_scale. Never derive Owner Protection from the country alone. If the
+evidence is insufficient to choose a score, return status "needs_review" with
+value null and say what is missing; never use 0 for missing data.
 
 Return only JSON matching the supplied strict schema.
 ```
@@ -405,13 +419,12 @@ Use only facts present in the supplied JSON. Never calculate, infer, estimate,
 round, or replace financial values. Never invent market conditions, legal rules,
 taxes, neighbourhood claims, demand, future appreciation, guarantees, or advice.
 
-The financial figures, score, verdict, and score components are approved inputs.
-Explain them; do not challenge or change them. Explain each category's points
-only with its approved explanation and sources in approved_assessments; never
-add reasons of your own. There are exactly five score categories; never invent,
-merge, or omit one. For the "Risk & Investor
-Protection" category a higher number of points means LOWER assessed risk — never
-describe a high score in that category as high risk.
+The financial figures and the Investment Score with its five criterion scores
+are approved inputs. Explain them; do not challenge or change them. Explain
+each criterion score only with its approved explanation and sources in
+approved_assessments; never add reasons of your own. There are exactly five
+criteria, each scored 0, 1 or 2, and the Investment Score is out of 10; never
+invent, merge, or omit one. If verdict is empty, do not name a verdict label.
 
 Every strength and risk must cite one or more source_keys that exist in the
 input (a source_id, an assessment key, or a fact key). If evidence is missing, add the key to missing_data rather than guessing.
@@ -456,14 +469,16 @@ OpenAI must answer in exactly these structures. Any answer in a different shape 
                 "annual_operating_costs",
                 "purchase_costs",
                 "estimated_fair_market_value",
-                "assessment.demand",
-                "assessment.growth",
-                "assessment.risk"
+                "score.price",
+                "score.rental_demand",
+                "score.capital_growth",
+                "score.owner_protection"
               ]
             },
-            "status": { "type": "string", "enum": ["proposed", "gap"] },
+            "status": { "type": "string", "enum": ["proposed", "gap", "needs_review"] },
             "value": { "type": ["number", "null"] },
-            "unit": { "type": "string", "enum": ["EUR_per_month", "EUR_per_year", "EUR", "rating"] },
+            "unit": { "type": "string", "enum": ["EUR_per_month", "EUR_per_year", "EUR", "score"] },
+            "demand_scale": { "type": "string", "enum": ["long_term", "short_term", "not_applicable"] },
             "breakdown": {
               "type": "array",
               "items": {
@@ -477,25 +492,12 @@ OpenAI must answer in exactly these structures. Any answer in a different shape 
                 "required": ["label", "amount", "source_ids"]
               }
             },
-            "components": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "key": { "type": "string" },
-                  "rating": { "type": ["number", "null"] },
-                  "source_ids": { "type": "array", "items": { "type": "string" } }
-                },
-                "required": ["key", "rating", "source_ids"]
-              }
-            },
             "rationale": { "type": "string" },
             "assumptions": { "type": "array", "items": { "type": "string" } },
             "reliability_note": { "type": "string" },
             "source_ids": { "type": "array", "items": { "type": "string" } }
           },
-          "required": ["item_key", "status", "value", "unit", "breakdown", "components", "rationale", "assumptions", "reliability_note", "source_ids"]
+          "required": ["item_key", "status", "value", "unit", "demand_scale", "breakdown", "rationale", "assumptions", "reliability_note", "source_ids"]
         }
       },
       "missing_data": { "type": "array", "items": { "type": "string" } }
@@ -509,10 +511,11 @@ After parsing, the platform checks that:
 
 - every requested item appears exactly once;
 - a `proposed` item has a value and at least one `source_id` that exists in the input;
-- a `gap` item has `value: null` and appears in `missing_data`;
+- a `gap` (figure) or `needs_review` (score) item has `value: null` and appears in `missing_data`;
 - the proposed rent is not simply the developer's claimed rent;
-- a rating is between 0 and 10;
-- growth and risk proposals rate each component listed in `rating_rules`.
+- a score is exactly 0, 1 or 2, and only the four `score.*` items carry a score;
+- `score.rental_demand` states the scale in `demand_scale` (`long_term` or `short_term`); other items use `not_applicable`;
+- a `score.owner_protection` proposal cites at least one source about the property's own situation, not the country alone.
 
 The proposals are then saved as **"awaiting review"** for the admin.
 
@@ -585,7 +588,7 @@ The proposals are then saved as **"awaiting review"** for the admin.
 
 After parsing, the platform checks text lengths, 2–4 strengths, 1–4 risks, at least one source key per item, and that no number appears that is not in the input.
 
-Structured Outputs guarantees that the answer has the right structure, but **not** that it is factually correct. That is why the automatic checks and the admin review are always required. Any change to the number of score categories or to the input structure requires a new prompt version; the schema version changes only when the output structure changes.
+Structured Outputs guarantees that the answer has the right structure, but **not** that it is factually correct. That is why the automatic checks and the admin review are always required. Any change to the number of score criteria or to the input structure requires a new prompt version; the schema version changes only when the output structure changes.
 
 ## 7. Request examples (shortened)
 
