@@ -30,7 +30,7 @@ export function AdminLoginPage() {
   };
 
   return (
-    <div style={{ background: color.ground, color: color.slate, minHeight: '100vh', display: 'flex', flexWrap: 'wrap', alignItems: 'stretch' }}>
+    <div style={{ color: color.slate, minHeight: '100vh', display: 'flex', flexWrap: 'wrap', alignItems: 'stretch' }}>
       <div style={{ flex: '1 1 300px', minWidth: 0, background: '#FFFFFF', padding: '40px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 36, borderRight: `1px solid ${line(0.05)}` }}>
         <div>
           <div style={{ marginBottom: 34, display: 'flex', alignItems: 'center', gap: 12 }}>

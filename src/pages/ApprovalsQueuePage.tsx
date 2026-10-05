@@ -11,6 +11,7 @@ const SUBMISSIONS = [
     name: 'Coral Bay Residences — Phase II',
     meta: 'Paphos, Cyprus · 12 units · completion Q3 2027 · €168k–€310k',
     when: 'Submitted 16 Sep · 1 day in queue',
+    age: 1,
   },
   {
     ref: 'PRJ-0045',
@@ -18,6 +19,7 @@ const SUBMISSIONS = [
     name: 'Casa Olivar',
     meta: 'Alicante, Spain · 9 units · completion Q1 2028 · €198k–€245k',
     when: 'Submitted 17 Sep · today',
+    age: 0,
   },
 ];
 
@@ -28,17 +30,28 @@ const VERIFICATIONS = [
     name: 'Mediterráneo Living S.L.',
     meta: 'Licence and company registration uploaded · 2 of 4 checks done',
     when: 'Applied 15 Sep · 2 days in queue',
+    age: 2,
   },
 ];
 
 const INTROS = [
+  {
+    ref: 'LEAD-0415',
+    investor: 'Pieter de Vries · Netherlands',
+    property: 'Marina Heights · B-204',
+    fit: 'Budget €200k–€240k · target net 5% · buy-to-let',
+    dev: 'Aegean Living',
+    when: 'Requested 11 Sep · 6 days in queue',
+    age: 6,
+  },
   {
     ref: 'LEAD-0421',
     investor: 'Elena Markou · Cyprus resident',
     property: 'Coral Bay Residences · A-101',
     fit: 'Budget €150k–€180k · target net 5% · buy-to-let',
     dev: 'XYZ Developments',
-    when: 'Requested 14 Sep',
+    when: 'Requested 14 Sep · 3 days in queue',
+    age: 3,
   },
   {
     ref: 'LEAD-0422',
@@ -46,14 +59,15 @@ const INTROS = [
     property: 'Casa Olivar · unit TBC',
     fit: 'Budget €140k–€170k · target net 6% · off-plan accepted',
     dev: 'Grupo Olivar',
-    when: 'Requested 15 Sep',
+    when: 'Requested 15 Sep · 2 days in queue',
+    age: 2,
   },
 ];
 
 const CHANGES = [
-  { ref: 'CHG-0198', dev: 'XYZ Developments', what: 'Coral Bay Residences · B-301', detail: 'Price €236,000 → €240,000', when: '14 Sep · 2 days in queue' },
-  { ref: 'CHG-0199', dev: 'XYZ Developments', what: 'Coral Bay Residences · A-102', detail: 'Availability Available → Reserved', when: '14 Sep · 2 days in queue' },
-  { ref: 'CHG-0201', dev: 'Aegean Living', what: 'Marina Heights · 4 units', detail: 'Availability Available → Sold (bulk)', when: '15 Sep · today' },
+  { ref: 'CHG-0198', dev: 'XYZ Developments', what: 'Coral Bay Residences · B-301', detail: 'Price €236,000 → €240,000', when: '14 Sep · 2 days in queue', age: 2 },
+  { ref: 'CHG-0199', dev: 'XYZ Developments', what: 'Coral Bay Residences · A-102', detail: 'Availability Available → Reserved', when: '14 Sep · 2 days in queue', age: 2 },
+  { ref: 'CHG-0201', dev: 'Aegean Living', what: 'Marina Heights · 4 units', detail: 'Availability Available → Sold (bulk)', when: '15 Sep · today', age: 0 },
 ];
 
 const TABS = [
@@ -63,6 +77,50 @@ const TABS = [
   { value: 'intros' as const, label: 'Introductions' },
   { value: 'changes' as const, label: 'Listing changes' },
 ];
+
+// "Today" in the prototype's story is 17 Sep 2026; a follow-up dated before it is overdue.
+const TODAY = '2026-09-17';
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const dayLabel = (d?: string) => {
+  if (!d) return '';
+  const [, m, dd] = d.split('-');
+  return `${parseInt(dd, 10)} ${MONTHS[parseInt(m, 10) - 1]}`;
+};
+const isOverdue = (o?: QueueOutcome) => !!(o?.followUp && o.followUp < TODAY);
+const statusKey = (o?: QueueOutcome) => (!o ? 'awaiting' : o.kind === 'hold' ? 'hold' : 'closed');
+
+const AGE_CHIPS = [
+  { value: 'any' as const, label: 'Any age' },
+  { value: '3d' as const, label: '> 3 days' },
+];
+const STATUS_CHIPS = [
+  { value: 'all' as const, label: 'All' },
+  { value: 'awaiting' as const, label: 'Awaiting you' },
+  { value: 'hold' as const, label: 'On hold / queried' },
+  { value: 'closed' as const, label: 'Decided' },
+];
+
+function FilterChip({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        border: `1px solid ${on ? color.ink : 'rgba(23,75,103,.16)'}`,
+        borderRadius: 40,
+        padding: '5px 12px',
+        fontSize: 13.5,
+        whiteSpace: 'nowrap',
+        cursor: 'pointer',
+        background: on ? color.ink : '#fff',
+        color: on ? '#fff' : color.muted,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+const filterLabel = { fontSize: 11.5, letterSpacing: '.16em', color: color.muted, marginRight: 4 } as const;
 
 const goldBtn = {
   flex: 'none',
@@ -80,10 +138,11 @@ const sectionLabel = { fontSize: 12, letterSpacing: '.18em', color: color.muted,
 const meta12 = { fontSize: 12.5, letterSpacing: '.12em', color: color.muted, fontVariantNumeric: 'tabular-nums' } as const;
 const stack = { display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 38 } as const;
 
-function Outcome({ o, onUndo }: { o: QueueOutcome; onUndo: () => void }) {
+function Outcome({ o, onReopen, onCorrect }: { o: QueueOutcome; onReopen: () => void; onCorrect: () => void }) {
   return (
     <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${line(0.05)}` }}>
       <div style={{ fontSize: 15.5, fontWeight: 600, color: o.fg, marginBottom: 5 }}>{o.title}</div>
+      {isOverdue(o) && <div style={{ fontSize: 14, fontWeight: 600, color: color.danger, marginBottom: 5 }}>Follow-up overdue since {dayLabel(o.followUp)}</div>}
       <p style={{ fontSize: 15.5, lineHeight: 1.65, color: color.dim2, margin: '0 0 10px', maxWidth: '70ch' }}>{o.body}</p>
       <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap', alignItems: 'center' }}>
         {o.emails.map((e) => (
@@ -91,9 +150,15 @@ function Outcome({ o, onUndo }: { o: QueueOutcome; onUndo: () => void }) {
             ✉ {e}
           </span>
         ))}
-        <button onClick={onUndo} style={{ border: 0, background: 'transparent', color: color.muted, fontSize: 14, cursor: 'pointer', padding: '0 4px', textDecoration: 'underline' }}>
-          Undo
-        </button>
+        {o.kind === 'ok' ? (
+          <button onClick={onCorrect} style={{ border: 0, background: 'transparent', color: color.muted, fontSize: 14, cursor: 'pointer', padding: '0 4px', textDecoration: 'underline' }}>
+            Correct status
+          </button>
+        ) : (
+          <button onClick={onReopen} style={{ border: `1px solid ${line(0.14)}`, borderRadius: 40, padding: '6px 13px', background: 'transparent', color: color.slate, fontSize: 13.5, cursor: 'pointer' }}>
+            Reopen
+          </button>
+        )}
       </div>
     </div>
   );
@@ -101,7 +166,23 @@ function Outcome({ o, onUndo }: { o: QueueOutcome; onUndo: () => void }) {
 
 export function ApprovalsQueuePage() {
   const navigate = useNavigate();
-  const { queueEmpty, setQueueEmpty, queueOut, setQueueOutcome, clearQueueOutcome, qTab, setQTab, openModal, showToast } = useAppStore();
+  const {
+    queueEmpty,
+    setQueueEmpty,
+    queueOut,
+    setQueueOutcome,
+    clearQueueOutcome,
+    qTab,
+    setQTab,
+    qAge,
+    setQAge,
+    qStatus,
+    setQStatus,
+    qOverdue,
+    toggleQOverdue,
+    openModal,
+    showToast,
+  } = useAppStore();
 
   // Mirrors queueAct() in the prototype: confirm, record an outcome against the
   // reference, then toast. The reason typed in the modal is appended to the body.
@@ -114,6 +195,9 @@ export function ApprovalsQueuePage() {
       tone?: 'danger' | 'gold' | 'ok';
       note?: string;
       needReason?: boolean;
+      needFollow?: boolean;
+      reasonLabel?: string;
+      kind: 'ok' | 'hold' | 'closed';
       chip?: string;
       chipBg?: string;
       chipFg?: string;
@@ -131,24 +215,58 @@ export function ApprovalsQueuePage() {
       tone: cfg.tone,
       note: cfg.note,
       needReason: cfg.needReason,
-      run: (reason) => {
+      needFollow: cfg.needFollow,
+      reasonLabel: cfg.reasonLabel,
+      run: (reason, follow) => {
         setQueueOutcome(ref, {
           title: cfg.outTitle,
           fg: cfg.outFg,
           chip: cfg.chip,
           chipBg: cfg.chipBg,
           chipFg: cfg.chipFg,
-          body: cfg.outBody + (reason ? ` Note sent: “${reason}”` : ''),
+          kind: cfg.kind,
+          followUp: follow || '',
+          body: cfg.outBody + (follow ? ` Follow-up ${dayLabel(follow)} · owner M. Andreou.` : '') + (reason ? ` Note: “${reason}”` : ''),
           emails: cfg.emails,
         });
         showToast(cfg.toast);
       },
     });
 
+  const reopen = (ref: string) => () => {
+    clearQueueOutcome(ref);
+    showToast('Returned to the queue as a new request');
+  };
+  const correct = () =>
+    openModal({
+      title: 'Correct the recorded status?',
+      body: 'Use this only if the status was recorded wrongly. Contact details already released and emails already sent are not affected.',
+      ok: 'Correct status',
+      tone: 'gold',
+      needReason: true,
+      reasonLabel: 'What was wrong (audit log only)',
+      run: () => showToast('Status correction logged · no emails sent'),
+    });
+
+  // Mirrors the prototype's queue filters: age, status and overdue follow-ups.
+  const pass = (age: number, o?: QueueOutcome) => {
+    if (qAge === '3d' && !(age > 3)) return false;
+    if (qOverdue && !isOverdue(o)) return false;
+    if (qStatus !== 'all' && qStatus !== statusKey(o)) return false;
+    return true;
+  };
+  const subs = SUBMISSIONS.filter((p) => pass(p.age));
+  const apps = VERIFICATIONS.filter((v) => pass(v.age));
+  const intros = INTROS.filter((i) => pass(i.age, queueOut[i.ref]));
+  const changes = CHANGES.filter((c) => pass(c.age, queueOut[c.ref]));
+
   const introWaiting = INTROS.filter((i) => !queueOut[i.ref]).length;
   const changeWaiting = CHANGES.filter((c) => !queueOut[c.ref]).length;
 
-  const show = (key: 'subs' | 'apps' | 'intros' | 'changes') => qTab === 'all' || qTab === key;
+  const inTab = (key: 'subs' | 'apps' | 'intros' | 'changes') => qTab === 'all' || qTab === key;
+  const counts = { subs: subs.length, apps: apps.length, intros: intros.length, changes: changes.length };
+  const show = (key: keyof typeof counts) => inTab(key) && counts[key] > 0;
+  const noMatch = !(['subs', 'apps', 'intros', 'changes'] as const).some(show);
 
   return (
     <AdminLayout>
@@ -210,11 +328,34 @@ export function ApprovalsQueuePage() {
             })}
           </div>
 
+          <div style={{ display: 'flex', gap: '8px 18px', flexWrap: 'wrap', alignItems: 'center', margin: '-10px 0 24px' }}>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={filterLabel}>AGE</span>
+              {AGE_CHIPS.map((c) => (
+                <FilterChip key={c.value} on={qAge === c.value} label={c.label} onClick={() => setQAge(c.value)} />
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={filterLabel}>STATUS</span>
+              {STATUS_CHIPS.map((c) => (
+                <FilterChip key={c.value} on={qStatus === c.value} label={c.label} onClick={() => setQStatus(c.value)} />
+              ))}
+            </div>
+            <FilterChip on={qOverdue} label="Overdue only" onClick={toggleQOverdue} />
+          </div>
+
+          {noMatch && (
+            <div style={{ background: '#FFFFFF', border: `1px dashed ${line(0.14)}`, borderRadius: 16, padding: '26px 24px', marginBottom: 24 }}>
+              <div style={{ fontWeight: 600, fontSize: 19, marginBottom: 6 }}>No requests match these filters</div>
+              <p style={{ fontSize: 15.5, lineHeight: 1.6, color: color.muted, margin: 0 }}>Clear a filter to see the rest of the queue.</p>
+            </div>
+          )}
+
           {show('subs') && (
             <div>
               <div style={sectionLabel}>NEW PROJECT SUBMISSIONS · 2 WAITING</div>
               <div style={stack}>
-                {SUBMISSIONS.map((p) => (
+                {subs.map((p) => (
                   <div key={p.ref} style={{ ...adminPanel, padding: '22px 24px', display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
                     <div style={{ flex: '1 1 260px', minWidth: 0 }}>
                       <div style={meta12}>
@@ -237,7 +378,7 @@ export function ApprovalsQueuePage() {
             <div>
               <div style={sectionLabel}>DEVELOPER APPLICATIONS · 1 WAITING</div>
               <div style={stack}>
-                {VERIFICATIONS.map((v) => (
+                {apps.map((v) => (
                   <div key={v.ref} style={{ ...adminPanel, padding: '22px 24px', display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
                     <div style={{ flex: '1 1 260px', minWidth: 0 }}>
                       <div style={meta12}>
@@ -260,7 +401,7 @@ export function ApprovalsQueuePage() {
             <div>
               <div style={sectionLabel}>INVESTOR INTRODUCTIONS · {introWaiting} WAITING</div>
               <div style={stack}>
-                {INTROS.map((i) => {
+                {intros.map((i) => {
                   const o = queueOut[i.ref];
                   const who = i.investor.split(' · ')[0];
                   return (
@@ -290,7 +431,7 @@ export function ApprovalsQueuePage() {
                       </div>
 
                       {o ? (
-                        <Outcome o={o} onUndo={() => clearQueueOutcome(i.ref)} />
+                        <Outcome o={o} onReopen={reopen(i.ref)} onCorrect={correct} />
                       ) : (
                         <div
                           style={{
@@ -315,6 +456,7 @@ export function ApprovalsQueuePage() {
                                   body: `Approving releases ${who}’s name, email and phone number to ${i.dev}, and emails both sides. Contact details cannot be recalled once sent.`,
                                   ok: 'Approve & connect',
                                   tone: 'ok',
+                                  kind: 'ok',
                                   note: 'Logged against your admin account.',
                                   chip: 'CONNECTED',
                                   chipBg: 'rgba(32,90,135,.18)',
@@ -338,6 +480,9 @@ export function ApprovalsQueuePage() {
                                   ok: 'Put on hold',
                                   tone: 'gold',
                                   needReason: true,
+                                  needFollow: true,
+                                  kind: 'hold',
+                                  reasonLabel: 'Internal note (not sent to anyone)',
                                   chip: 'ON HOLD',
                                   chipBg: 'rgba(221,180,94,.16)',
                                   chipFg: color.link,
@@ -360,6 +505,7 @@ export function ApprovalsQueuePage() {
                                   ok: 'Decline',
                                   tone: 'danger',
                                   needReason: true,
+                                  kind: 'closed',
                                   chip: 'DECLINED',
                                   chipBg: 'rgba(197,86,79,.18)',
                                   chipFg: color.danger,
@@ -388,7 +534,7 @@ export function ApprovalsQueuePage() {
             <div>
               <div style={sectionLabel}>LISTING CHANGE REQUESTS · {changeWaiting} WAITING</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {CHANGES.map((c) => {
+                {changes.map((c) => {
                   const o = queueOut[c.ref];
                   return (
                     <div key={c.ref} style={{ ...adminPanel, padding: '22px 24px' }}>
@@ -410,6 +556,7 @@ export function ApprovalsQueuePage() {
                                   body: `“${c.detail}” goes live on the public listing immediately and the developer is emailed.`,
                                   ok: 'Approve change',
                                   tone: 'ok',
+                                  kind: 'ok',
                                   note: 'Logged against your admin account.',
                                   outTitle: 'Change approved and live',
                                   outFg: color.success,
@@ -430,6 +577,9 @@ export function ApprovalsQueuePage() {
                                   ok: 'Send query',
                                   tone: 'gold',
                                   needReason: true,
+                                  needFollow: true,
+                                  kind: 'hold',
+                                  reasonLabel: 'Question sent to the developer',
                                   outTitle: 'Queried with the developer',
                                   outFg: color.gold,
                                   outBody: 'Sent 17 Sep, 14:21. The listing is unchanged until they reply.',
@@ -449,6 +599,7 @@ export function ApprovalsQueuePage() {
                                   ok: 'Reject change',
                                   tone: 'danger',
                                   needReason: true,
+                                  kind: 'closed',
                                   outTitle: 'Change rejected',
                                   outFg: color.danger,
                                   outBody: 'Rejected 17 Sep, 14:21. The public listing is unchanged.',
@@ -463,7 +614,7 @@ export function ApprovalsQueuePage() {
                           </div>
                         )}
                       </div>
-                      {o && <Outcome o={o} onUndo={() => clearQueueOutcome(c.ref)} />}
+                      {o && <Outcome o={o} onReopen={reopen(c.ref)} onCorrect={correct} />}
                     </div>
                   );
                 })}

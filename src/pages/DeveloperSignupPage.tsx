@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spinner } from '@/components/Feedback';
 import { DEV_REQ } from './ForDevelopersPage';
-import { color, line } from '@/styles/theme';
+import { color, line, glassDark, glassStrong } from '@/styles/theme';
+import heroImage from '@/assets/hero.jpg';
 import { useAppStore } from '@/state/store';
 
 interface FieldDef {
@@ -52,7 +53,7 @@ const STAGES = [
   { num: '04', title: 'Scoring and publication', body: 'We model the numbers, share the indicative score, then publish.', active: false },
 ];
 
-const panel = { background: '#fff', border: '1px solid rgba(32,90,135,.08)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' } as const;
+const panel = glassStrong;
 
 function Section({ title, fields, showErrors, cols = 190 }: { title: string; fields: FieldDef[]; showErrors: boolean; cols?: number }) {
   return (
@@ -102,27 +103,32 @@ export function DeveloperSignupPage() {
   };
 
   return (
-    <div style={{ background: color.ground }}>
-      <div style={{ background: color.ink, color: color.sky, padding: '26px 28px 28px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+    <div style={{ position: 'relative', background: '#123A50' }}>
+      <div aria-hidden="true" style={{ position: 'sticky', top: 0, height: '100vh', marginBottom: '-100vh', overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${heroImage})`, backgroundSize: 'cover', backgroundPosition: '62% 48%' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(6,34,54,.5) 0%,rgba(6,40,60,.18) 34%,rgba(6,40,60,.22) 70%,rgba(6,30,48,.5) 100%)' }} />
+      </div>
+      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ padding: '26px 28px 0', color: color.sky }}>
+        <div style={{ ...glassDark, padding: '24px 26px 26px', display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 340px', minWidth: 0 }}>
-            <button onClick={() => navigate('/developers')} style={{ border: 0, background: 'transparent', fontSize: 15.5, color: color.edge, cursor: 'pointer', padding: '0 0 12px' }}>
+            <button onClick={() => navigate('/developers')} style={{ border: 0, background: 'transparent', fontSize: 15.5, color: '#DCEAF3', cursor: 'pointer', padding: '0 0 12px' }}>
               ← For Developers
             </button>
             <div style={{ fontSize: 12, letterSpacing: '.2em', color: color.gold, marginBottom: 10 }}>DEVELOPER ACCOUNT APPLICATION</div>
             <h1 style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '-.012em', fontSize: 34, lineHeight: 1.12, margin: '0 0 10px', textWrap: 'pretty' }}>Apply to list projects</h1>
-            <p style={{ fontSize: 16.5, lineHeight: 1.65, color: color.edge, maxWidth: '52ch', margin: 0 }}>
+            <p style={{ fontSize: 16.5, lineHeight: 1.65, color: '#DCEAF3', maxWidth: '52ch', margin: 0 }}>
               Company, licence and one contact person. Verification takes two to five working days — you can prepare a project in the portal while it runs.
             </p>
           </div>
           <div style={{ flex: '1 1 300px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
             {STAGES.map((s) => (
-              <div key={s.num} style={{ display: 'flex', gap: 12, alignItems: 'baseline', border: `1px solid ${s.active ? 'rgba(221,180,94,.5)' : line(0.14)}`, borderRadius: 7, padding: '10px 13px' }}>
+              <div key={s.num} style={{ display: 'flex', gap: 12, alignItems: 'baseline', border: `1px solid ${s.active ? 'rgba(221,180,94,.5)' : line(0.14)}`, borderRadius: 10, padding: '10px 13px', background: 'rgba(4,26,42,.28)' }}>
                 <span style={{ fontWeight: 600, fontSize: 15.5, color: s.active ? color.gold : color.edge, flex: 'none' }}>{s.num}</span>
                 <span style={{ minWidth: 0 }}>
                   <span style={{ fontSize: 15.5, fontWeight: 600, color: s.active ? color.gold : color.edge }}>{s.title}</span>
                   <br />
-                  <span style={{ fontSize: 14, lineHeight: 1.5, color: color.edge }}>{s.body}</span>
+                  <span style={{ fontSize: 14, lineHeight: 1.5, color: '#DCEAF3' }}>{s.body}</span>
                 </span>
               </div>
             ))}
@@ -132,7 +138,7 @@ export function DeveloperSignupPage() {
 
       <div style={{ padding: '28px 28px 40px', display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-start' }}>
         <div style={{ flex: '1.5 1 420px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 14, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14, flexWrap: 'wrap', ...glassStrong, padding: '16px 18px' }}>
             <p style={{ fontSize: 15.5, lineHeight: 1.6, color: color.body, margin: 0, maxWidth: '60ch' }}>
               Fields marked Required are what verification needs. Everything marked Optional can be added later from the portal.
             </p>
@@ -142,7 +148,7 @@ export function DeveloperSignupPage() {
           </div>
 
           {showErrors && (
-            <div style={{ background: color.dangerWash, border: '1px solid rgba(179,69,61,.35)', borderRadius: 16, padding: '15px 17px' }}>
+            <div style={{ background: color.dangerWash, border: '1px solid rgba(179,69,61,.35)', borderRadius: 16, padding: '15px 17px', boxShadow: '0 14px 36px rgba(6,30,48,.16)' }}>
               <div style={{ fontSize: 16.5, fontWeight: 600, color: color.dangerDeep, marginBottom: 5 }}>Your application was not submitted</div>
               <div style={{ fontSize: 15.5, lineHeight: 1.6, color: color.dangerDeep }}>
                 Nine required fields are empty or invalid. Nothing has been lost — fix the fields marked below and submit again.
@@ -279,7 +285,7 @@ export function DeveloperSignupPage() {
             </p>
           </div>
 
-          <div style={{ border: '1px solid rgba(32,90,135,.08)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: '20px 22px 22px' }}>
+          <div style={{ ...panel, padding: '20px 22px 22px' }}>
             <div style={{ fontSize: 12, letterSpacing: '.16em', color: color.ink, marginBottom: 8 }}>ALREADY APPLIED?</div>
             <p style={{ fontSize: 15.5, lineHeight: 1.6, color: color.body, margin: '0 0 12px' }}>Sign in to check the status of your verification.</p>
             <button onClick={() => navigate('/login')} style={{ border: '1px solid rgba(32,90,135,.26)', borderRadius: 40, padding: '10px 18px', background: '#fff', color: color.ink, fontSize: 15.5, fontWeight: 500, cursor: 'pointer' }}>
@@ -287,6 +293,7 @@ export function DeveloperSignupPage() {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

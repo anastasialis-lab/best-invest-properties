@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { LISTINGS, DEFAULT_WEIGHTS, type Listing, type WeightRow } from '@/data/listings';
+import { LISTINGS, type Listing } from '@/data/listings';
 
 export type Financing = 'cash' | 'mortgage';
 export type RentCase = 'base' | 'avg' | 'best';
@@ -25,9 +25,13 @@ export interface ModalConfig {
   tone?: 'danger' | 'gold' | 'ok' | 'default';
   note?: string;
   needReason?: boolean;
+  reasonLabel?: string;
+  needFollow?: boolean;
+  follow?: string;
+  followWarn?: boolean;
   reason: string;
   warn?: boolean;
-  run?: (reason: string) => void;
+  run?: (reason: string, follow: string) => void;
 }
 
 export interface DevUnit {
@@ -67,6 +71,9 @@ export interface QueueOutcome {
   chip?: string;
   chipBg?: string;
   chipFg?: string;
+  // ok = approved; hold = held or queried (can be reopened); closed = declined or rejected
+  kind?: 'ok' | 'hold' | 'closed';
+  followUp?: string;
   emails: string[];
 }
 
@@ -94,7 +101,6 @@ interface AppState {
   searchSaved: boolean;
 
   calc: CalcState;
-  weights: WeightRow[];
 
   // session + chrome
   loggedIn: boolean;
@@ -131,11 +137,12 @@ interface AppState {
   adminState: 'pending' | 'empty';
   adminOutcome: AdminOutcome | null;
   revState: 'pending' | 'approved';
-  rescore: 'idle' | 'running' | 'done' | 'failed';
-  rescorePct: number;
   queueEmpty: boolean;
   queueOut: Record<string, QueueOutcome>;
   qTab: 'all' | 'subs' | 'apps' | 'intros' | 'changes';
+  qAge: 'any' | '3d';
+  qStatus: 'all' | 'awaiting' | 'hold' | 'closed';
+  qOverdue: boolean;
   alStep: 'creds' | '2fa';
   alError: boolean;
   alBusy: boolean;
@@ -157,8 +164,6 @@ interface AppState {
   askRemoveSaved: (i: number | null) => void;
   confirmRemoveSaved: () => void;
   setCalc: (patch: Partial<CalcState>) => void;
-  setWeight: (index: number, value: number) => void;
-  resetWeights: () => void;
   showToast: (msg: string) => void;
   hideToast: () => void;
   openModal: (cfg: Omit<ModalConfig, 'reason'>) => void;
@@ -196,13 +201,14 @@ interface AppState {
   setAdminState: (v: AppState['adminState']) => void;
   setAdminOutcome: (o: AdminOutcome | null) => void;
   setRevState: (v: AppState['revState']) => void;
-  startRescore: () => void;
-  tickRescore: () => void;
-  setRescore: (v: AppState['rescore']) => void;
   setQueueEmpty: (v: boolean) => void;
   setQueueOutcome: (ref: string, outcome: QueueOutcome) => void;
   clearQueueOutcome: (ref: string) => void;
   setQTab: (v: AppState['qTab']) => void;
+  setQAge: (v: AppState['qAge']) => void;
+  setQStatus: (v: AppState['qStatus']) => void;
+  toggleQOverdue: () => void;
+  setModalFollow: (v: string) => void;
   setAlStep: (v: AppState['alStep']) => void;
   setAlError: (v: boolean) => void;
   setAlBusy: (v: boolean) => void;
@@ -227,15 +233,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   cmpFull: false,
   savedProps: { larnaca: true },
   savedList: [
-    { name: 'Larnaca 1BR — Phase II', meta: '77/100 · 7.2%' },
-    { name: 'Málaga 2BR — Old town', meta: '85/100 · 7.0%' },
-    { name: 'Paphos 1BR — Sea gardens', meta: '89/100 · 7.4%' },
+    { name: 'Larnaca 1BR — Phase II', meta: '8/10 · 7.2%' },
+    { name: 'Málaga 2BR — Old town', meta: '8/10 · 7.0%' },
+    { name: 'Paphos 1BR — Sea gardens', meta: '9/10 · 7.4%' },
   ],
   removingSaved: null,
   searchSaved: false,
 
   calc: { purchase: 175000, financing: 'cash', deposit: 70000, rate: 3.5, term: 20, rent: 1125, occupancy: 90, mgmt: 10, strategy: 'long', rentCase: 'base' },
-  weights: DEFAULT_WEIGHTS.map((w) => ({ ...w })),
 
   loggedIn: true,
   navOpen: false,
@@ -276,11 +281,24 @@ export const useAppStore = create<AppState>((set, get) => ({
   adminState: 'pending',
   adminOutcome: null,
   revState: 'pending',
-  rescore: 'idle',
-  rescorePct: 0,
   queueEmpty: false,
-  queueOut: {},
+  queueOut: {
+    'LEAD-0415': {
+      title: 'On hold — nobody has been emailed',
+      fg: '#DDB45E',
+      chip: 'ON HOLD',
+      chipBg: 'rgba(221,180,94,.16)',
+      chipFg: '#174B67',
+      kind: 'hold',
+      followUp: '2026-09-15',
+      emails: [],
+      body: 'Held 12 Sep, 10:05 by M. Andreou. Neither the investor nor the developer has been contacted. Follow-up 15 Sep · owner M. Andreou. Note: “Waiting for the developer to confirm unit B-204 is still available.”',
+    },
+  },
   qTab: 'all',
+  qAge: 'any',
+  qStatus: 'all',
+  qOverdue: false,
   alStep: 'creds',
   alError: false,
   alBusy: false,
@@ -333,14 +351,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({ savedList: s.savedList.filter((_, n) => n !== s.removingSaved), removingSaved: null })),
 
   setCalc: (patch) => set((s) => ({ calc: { ...s.calc, ...patch } })),
-  setWeight: (index, value) =>
-    set((s) => {
-      const next = s.weights.map((w) => ({ ...w }));
-      next[index].value = value;
-      return { weights: next };
-    }),
-  resetWeights: () => set({ weights: DEFAULT_WEIGHTS.map((w) => ({ ...w })) }),
-
   showToast: (msg) => {
     set({ toast: msg });
     window.setTimeout(() => {
@@ -349,18 +359,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   hideToast: () => set({ toast: '' }),
 
-  openModal: (cfg) => set({ modal: { ...cfg, reason: '' } }),
+  openModal: (cfg) => set({ modal: { ...cfg, reason: '', follow: '' } }),
   closeModal: () => set({ modal: null }),
   setModalReason: (v) => set((s) => (s.modal ? { modal: { ...s.modal, reason: v, warn: false } } : {})),
   runModal: () => {
     const m = get().modal;
     if (!m) return;
-    if (m.needReason && !m.reason) {
-      set({ modal: { ...m, warn: true } });
+    const w = !!m.needReason && !m.reason;
+    const fw = !!m.needFollow && !m.follow;
+    if (w || fw) {
+      set({ modal: { ...m, warn: w, followWarn: fw } });
       return;
     }
     set({ modal: null });
-    m.run?.(m.reason);
+    m.run?.(m.reason, m.follow ?? '');
   },
 
   setNavOpen: (v) => set({ navOpen: v }),
@@ -434,14 +446,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   setAdminState: (v) => set({ adminState: v }),
   setAdminOutcome: (o) => set({ adminOutcome: o }),
   setRevState: (v) => set({ revState: v }),
-  startRescore: () => set({ rescore: 'running', rescorePct: 0 }),
-  tickRescore: () =>
-    set((s) => {
-      const pct = s.rescorePct + Math.round(5 + Math.random() * 9);
-      if (pct >= 100) return { rescorePct: 100, rescore: 'done' };
-      return { rescorePct: pct };
-    }),
-  setRescore: (v) => set({ rescore: v, ...(v === 'idle' ? { rescorePct: 0 } : null) }),
   setQueueEmpty: (v) => set({ queueEmpty: v }),
   setQueueOutcome: (ref, outcome) => set((s) => ({ queueOut: { ...s.queueOut, [ref]: outcome } })),
   clearQueueOutcome: (ref) =>
@@ -451,6 +455,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       return { queueOut: q };
     }),
   setQTab: (v) => set({ qTab: v }),
+  setQAge: (v) => set({ qAge: v }),
+  setQStatus: (v) => set({ qStatus: v }),
+  toggleQOverdue: () => set((s) => ({ qOverdue: !s.qOverdue })),
+  setModalFollow: (v) => set((s) => (s.modal ? { modal: { ...s.modal, follow: v, followWarn: false } } : {})),
   setAlStep: (v) => set({ alStep: v, alError: false, alBusy: false }),
   setAlError: (v) => set({ alError: v }),
   setAlBusy: (v) => set({ alBusy: v }),

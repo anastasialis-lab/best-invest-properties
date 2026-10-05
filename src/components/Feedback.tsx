@@ -55,6 +55,7 @@ export function Modal() {
   const closeModal = useAppStore((s) => s.closeModal);
   const setModalReason = useAppStore((s) => s.setModalReason);
   const runModal = useAppStore((s) => s.runModal);
+  const setModalFollow = useAppStore((s) => s.setModalFollow);
   if (!modal) return null;
 
   return (
@@ -81,7 +82,7 @@ export function Modal() {
         {modal.needReason && (
           <label style={{ display: 'block', marginBottom: 14 }}>
             <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, fontSize: 15.5, color: color.dim, marginBottom: 5 }}>
-              <span>Reason sent to the developer</span>
+              <span>{modal.reasonLabel ?? 'Reason sent to the developer'}</span>
               <span style={{ flex: 'none', whiteSpace: 'nowrap', color: color.action, fontSize: 13 }}>Required</span>
             </span>
             <textarea
@@ -93,6 +94,33 @@ export function Modal() {
             />
             {modal.warn && <span style={{ display: 'block', fontSize: 13.5, color: color.dangerDeep, marginTop: 5 }}>A reason is required before this can be sent.</span>}
           </label>
+        )}
+
+        {modal.needFollow && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(170px,1fr))', gap: 12, marginBottom: 14 }}>
+            <label style={{ display: 'block' }}>
+              <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, fontSize: 15.5, color: color.dim, marginBottom: 5 }}>
+                <span>Follow-up date</span>
+                <span style={{ flex: 'none', whiteSpace: 'nowrap', color: color.action, fontSize: 13 }}>Required</span>
+              </span>
+              <input
+                type="date"
+                value={modal.follow ?? ''}
+                onChange={(e) => setModalFollow(e.target.value)}
+                style={{ width: '100%', padding: '12px 12px', border: `1px solid ${line(0.14)}`, borderRadius: 10, background: color.panel, fontSize: 15.5, color: color.navy }}
+              />
+              {modal.followWarn && <span style={{ display: 'block', fontSize: 13.5, color: color.dangerDeep, marginTop: 5 }}>Pick a date to come back to this.</span>}
+            </label>
+            <label style={{ display: 'block' }}>
+              <span style={{ display: 'block', fontSize: 15.5, color: color.dim, marginBottom: 5 }}>Owner</span>
+              <input
+                type="text"
+                value="M. Andreou (you)"
+                readOnly
+                style={{ width: '100%', padding: '12px 12px', border: `1px solid ${line(0.1)}`, borderRadius: 10, background: '#E9EFF3', fontSize: 15.5, color: color.muted }}
+              />
+            </label>
+          </div>
         )}
 
         <div style={{ display: 'flex', gap: 9, justifyContent: 'flex-end', flexWrap: 'wrap' }}>

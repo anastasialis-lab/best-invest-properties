@@ -6,20 +6,20 @@ import { PreviewBar, StateChips } from '@/components/PreviewStates';
 import { color, line, font } from '@/styles/theme';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAppStore } from '@/state/store';
-import { LISTINGS } from '@/data/listings';
+import { LISTINGS, FACT_SHEETS, VERDICTS } from '@/data/listings';
 
 const THUMBS = ['living room', 'kitchen', 'floor plan', 'location map'];
 
 const FIN_ROWS = [
   { k: 'Property price', v: '€175,000', src: 'DEVELOPER FIGURE', dev: true },
   { k: 'Purchase costs — transfer, legal, fees', v: '€14,000', src: 'INDEPENDENT ESTIMATE' },
-  { k: 'Total acquisition cost', v: '€189,000', src: 'CALCULATED', strong: true },
-  { k: 'Expected annual rental income', v: '€13,600', src: 'INDEPENDENT ESTIMATE' },
-  { k: 'Recurring costs — management, insurance, maintenance', v: '− €1,700', src: 'INDEPENDENT ESTIMATE' },
-  { k: 'Vacancy allowance — 10% of rent', v: '− €1,360', src: 'ASSUMPTION' },
-  { k: 'Estimated net rental income', v: '€10,540', src: 'CALCULATED', strong: true },
-  { k: 'Gross yield on acquisition cost', v: '7.2%', src: 'CALCULATED' },
-  { k: 'Net yield on acquisition cost', v: '5.6%', src: 'CALCULATED', strong: true },
+  { k: 'Total acquisition cost', v: '€189,000', src: 'CALCULATED', hl: true },
+  { k: 'Expected annual rental income', v: '€13,600', src: 'INDEPENDENT ESTIMATE', hl: true },
+  { k: 'Recurring annual costs — management, insurance, maintenance', v: '− €1,700', src: 'INDEPENDENT ESTIMATE' },
+  { k: 'Annual occupancy adjustment — 90% occupancy', v: '− €1,360', src: 'ASSUMPTION' },
+  { k: 'Estimated net annual rental income', v: '€10,540', src: 'CALCULATED', hl: true },
+  { k: 'Gross annual yield on acquisition cost', v: '7.2%', src: 'CALCULATED' },
+  { k: 'Net annual yield on acquisition cost', v: '5.6%', src: 'CALCULATED', hl: true },
 ];
 
 const SRC_TAG_TONE: Record<string, { bg: string; fg: string }> = {
@@ -34,7 +34,7 @@ const SRC_ROWS = [
   { tag: 'SOURCE', body: 'Published transfer fee, stamp duty and standard legal fee scales for Cyprus.' },
   { tag: 'DEVELOPER', body: 'Purchase price, unit size and completion date supplied by the developer and not independently verified.' },
   { tag: 'ESTIMATE', body: 'Management, insurance and maintenance modelled on district averages. Vacancy held at 10% of gross rent.' },
-  { tag: 'GAP', body: 'No service charge schedule supplied for the building — recurring costs may be higher than modelled.' },
+  { tag: 'GAP', body: 'No service charge schedule supplied for the building — recurring costs may differ from those modelled.' },
   { tag: 'GAP', body: 'No completed rental history: the project is pre-completion.' },
 ];
 
@@ -45,9 +45,11 @@ export function PropertyDetailPage() {
   const { detailState, setDetailState, srcOpen, setSrcOpen, showToast } = useAppStore();
 
   const listing = LISTINGS.find((p) => p.id === id) ?? LISTINGS[0];
+  const country = listing.location.split(', ').pop() ?? '';
+  const factSheet = FACT_SHEETS[country];
 
   return (
-    <div style={{ background: 'linear-gradient(180deg,#E5F6FF 0%,#EFF9FF 210px,#F7FCFF 430px)' }}>
+    <div>
       <SiteHeader />
       <div style={{ padding: isMobile ? '18px 18px 0' : '22px 28px 0' }}>
         <button onClick={() => navigate('/browse')} style={{ border: 0, background: 'transparent', fontSize: 15.5, color: color.faint, cursor: 'pointer', padding: '0 0 14px' }}>
@@ -70,7 +72,7 @@ export function PropertyDetailPage() {
 
       {detailState === 'gone' ? (
         <div style={{ padding: isMobile ? '10px 18px 46px' : '10px 28px 46px' }}>
-          <div style={{ background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: '40px 30px', textAlign: 'center' }}>
+          <div style={{ background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: '40px 30px', textAlign: 'center' }}>
             <div style={{ fontSize: 12, letterSpacing: '.18em', color: color.faint, marginBottom: 10 }}>LISTING NO LONGER AVAILABLE</div>
             <div style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '-.012em', fontSize: 27, color: color.link, marginBottom: 10 }}>This property has been withdrawn</div>
             <p style={{ fontSize: 16.5, lineHeight: 1.65, color: color.body, margin: '0 auto 20px', maxWidth: '54ch' }}>
@@ -121,46 +123,101 @@ export function PropertyDetailPage() {
                 ))}
               </div>
 
+              {factSheet && (
+                <div style={{ marginTop: 4, background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: 20 }}>
+                  <div style={{ fontSize: 11.5, letterSpacing: '.2em', color: color.action, marginBottom: 6 }}>FACT SHEET</div>
+                  <div style={{ fontWeight: 600, letterSpacing: '-.006em', fontSize: 19, color: color.link, marginBottom: 6 }}>Fact Sheet: {country}</div>
+                  {factSheet.map((f) => (
+                    <div key={f.h} style={{ padding: '14px 0 12px', borderTop: `1px solid ${line(0.08)}`, marginTop: 8 }}>
+                      <div style={{ fontSize: 12, letterSpacing: '.14em', fontWeight: 600, color: color.action, marginBottom: 6 }}>{f.h}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {f.ps.map((t) => (
+                          <p key={t} style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: color.body, maxWidth: '68ch' }}>
+                            {t}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 6, fontSize: 13.5, lineHeight: 1.55, color: color.faint }}>
+                    Indicative figures for orientation only — to be confirmed with local legal and tax counsel before purchase.
+                  </div>
+                </div>
+              )}
             </div>
 
             <div style={{ order: 1, flex: '1 1 360px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ background: 'linear-gradient(142deg,#0C5A70 0%,#10476A 56%,#123F66 100%)', color: '#fff', borderRadius: 16, padding: '24px 22px', boxShadow: '0 18px 40px rgba(12,63,102,.22)' }}>
-                <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-                  <div style={{ flex: '1 1 140px', minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 58, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-                      {listing.score}
-                      <span style={{ fontSize: 22, color: color.skyBright }}> / 100</span>
-                    </div>
-                    <div style={{ fontSize: 11.5, letterSpacing: '.2em', color: color.skyBright, margin: '10px 0 12px' }}>INVESTMENT SCORE</div>
-                    <div style={{ display: 'inline-block', fontSize: 15.5, fontWeight: 600, color: color.navyDeep, background: color.gold, padding: '6px 14px', borderRadius: 4 }}>{listing.verdict}</div>
-                  </div>
-                  <div style={{ flex: '1 1 130px', minWidth: 0, display: 'grid', gap: 10 }}>
+                <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'stretch' }}>
+                  <div style={{ flex: '1 1 150px', minWidth: 0, display: 'grid', gap: 10 }}>
                     {[
-                      { label: 'EST. GROSS YIELD', value: listing.gross },
                       { label: 'EST. NET YIELD', value: listing.net },
+                      { label: 'EST. ANNUAL INCOME', value: '€10,540' },
                     ].map((y) => (
                       <div key={y.label} style={{ background: 'rgba(255,255,255,.09)', borderRadius: 12, padding: '12px 14px' }}>
                         <div style={{ fontSize: 11.5, letterSpacing: '.16em', color: color.skyBright, marginBottom: 4 }}>{y.label}</div>
                         <div style={{ fontWeight: 700, fontSize: 26, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>{y.value}</div>
                       </div>
                     ))}
+                    <div style={{ background: 'rgba(255,255,255,.09)', borderRadius: 12, padding: '12px 14px' }}>
+                      <div style={{ fontSize: 11.5, letterSpacing: '.16em', color: color.skyBright, marginBottom: 4 }}>INVESTMENT SCORE</div>
+                      <div style={{ fontWeight: 700, fontSize: 26, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+                        {listing.score}
+                        <span style={{ fontSize: 16, color: color.skyBright }}> / 10</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ flex: '1 1 170px', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 8 }}>
+                    {VERDICTS.map((v) => {
+                      const on = v === listing.verdict;
+                      return (
+                        <div
+                          key={v}
+                          style={{
+                            fontSize: 15,
+                            fontWeight: on ? 700 : 500,
+                            color: on ? color.navyDeep : 'rgba(255,255,255,.5)',
+                            background: on ? color.gold : 'transparent',
+                            padding: '9px 12px',
+                            border: `1px solid ${on ? color.gold : 'rgba(255,255,255,.14)'}`,
+                            borderRadius: 6,
+                          }}
+                        >
+                          {v}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 <div style={{ fontSize: 13.5, lineHeight: 1.55, color: color.skyBright, marginTop: 14 }}>
-                  Both yields are calculated on total acquisition cost, not on the purchase price alone.
+                  Net yield and annual income are calculated on total acquisition cost, after recurring costs and vacancy.
                 </div>
               </div>
 
-              <div style={{ background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: 20 }}>
+              <div style={{ background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: 20 }}>
                 <div style={{ fontWeight: 600, letterSpacing: '-.006em', fontSize: 19, color: color.link, marginBottom: 3 }}>Financial Overview</div>
                 <div style={{ fontSize: 14, lineHeight: 1.55, color: color.faint, marginBottom: 14 }}>Gross and net yield are calculated on total acquisition cost.</div>
                 {FIN_ROWS.map((r) => (
-                  <div key={r.k} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '9px 0', borderBottom: `1px solid ${line(0.08)}`, fontSize: 16.5 }}>
-                    <span style={{ minWidth: 0, color: color.body, fontWeight: r.strong ? 600 : 400 }}>
+                  <div
+                    key={r.k}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: r.hl ? '13px 20px' : '9px 0',
+                      margin: r.hl ? '0 -20px' : 0,
+                      background: r.hl ? '#FBF4E4' : 'transparent',
+                      borderTop: r.hl ? '1px solid rgba(221,180,94,.55)' : 0,
+                      borderBottom: r.hl ? '1px solid rgba(221,180,94,.55)' : `1px solid ${line(0.08)}`,
+                      fontSize: 16.5,
+                    }}
+                  >
+                    <span style={{ minWidth: 0, color: color.body, fontWeight: r.hl ? 600 : 400 }}>
                       {r.k}
-                      <span style={{ display: 'block', fontSize: 11.5, letterSpacing: '.12em', fontWeight: 400, color: r.dev ? color.action : color.faint, marginTop: 3 }}>{r.src}</span>
+                      <span style={{ display: 'block', fontSize: 10.5, letterSpacing: '.1em', fontWeight: 400, color: '#6B7F8E', marginTop: 2 }}>{r.src}</span>
                     </span>
-                    <span style={{ fontWeight: 600, color: color.link, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{r.v}</span>
+                    <span style={{ fontWeight: r.hl ? 700 : 600, fontSize: r.hl ? 18 : 16.5, color: color.link, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{r.v}</span>
                   </div>
                 ))}
 
@@ -241,7 +298,7 @@ export function PropertyDetailPage() {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 700, fontSize: 20, color: color.link, lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>{listing.price}</div>
             <div style={{ fontSize: 13.5, color: color.faint }}>
-              {listing.net} net · {listing.score}/100
+              {listing.net} net · {listing.score}/10
             </div>
           </div>
           <button

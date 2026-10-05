@@ -107,3 +107,45 @@ export const pill = {
   justifyContent: 'center',
   gap: 8,
 } as const;
+
+// Photo direction: every screen except the landing, auth and developer
+// marketing pages sits on the shared coastal photo inside a frosted sheet,
+// and its panels are translucent so the photo reads through them.
+export const glass = {
+  background: 'rgba(255,255,255,.8)',
+  border: '1px solid rgba(255,255,255,.55)',
+} as const;
+
+// Stronger glass for panels placed straight on the photo.
+export const glassStrong = {
+  background: 'rgba(255,255,255,.95)',
+  WebkitBackdropFilter: 'blur(12px)',
+  backdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255,255,255,.7)',
+  borderRadius: 16,
+  boxShadow: '0 14px 36px rgba(6,30,48,.16)',
+} as const;
+
+// Dark glass for copy placed straight on the photo.
+export const glassDark = {
+  background: 'rgba(6,40,62,.6)',
+  WebkitBackdropFilter: 'blur(4px)',
+  backdropFilter: 'blur(4px)',
+  border: '1px solid rgba(255,255,255,.14)',
+  borderRadius: 20,
+} as const;
+
+// Light glass for a whole section placed on the photo.
+export const glassSection = {
+  background: 'rgba(247,252,255,.86)',
+  WebkitBackdropFilter: 'blur(14px)',
+  backdropFilter: 'blur(14px)',
+  border: '1px solid rgba(255,255,255,.6)',
+  borderRadius: 20,
+  boxShadow: '0 18px 44px rgba(6,30,48,.18)',
+} as const;
+
+// Inner tinted boxes inside a glass panel.
+export const subtle = 'rgba(247,252,255,.62)';
+export const navGlass = 'rgba(234,242,248,.66)';
+export const photoGradient = 'linear-gradient(180deg,rgba(6,34,54,.42) 0%,rgba(6,40,60,.14) 34%,rgba(6,40,60,.2) 70%,rgba(6,30,48,.46) 100%)';

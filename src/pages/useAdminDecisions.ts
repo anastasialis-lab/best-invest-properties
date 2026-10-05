@@ -17,7 +17,7 @@ export function useAdminDecisions() {
         run: () => {
           setAdminOutcome({
             title: 'Approved and published',
-            body: 'Live since 17 Sep 2026, 14:12. Score 87/100 from model v3. Developer notified by email.',
+            body: 'Live since 17 Sep 2026, 14:12. Score 8/10. Developer notified by email.',
             chip: 'PUBLISHED',
             bg: 'rgba(32,90,135,.18)',
             fg: '#2F7D63',

@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { InfoButton } from '@/components/ScoreBits';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { color, line } from '@/styles/theme';
@@ -6,10 +8,20 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAppStore, acq, eur, rentPair, netCaseNum } from '@/state/store';
 import { LISTINGS, COMPLETION_BY_ID, CATS, breakdown, type Listing } from '@/data/listings';
 
+interface Cell {
+  main: string;
+  den?: string;
+  gold?: boolean;
+}
+
 interface Row {
   label: string;
   values: string[];
   bestIndex: number;
+  head?: boolean;
+  bg?: string;
+  tip?: string;
+  cells?: Cell[];
 }
 
 function buildRow(props: Listing[], label: string, pick: (p: Listing) => string, best?: (p: Listing) => number): Row {
@@ -36,27 +48,36 @@ export function ComparePage() {
   const props = compare.map((id) => LISTINGS.find((p) => p.id === id)).filter(Boolean) as Listing[];
   const netPct = (p: Listing, c: 'base' | 'avg' | 'best') => netCaseNum(p, c).toFixed(1) + '%';
 
+  const SCENARIOS: Array<['base' | 'avg' | 'best', string, string]> = [
+    ['base', 'CONSERVATIVE', '#F4F8FB'],
+    ['avg', 'AVERAGE', '#EDF3F8'],
+    ['best', 'BEST', '#FBF5E8'],
+  ];
+
   const rows: Row[] = [
     buildRow(props, 'Price / total acquisition cost', (p) => `${p.price} / ${eur(acq(p))}`),
-    buildRow(props, 'Monthly / annual rent — base case', (p) => rentPair(p, 'base')),
-    buildRow(props, 'Net yield — base case', (p) => netPct(p, 'base'), (p) => netCaseNum(p, 'base')),
-    buildRow(props, 'Monthly / annual rent — average case', (p) => rentPair(p, 'avg')),
-    buildRow(props, 'Net yield — average case', (p) => netPct(p, 'avg'), (p) => netCaseNum(p, 'avg')),
-    buildRow(props, 'Monthly / annual rent — best case', (p) => rentPair(p, 'best')),
-    buildRow(props, 'Net yield — best case', (p) => netPct(p, 'best'), (p) => netCaseNum(p, 'best')),
-    buildRow(props, 'Gross yield', (p) => p.gross, (p) => parseFloat(p.gross)),
-    buildRow(props, 'Investment score', (p) => `${p.score} / 100`, (p) => p.score),
-    ...CATS.map((c, ci) =>
-      buildRow(
-        props,
-        `${c.label} · ${c.max}`,
-        (p) => `${breakdown(p.score, parseFloat(p.net))[ci]}/${c.max}`,
-        (p) => breakdown(p.score, parseFloat(p.net))[ci] / c.max
-      )
-    ),
+    ...SCENARIOS.flatMap(([k, h, bg]) => [
+      { label: h, values: [], bestIndex: -1, head: true, bg },
+      { ...buildRow(props, 'Monthly rent / annual rental income', (p) => rentPair(p, k)), bg },
+      { ...buildRow(props, 'Net annual yield', (p) => netPct(p, k), (p) => netCaseNum(p, k)), bg },
+    ]),
+    { ...buildRow(props, 'Gross annual yield', (p) => p.gross, (p) => parseFloat(p.gross)), tip: 'Calculated using the Average scenario.' },
+    {
+      ...buildRow(props, 'Investment Score', (p) => `${p.score} / 10`, (p) => p.score),
+      tip: 'Calculated using the Average scenario.',
+      cells: props.map((p) => ({ main: String(p.score), den: ' / 10' })),
+    },
+    ...CATS.map((c, ci) => ({
+      label: c.label,
+      values: props.map((p) => `${breakdown(p)[ci]} / 2`),
+      bestIndex: -1,
+      cells: props.map((p) => ({ main: String(breakdown(p)[ci]), den: ' / 2', gold: breakdown(p)[ci] === 2 })),
+    })),
     buildRow(props, 'Size', (p) => p.spec),
     buildRow(props, 'Completion', (p) => COMPLETION_BY_ID[p.id] ?? '—'),
   ];
+  const [tipOpen, setTipOpen] = useState<string | null>(null);
+
 
   return (
     <div>
@@ -80,7 +101,7 @@ export function ComparePage() {
         ) : (
           <>
             <div style={{ overflowX: 'auto' }} className="bip-scroll">
-              <table style={{ width: '100%', minWidth: 760, borderCollapse: 'collapse', background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' }}>
+              <table style={{ width: '100%', minWidth: 760, borderCollapse: 'collapse', background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '18px 18px 14px', fontSize: 12, letterSpacing: '.16em', color: color.faint, fontWeight: 500, borderBottom: `1px solid ${line(0.12)}`, position: 'sticky', left: 0, background: '#fff', zIndex: 2 }}>
@@ -107,27 +128,57 @@ export function ComparePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.label}>
-                      <td style={{ padding: '14px 18px', fontSize: 15.5, color: color.body, borderBottom: `1px solid ${line(0.07)}`, position: 'sticky', left: 0, background: '#fff', zIndex: 1 }}>{r.label}</td>
-                      {r.values.map((v, i) => (
-                        <td
-                          key={i}
-                          style={{
-                            padding: '14px 18px',
-                            fontSize: 15.5,
-                            borderBottom: `1px solid ${line(0.07)}`,
-                            borderLeft: `1px solid ${line(0.08)}`,
-                            fontVariantNumeric: 'tabular-nums',
-                            color: i === r.bestIndex ? color.goldDeep : color.link,
-                            fontWeight: i === r.bestIndex ? 700 : 400,
-                          }}
-                        >
-                          {v}
+                  {rows.map((r) =>
+                    r.head ? (
+                      <tr key={r.label}>
+                        <td colSpan={props.length + 1} style={{ padding: '16px 18px 8px', background: r.bg, borderTop: `1px solid ${line(0.12)}`, borderBottom: `1px solid ${line(0.07)}` }}>
+                          <span style={{ position: 'sticky', left: 18, fontSize: 12, letterSpacing: '.16em', fontWeight: 700, color: color.action }}>{r.label} SCENARIO</span>
                         </td>
-                      ))}
-                    </tr>
-                  ))}
+                      </tr>
+                    ) : (
+                      <tr key={r.label + (r.bg ?? '')}>
+                        <td style={{ padding: '14px 18px', fontSize: 15.5, color: color.body, borderBottom: `1px solid ${line(0.07)}`, position: 'sticky', left: 0, background: r.bg ?? '#fff', zIndex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            {r.label}
+                            {r.tip && <InfoButton open={tipOpen === r.label} onToggle={() => setTipOpen(tipOpen === r.label ? null : r.label)} />}
+                          </div>
+                          {r.tip && tipOpen === r.label && (
+                            <div role="note" style={{ margin: '8px 0 0', maxWidth: 240, background: color.panel, border: '1px solid rgba(23,75,103,.14)', borderRadius: 10, padding: '9px 11px', fontSize: 14, lineHeight: 1.5, color: color.body }}>
+                              {r.tip}
+                            </div>
+                          )}
+                        </td>
+                        {r.values.map((v, i) => {
+                          const cell = r.cells?.[i];
+                          const best = i === r.bestIndex || !!cell?.gold;
+                          return (
+                            <td
+                              key={i}
+                              style={{
+                                padding: '14px 18px',
+                                fontSize: 15.5,
+                                borderBottom: `1px solid ${line(0.07)}`,
+                                borderLeft: `1px solid ${line(0.08)}`,
+                                background: r.bg,
+                                fontVariantNumeric: 'tabular-nums',
+                                color: best ? color.goldDeep : color.link,
+                                fontWeight: best ? 700 : 400,
+                              }}
+                            >
+                              {cell ? (
+                                <>
+                                  <span>{cell.main}</span>
+                                  <span style={{ color: '#6B7F8E', fontWeight: 400, fontSize: 14 }}>{cell.den}</span>
+                                </>
+                              ) : (
+                                v
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    )
+                  )}
                 </tbody>
               </table>
             </div>

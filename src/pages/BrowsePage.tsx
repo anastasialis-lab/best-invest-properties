@@ -26,7 +26,7 @@ function Skeletons({ cols }: { cols: string }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: cols, gap: 16 }}>
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} style={{ background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', overflow: 'hidden' }}>
+        <div key={i} style={{ background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', overflow: 'hidden' }}>
           <div style={{ height: 152, background: line(0.07) }} />
           <div style={{ padding: '15px 16px 17px', display: 'flex', flexDirection: 'column', gap: 9 }}>
             <div style={{ height: 10, width: '44%', borderRadius: 3, background: line(0.09) }} />
@@ -55,8 +55,8 @@ function ResultCard({ p, rank, note, isMobile }: { p: Listing; rank?: number; no
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : 'minmax(0,260px) minmax(0,1fr)',
         gap: 18,
-        background: '#fff',
-        border: `1px solid ${line(0.07)}`,
+        background: 'rgba(255,255,255,.8)',
+        border: '1px solid rgba(255,255,255,.55)',
         borderRadius: 16,
         boxShadow: '0 12px 34px rgba(23,75,103,.07)',
         padding: 14,
@@ -95,17 +95,20 @@ function ResultCard({ p, rank, note, isMobile }: { p: Listing; rank?: number; no
           <span style={{ fontSize: 15.5, color: color.body }}>{p.spec}</span>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'stretch' }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'nowrap', alignItems: 'stretch' }}>
           {[
             { label: 'PRICE', value: p.price },
-            { label: 'INVESTMENT SCORE', value: pending ? '—' : p.score, suffix: pending ? '' : '/100' },
             { label: 'EST. NET YIELD', value: p.net },
+            { label: 'INVESTMENT SCORE', value: pending ? '—' : p.score, suffix: pending ? '' : '/10' },
           ].map((tile) => (
-            <div key={tile.label} style={{ flex: '1 1 120px', minWidth: 0, background: color.ground, border: `1px solid ${line(0.08)}`, borderRadius: 11, padding: '8px 12px' }}>
-              <div style={{ fontSize: 12, letterSpacing: '.12em', color: color.faint }}>{tile.label}</div>
-              <div style={{ fontWeight: 700, fontSize: 20, color: color.link, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
+            <div
+              key={tile.label}
+              style={{ flex: '1 1 0', minWidth: 0, background: 'rgba(247,252,255,.62)', border: `1px solid ${line(0.08)}`, borderRadius: 11, padding: '8px 9px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 4 }}
+            >
+              <div style={{ fontSize: 11, letterSpacing: '.06em', color: color.faint, lineHeight: 1.25 }}>{tile.label}</div>
+              <div style={{ fontWeight: 700, fontSize: 18, whiteSpace: 'nowrap', color: color.link, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
                 {tile.value}
-                {tile.suffix && <span style={{ fontSize: 15.5, color: color.faint }}>{tile.suffix}</span>}
+                {tile.suffix && <span style={{ fontSize: 15.5, fontWeight: 400, color: '#6B7F8E' }}>{tile.suffix}</span>}
               </div>
             </div>
           ))}
@@ -251,23 +254,26 @@ export function BrowsePage() {
         )}
 
         <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {isMobile && drawerOpen && (
+            <div onClick={() => state.setDrawerOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(6,30,48,.5)', zIndex: 89 }} />
+          )}
           {(!isMobile || drawerOpen) && (
             <div
               style={{
                 flex: isMobile ? 'none' : '0 1 268px',
                 minWidth: isMobile ? 'auto' : 236,
                 position: isMobile ? 'fixed' : 'static',
-                left: isMobile ? 12 : undefined,
-                right: isMobile ? 12 : undefined,
-                bottom: isMobile ? 12 : undefined,
-                top: isMobile ? 12 : undefined,
-                zIndex: isMobile ? 80 : undefined,
-                maxHeight: isMobile ? 'calc(100vh - 24px)' : undefined,
+                left: isMobile ? '50%' : undefined,
+                bottom: isMobile ? 0 : undefined,
+                transform: isMobile ? 'translateX(-50%)' : undefined,
+                width: isMobile ? 'min(430px,100vw)' : undefined,
+                zIndex: isMobile ? 90 : undefined,
+                maxHeight: isMobile ? '86vh' : undefined,
                 overflowY: isMobile ? 'auto' : undefined,
-                boxShadow: isMobile ? '0 26px 60px rgba(10,31,56,.4)' : 'none',
+                boxShadow: isMobile ? '0 -14px 40px rgba(6,30,48,.3)' : 'none',
                 background: '#fff',
                 border: `1px solid ${line(0.12)}`,
-                borderRadius: 16,
+                borderRadius: isMobile ? '18px 18px 0 0' : 16,
                 padding: 20,
                 alignSelf: 'flex-start',
               }}
@@ -375,8 +381,8 @@ export function BrowsePage() {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 10,
-                background: '#fff',
-                border: `1px solid ${line(0.07)}`,
+                background: 'rgba(255,255,255,.8)',
+                border: '1px solid rgba(255,255,255,.55)',
                 borderRadius: 16,
                 boxShadow: '0 12px 34px rgba(23,75,103,.07)',
                 padding: 18,
@@ -414,7 +420,7 @@ export function BrowsePage() {
                   <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
                       <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: color.link }}>{t.location}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: color.action, fontVariantNumeric: 'tabular-nums' }}>{t.score}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: color.action, fontVariantNumeric: 'tabular-nums' }}>{t.score}<span style={{ color: '#6B7F8E', fontWeight: 400 }}>/10</span></span>
                     </span>
                     <span style={{ fontSize: 16.5, fontWeight: 700, color: color.link, fontVariantNumeric: 'tabular-nums' }}>{t.price}</span>
                     <span style={{ display: 'flex', gap: 10, fontSize: 13.5, color: color.body, fontVariantNumeric: 'tabular-nums' }}>

@@ -1,12 +1,11 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { color, line, shadow } from '@/styles/theme';
+import { color, line, shadow, glass } from '@/styles/theme';
 
 export function Card({ children, style, pad = '28px 26px 30px' }: { children: ReactNode; style?: CSSProperties; pad?: string | number }) {
   return (
     <div
       style={{
-        background: '#fff',
-        border: `1px solid ${line(0.07)}`,
+        ...glass,
         borderRadius: 16,
         boxShadow: '0 12px 34px rgba(23,75,103,.07)',
         padding: pad,

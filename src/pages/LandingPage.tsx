@@ -15,6 +15,15 @@ const VALUE_PROPS = [
   'No need to visit multiple real estate pages',
 ];
 
+// How to read the Investment Score, shown under the five steps.
+const READING = [
+  { t: 'Rental Income & Yield', b: 'Based on total acquisition cost, expected annual rental income and recurring ownership costs. Where available, we show the developer’s figures alongside our independent estimate.' },
+  { t: 'Rental Demand', b: 'Based on available official data and expected occupancy or vacancy for long-term and short-term rentals. The overall assessment reflects short-term rentals in the high season and long-term rentals in the low season.' },
+  { t: 'Price', b: 'Compares the asking price with current prices for similar properties in the same area to assess whether it is high, average or low.' },
+  { t: 'Capital Growth', b: 'Estimates future property price development in the area, taking urban plans into account where available.' },
+  { t: 'Owner Protection & Eviction Efficiency', b: 'Assesses current laws and whether they provide stronger protection to property owners or tenants, including how efficiently eviction procedures work.' },
+];
+
 const HIW_STEPS = [
   { num: '01', body: 'You select your budget, expectations and other details.' },
   { num: '02', body: 'We search immediately through the property database, analyse, calculate and select the most profitable properties.' },
@@ -264,6 +273,19 @@ export function LandingPage() {
               )}
             </div>
           ))}
+
+          <div style={{ marginTop: 22, background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: '20px 22px' }}>
+            <div style={{ fontSize: 11.5, letterSpacing: '.2em', color: color.action, marginBottom: 8 }}>READING THE RESULTS</div>
+            <p style={{ margin: '0 0 14px', fontSize: 16.5, lineHeight: 1.6, color: color.body }}>
+              Each property is assessed against five criteria. Each criterion receives 0, 1 or 2 points, giving a total Investment Score out of 10. Rental yield is shown separately.
+            </p>
+            {READING.map((r, i) => (
+              <div key={r.t} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '10px 0 0', borderTop: `1px solid ${line(0.08)}` }}>
+                <div style={{ fontSize: 15.5, fontWeight: 600, color: color.link }}>{r.t}</div>
+                <p style={{ margin: i === READING.length - 1 ? 0 : '0 0 10px', fontSize: 15, lineHeight: 1.55, color: color.body }}>{r.b}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -14,7 +14,7 @@ const UNITS = [
 ];
 
 const METRICS = [
-  { k: 'INVESTMENT SCORE', v: '77 / 100' },
+  { k: 'INVESTMENT SCORE', v: '8 / 10' },
   { k: 'GROSS YIELD', v: '7.2%' },
   { k: 'NET YIELD', v: '5.6%' },
 ];
@@ -29,12 +29,12 @@ const AI_ESTIMATES = [
 
 const INPUTS = [
   { k: 'Developer rent claim', v: '€1,200 / month', src: 'Developer submission' },
-  { k: 'Our comparable rent', v: '€1,100 – €1,250', src: 'Larnaca district, 14 lettings' },
+  { k: 'Our comparable rent', v: 'median €1,180 / month', src: 'Portal X · 14 listings · Larnaca centre · €1,100–€1,250, median €1,180 · retrieved 16 Sep' },
   { k: 'Rent used for scoring', v: '€13,600 / year', src: 'Analyst A.M. · 16 Sep' },
   { k: 'Recurring costs and vacancy', v: '€3,060', src: 'District averages · vacancy at 10%' },
   { k: 'Total acquisition cost', v: '€189,000', src: 'Price plus transfer, legal and fees' },
   { k: 'Net yield', v: '5.6%', src: 'Calculated on acquisition cost · not AI' },
-  { k: 'Indicative score', v: '77 / 100', src: 'Five-criteria model' },
+  { k: 'Indicative score', v: '8 / 10', src: 'Five criteria · 0–2 points each' },
 ];
 
 const DOCS = [
@@ -172,7 +172,7 @@ export function AdminReviewPage() {
               ))}
             </div>
 
-            <div style={{ fontSize: 12, letterSpacing: '.14em', color: color.muted, marginBottom: 8 }}>AI-PROPOSED FINANCIAL ESTIMATES</div>
+            <div style={{ fontSize: 12, letterSpacing: '.14em', color: color.muted, marginBottom: 8 }}>PROPOSED FINANCIAL ESTIMATES</div>
             {AI_ESTIMATES.map((e) => (
               <div key={e.k} style={rowSplit}>
                 <div style={{ minWidth: 0 }}>
@@ -188,8 +188,9 @@ export function AdminReviewPage() {
               <div key={s.label} style={{ marginBottom: 22 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 15.5, marginBottom: 8 }}>
                   <span style={{ fontWeight: 600 }}>{s.label}</span>
-                  <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
-                    {s.got}/{s.max}
+                  <span style={{ fontWeight: s.got === 2 ? 700 : 600, color: s.got === 2 ? '#D9B25B' : color.slate, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                    {s.got}
+                    <span style={{ fontWeight: 400, color: '#6B7F8E' }}>/{s.max}</span>
                   </span>
                 </div>
                 <div style={{ height: 7, borderRadius: 4, background: 'rgba(23,75,103,.09)', overflow: 'hidden' }}>

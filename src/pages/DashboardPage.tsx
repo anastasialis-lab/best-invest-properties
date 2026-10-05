@@ -22,22 +22,23 @@ const ENQUIRIES = [
 ];
 
 const DECLINE_ALTS = [
-  { name: 'Larnaca 1BR — Mackenzie', meta: '77/100 · 7.2%' },
-  { name: 'Alicante 2BR — Playa San Juan', meta: '84/100 · 6.5%' },
-  { name: 'Limassol 1BR — Zakaki', meta: '82/100 · 6.9%' },
+  { name: 'Larnaca 1BR — Mackenzie', meta: '8/10 · 7.2%' },
+  { name: 'Alicante 2BR — Playa San Juan', meta: '8/10 · 6.5%' },
+  { name: 'Limassol 1BR — Zakaki', meta: '8/10 · 6.9%' },
 ];
 
-const panel = { background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' } as const;
+const panel = { background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' } as const;
 
-function YieldTile({ label, value, sub, gold }: { label: string; value: string | number; sub?: string; gold?: boolean }) {
+function YieldTile({ label, value, sub, gold, mobile }: { label: string; value: string | number; sub?: string; gold?: boolean; mobile?: boolean }) {
   return (
     <div
       style={{
-        flex: 'none',
-        width: 96,
-        height: 96,
+        flex: mobile ? '1 1 0' : 'none',
+        minWidth: 0,
+        width: mobile ? 'auto' : 96,
+        height: mobile ? 88 : 96,
         borderRadius: 14,
-        padding: '13px 14px',
+        padding: mobile ? '12px 10px' : '13px 14px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -49,7 +50,7 @@ function YieldTile({ label, value, sub, gold }: { label: string; value: string |
       <div style={{ fontSize: 10.5, letterSpacing: '.1em', color: color.faint, lineHeight: 1.25 }}>{label}</div>
       <div style={{ fontWeight: 700, fontSize: 24, color: color.link, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
         {value}
-        {sub && <span style={{ fontSize: 15, color: color.faint }}>{sub}</span>}
+        {sub && <span style={{ fontSize: 15, fontWeight: 400, color: '#6B7F8E' }}>{sub}</span>}
       </div>
     </div>
   );
@@ -128,7 +129,7 @@ export function DashboardPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 34 }}>
             {recommended.map((p, i) => (
-              <div key={p.id} style={{ position: 'relative', overflow: 'hidden', display: 'flex', gap: 26, alignItems: 'center', flexWrap: 'wrap', ...panel, padding: '28px 26px 24px' }}>
+              <div key={p.id} style={{ position: 'relative', overflow: 'hidden', display: 'flex', gap: isMobile ? 16 : 26, alignItems: 'center', flexWrap: 'wrap', ...panel, padding: isMobile ? '22px 18px 20px' : '28px 26px 24px' }}>
                 <div style={{ position: 'absolute', inset: -32, filter: 'blur(20px)', opacity: 0.75 }}>
                   <PhotoSlot hint="" radius={0} aspect="auto" style={{ height: '100%', aspectRatio: 'auto' }} />
                 </div>
@@ -136,20 +137,20 @@ export function DashboardPage() {
                 <span style={{ position: 'relative', flex: 'none', width: 36, height: 36, borderRadius: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: color.gold, color: color.ink, fontWeight: 700, fontSize: 18, fontVariantNumeric: 'tabular-nums' }}>
                   {i + 1}
                 </span>
-                <div style={{ position: 'relative', flex: '0 1 auto', minWidth: 170, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+                <div style={{ position: 'relative', flex: isMobile ? '1 1 0' : '0 1 auto', minWidth: isMobile ? 0 : 170, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 10.5, letterSpacing: '.14em', fontWeight: 700, padding: '6px 12px', borderRadius: 40, background: color.navyDeep, color: color.gold }}>{p.tag}</span>
                   <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.14em', textTransform: 'uppercase', color: color.faint }}>{p.location}</div>
                   <div style={{ fontWeight: 700, fontSize: 25, color: color.link, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums' }}>{p.price}</div>
                   <div style={{ fontSize: 15, color: color.body }}>{p.spec}</div>
                 </div>
-                <div style={{ position: 'relative', flex: 'none', display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <YieldTile label="GROSS YIELD" value={p.gross} gold />
-                  <YieldTile label="NET YIELD" value={p.net} gold />
-                  <YieldTile label="SCORE" value={p.score} sub="/100" />
+                <div style={{ position: 'relative', flex: isMobile ? '1 1 100%' : 'none', display: 'flex', gap: isMobile ? 8 : 14, alignItems: 'center' }}>
+                  <YieldTile label="GROSS YIELD" value={p.gross} gold mobile={isMobile} />
+                  <YieldTile label="NET YIELD" value={p.net} gold mobile={isMobile} />
+                  <YieldTile label="SCORE" value={p.score} sub="/10" mobile={isMobile} />
                 </div>
                 <button
                   onClick={() => navigate(`/property/${p.id}`)}
-                  style={{ position: 'relative', flex: 'none', marginLeft: 'auto', border: 0, borderRadius: 40, padding: '15px 26px', background: color.actionBright, color: '#fff', fontSize: 12.5, fontWeight: 700, letterSpacing: '.14em', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 10px 24px rgba(23,75,103,.22)' }}
+                  style={{ position: 'relative', flex: isMobile ? '1 1 100%' : 'none', marginLeft: 'auto', border: 0, borderRadius: 40, padding: '15px 26px', background: color.actionBright, color: '#fff', fontSize: 12.5, fontWeight: 700, letterSpacing: '.14em', cursor: 'pointer', whiteSpace: 'nowrap', boxShadow: '0 10px 24px rgba(23,75,103,.22)' }}
                 >
                   VIEW INVESTMENT
                 </button>
@@ -184,7 +185,7 @@ export function DashboardPage() {
                     </span>
                   </div>
                   {removingSaved === i && (
-                    <div style={{ display: 'flex', gap: 9, alignItems: 'center', flexWrap: 'wrap', background: color.ground, border: `1px solid ${line(0.12)}`, borderRadius: 10, padding: '10px 12px', marginTop: 9 }}>
+                    <div style={{ display: 'flex', gap: 9, alignItems: 'center', flexWrap: 'wrap', background: 'rgba(247,252,255,.62)', border: `1px solid ${line(0.12)}`, borderRadius: 10, padding: '10px 12px', marginTop: 9 }}>
                       <span style={{ fontSize: 15.5, color: color.body, flex: '1 1 180px', minWidth: 0 }}>Remove this from your saved list? You will stop getting price and availability alerts for it.</span>
                       <button onClick={confirmRemoveSaved} style={{ border: 0, borderRadius: 40, padding: '8px 14px', background: color.dangerDeep, color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                         Remove
@@ -216,7 +217,7 @@ export function DashboardPage() {
                     <span style={{ fontSize: 13.5, padding: '4px 9px', borderRadius: 4, background: e.bg, color: e.fg }}>{e.status}</span>
                   </div>
                 ))}
-                <div style={{ marginTop: 16, background: color.ground, border: `1px solid ${line(0.1)}`, borderRadius: 7, padding: '15px 16px' }}>
+                <div style={{ marginTop: 16, background: 'rgba(247,252,255,.62)', border: `1px solid ${line(0.1)}`, borderRadius: 7, padding: '15px 16px' }}>
                   <div style={{ fontSize: 16.5, color: color.link, fontWeight: 500, marginBottom: 5 }}>Paphos 1BR — Sea Gardens</div>
                   <p style={{ fontSize: 15.5, lineHeight: 1.6, color: color.body, margin: '0 0 12px' }}>
                     This introduction is not available at the moment. Three properties with a similar profile are open to enquiries.

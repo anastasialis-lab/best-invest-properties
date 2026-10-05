@@ -16,15 +16,6 @@ const td = { padding: 11, borderBottom: `1px solid ${line(0.05)}` } as const;
 export function UserManagementPage() {
   const { openModal, showToast } = useAppStore();
 
-  const impersonate = () =>
-    openModal({
-      title: 'View the platform as this user?',
-      body: 'You see exactly what they see, read-only. The session is capped at 15 minutes, every action is written to the audit log against your name, and the user is told by email that support accessed their account.',
-      ok: 'Start support session',
-      tone: 'gold',
-      run: () => showToast('Support session started · 15 minutes, read-only'),
-    });
-
   const suspend = () =>
     openModal({
       title: 'Suspend this account?',
@@ -67,12 +58,6 @@ export function UserManagementPage() {
                     <span style={{ fontSize: 13, padding: '4px 9px', borderRadius: 4, background: u.bg, color: u.fg, whiteSpace: 'nowrap' }}>{u.state}</span>
                   </td>
                   <td style={{ ...td, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    <button
-                      onClick={impersonate}
-                      style={{ border: `1px solid ${line(0.14)}`, borderRadius: 40, padding: '7px 12px', background: 'transparent', color: color.slate, fontSize: 13.5, cursor: 'pointer', marginRight: 6 }}
-                    >
-                      View as
-                    </button>
                     <button onClick={suspend} style={{ border: '1px solid rgba(197,86,79,.4)', borderRadius: 40, padding: '7px 12px', background: 'transparent', color: color.danger, fontSize: 13.5, cursor: 'pointer' }}>
                       Suspend
                     </button>

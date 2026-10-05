@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { InfoButton, TipNote } from '@/components/ScoreBits';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { color, line } from '@/styles/theme';
@@ -6,7 +8,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAppStore, calcResults, calcErrors, rentBandFor, eur, type RentCase, type CalcStrategy } from '@/state/store';
 
 const CASES: Array<{ key: RentCase; label: string }> = [
-  { key: 'base', label: 'BASE CASE' },
+  { key: 'base', label: 'CONSERVATIVE' },
   { key: 'avg', label: 'AVERAGE' },
   { key: 'best', label: 'BEST CASE' },
 ];
@@ -22,6 +24,8 @@ export function CalculatorPage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { calc, setCalc } = useAppStore();
+  const [tip, setTip] = useState<'occ' | 'mgmt' | null>(null);
+  const toggleTip = (k: 'occ' | 'mgmt') => setTip(tip === k ? null : k);
 
   const band = rentBandFor(calc.purchase, calc.strategy);
   const errors = calcErrors(calc);
@@ -42,18 +46,18 @@ export function CalculatorPage() {
 
   const current = calcResults(calc);
   const selNetYield = (current.invested > 0 ? ((current.gross - current.opex) / current.invested) * 100 : 0).toFixed(1) + '%';
-  const selLabel = CASES.find((c) => c.key === selected)?.label ?? 'BASE CASE';
+  const selLabel = CASES.find((c) => c.key === selected)?.label ?? 'CONSERVATIVE';
   const gridCols = isMobile ? '1fr' : '1.4fr repeat(3,minmax(0,1fr))';
 
   return (
-    <div style={{ background: 'linear-gradient(180deg,#E5F6FF 0%,#EFF9FF 210px,#F7FCFF 430px)' }}>
+    <div>
       <SiteHeader />
       <div style={{ padding: isMobile ? '22px 18px 36px' : '30px 28px 40px' }}>
         <h1 style={{ fontWeight: 700, fontSize: 32, textTransform: 'uppercase', letterSpacing: '-.012em', color: color.link, margin: '0 0 5px' }}>Financial Calculator</h1>
         <p style={{ fontSize: 16.5, color: color.faint, margin: '0 0 24px' }}>Larnaca, Cyprus · 1 bedroom. Change any assumption; results recalculate.</p>
 
         <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <div style={{ flex: '1 1 340px', minWidth: 0, background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: 22 }}>
+          <div style={{ flex: '1 1 340px', minWidth: 0, background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)', padding: 22 }}>
             <div style={{ fontSize: 12, letterSpacing: '.14em', color: color.faint, marginBottom: 10 }}>PURCHASE</div>
             <label style={{ display: 'block', marginBottom: 18 }}>
               <span style={{ display: 'block', fontSize: 15.5, color: color.body, marginBottom: 5 }}>Purchase price</span>
@@ -114,15 +118,25 @@ export function CalculatorPage() {
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15.5, color: color.body, marginBottom: 5 }}>
-                <span>Occupancy</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 15.5, color: color.body, marginBottom: 5 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  Occupancy
+                  <InfoButton open={tip === 'occ'} onToggle={() => toggleTip('occ')} />
+                </span>
                 <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{calc.occupancy}%</span>
               </div>
+              {tip === 'occ' && <TipNote>Occupancy assumptions differ for long-term and short-term rentals. Adjust this value to explore different scenarios.</TipNote>}
               <input type="range" min={50} max={100} value={calc.occupancy} onChange={(e) => setCalc({ occupancy: parseInt(e.target.value, 10) })} style={{ width: '100%', accentColor: color.action }} />
             </div>
 
             <div>
-              <div style={{ fontSize: 15.5, color: color.body, marginBottom: 8 }}>Management fee</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 15.5, color: color.body, marginBottom: 8 }}>
+                Management fee
+                <InfoButton open={tip === 'mgmt'} onToggle={() => toggleTip('mgmt')} />
+              </div>
+              {tip === 'mgmt' && (
+                <TipNote>Management fees vary by country and rental strategy. The suggested rate will depend on the selected country and whether the rental is long-term or short-term.</TipNote>
+              )}
               <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                 {MGMT_OPTIONS.map((v) => {
                   const on = calc.mgmt === v;
@@ -155,33 +169,64 @@ export function CalculatorPage() {
               </div>
             ) : (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 8, alignItems: 'stretch', marginBottom: 8 }}>
-                  {!isMobile && <div style={{ fontSize: 11.5, letterSpacing: '.14em', color: color.skyBright, alignSelf: 'end', paddingBottom: 8 }}>RENT SCENARIO</div>}
-                  {CASES.map((c) => {
-                    const on = selected === c.key;
-                    return (
-                      <button
-                        key={c.key}
-                        onClick={() => setCalc({ rentCase: c.key, rent: band[c.key] })}
-                        style={{ minWidth: 0, border: `1px solid ${on ? 'rgba(221,180,94,.5)' : 'rgba(255,255,255,.12)'}`, borderRadius: 12, padding: '11px 8px', textAlign: 'left', cursor: 'pointer', background: on ? 'rgba(221,180,94,.16)' : 'rgba(255,255,255,.07)', color: '#fff' }}
-                      >
-                        <span style={{ display: 'block', fontSize: 11.5, letterSpacing: '.1em', color: on ? color.gold : color.skyBright, marginBottom: 5 }}>{c.label}</span>
-                        <span style={{ display: 'block', fontSize: 15.5, fontWeight: 600, fontVariantNumeric: 'tabular-nums', overflowWrap: 'break-word' }}>{eur(band[c.key])}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {rows.map((r) => (
-                  <div key={r.k} style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 8, alignItems: 'center', padding: '11px 0', borderTop: '1px solid rgba(255,255,255,.12)' }}>
-                    <span style={{ fontSize: 15.5, lineHeight: 1.35, color: color.skyBright }}>{r.k}</span>
-                    {perCase.map((x) => (
-                      <span key={x.key} style={{ textAlign: 'left', fontSize: 16.5, fontWeight: x.key === selected ? 700 : 400, color: x.key === selected ? '#fff' : color.skyBright, fontVariantNumeric: 'tabular-nums' }}>
-                        {r.fmt(x)}
-                      </span>
+                {isMobile ? (
+                  <>
+                    <div style={{ fontSize: 11.5, letterSpacing: '.14em', color: color.skyBright, marginBottom: 8 }}>RENT SCENARIO</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 6, marginBottom: 10 }}>
+                      {CASES.map((c) => {
+                        const on = selected === c.key;
+                        return (
+                          <button
+                            key={c.key}
+                            onClick={() => setCalc({ rentCase: c.key, rent: band[c.key] })}
+                            style={{ minWidth: 0, border: `1px solid ${on ? 'rgba(221,180,94,.5)' : 'rgba(255,255,255,.12)'}`, borderRadius: 12, padding: '10px 8px', minHeight: 56, textAlign: 'left', cursor: 'pointer', background: on ? 'rgba(221,180,94,.16)' : 'rgba(255,255,255,.07)', color: '#fff' }}
+                          >
+                            <span style={{ display: 'block', fontSize: 10, letterSpacing: '.02em', color: on ? color.gold : color.skyBright, marginBottom: 4, whiteSpace: 'nowrap' }}>{c.label}</span>
+                            <span style={{ display: 'block', fontSize: 14, fontWeight: 600, fontVariantNumeric: 'tabular-nums', overflowWrap: 'anywhere' }}>{eur(band[c.key])}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {rows.map((r) => (
+                      <div key={r.k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 14, padding: '12px 0', borderTop: '1px solid rgba(255,255,255,.12)' }}>
+                        <span style={{ fontSize: 15, lineHeight: 1.35, color: color.skyBright, minWidth: 0 }}>{r.k}</span>
+                        <span style={{ flex: 'none', fontSize: 17, fontWeight: 600, color: '#fff', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                          {r.fmt(perCase.find((x) => x.key === selected) ?? perCase[0])}
+                        </span>
+                      </div>
                     ))}
-                  </div>
-                ))}
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 8, alignItems: 'stretch', marginBottom: 8 }}>
+                      <div style={{ fontSize: 11.5, letterSpacing: '.14em', color: color.skyBright, alignSelf: 'end', paddingBottom: 8 }}>RENT SCENARIO</div>
+                      {CASES.map((c) => {
+                        const on = selected === c.key;
+                        return (
+                          <button
+                            key={c.key}
+                            onClick={() => setCalc({ rentCase: c.key, rent: band[c.key] })}
+                            style={{ minWidth: 0, border: `1px solid ${on ? 'rgba(221,180,94,.5)' : 'rgba(255,255,255,.12)'}`, borderRadius: 12, padding: '11px 10px', textAlign: 'left', cursor: 'pointer', background: on ? 'rgba(221,180,94,.16)' : 'rgba(255,255,255,.07)', color: '#fff', overflow: 'hidden' }}
+                          >
+                            <span style={{ display: 'block', fontSize: 11, letterSpacing: '.04em', color: on ? color.gold : color.skyBright, marginBottom: 5, whiteSpace: 'nowrap' }}>{c.label}</span>
+                            <span style={{ display: 'block', fontSize: 15.5, fontWeight: 600, fontVariantNumeric: 'tabular-nums', overflowWrap: 'break-word' }}>{eur(band[c.key])}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {rows.map((r) => (
+                      <div key={r.k} style={{ display: 'grid', gridTemplateColumns: gridCols, gap: 8, alignItems: 'center', padding: '11px 0', borderTop: '1px solid rgba(255,255,255,.12)' }}>
+                        <span style={{ fontSize: 15.5, lineHeight: 1.35, color: color.skyBright }}>{r.k}</span>
+                        {perCase.map((x) => (
+                          <span key={x.key} style={{ textAlign: 'left', fontSize: 16.5, fontWeight: x.key === selected ? 700 : 400, color: x.key === selected ? '#fff' : color.skyBright, fontVariantNumeric: 'tabular-nums' }}>
+                            {r.fmt(x)}
+                          </span>
+                        ))}
+                      </div>
+                    ))}
+                  </>
+                )}
 
                 <div style={{ marginTop: 22, padding: 20, borderRadius: 12, background: 'rgba(221,180,94,.16)', border: '1px solid rgba(221,180,94,.34)' }}>
                   <div style={{ fontSize: 12, letterSpacing: '.16em', color: color.gold, marginBottom: 6 }}>NET RENTAL YIELD · {selLabel}</div>

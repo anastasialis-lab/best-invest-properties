@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { color, line } from '@/styles/theme';
+import { color, line, navGlass } from '@/styles/theme';
+import { useState } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { PortalNavToggle } from '@/components/PortalNavToggle';
 
 const NAV = [
   { label: 'Dashboard', to: '/developer-portal' },
@@ -25,26 +27,28 @@ export function DevPortalLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const isMobile = useIsMobile();
   const active = ACTIVE_FOR[location.pathname] ?? 'Dashboard';
+  const [navOpen, setNavOpen] = useState(false);
 
   return (
-    <div style={{ background: color.ground, minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'stretch' }}>
         <div
           style={{
             width: isMobile ? '100%' : 210,
             flex: isMobile ? '1 1 100%' : 'none',
-            background: color.panelAlt,
-            padding: isMobile ? '10px 12px' : '22px 0 30px',
+            background: navGlass,
+            padding: isMobile ? '12px 14px' : '22px 0 30px',
             borderRight: isMobile ? 0 : `1px solid ${line(0.1)}`,
             display: 'flex',
-            flexDirection: isMobile ? 'row' : 'column',
-            gap: 10,
-            overflowX: isMobile ? 'auto' : 'visible',
+            flexDirection: 'column',
+            gap: isMobile ? 0 : 10,
+            overflowX: 'visible',
           }}
           className="bip-scroll"
         >
           {!isMobile && <div style={{ padding: '0 20px 20px', fontSize: 12, letterSpacing: '.24em', color: color.muted2 }}>DEVELOPER</div>}
-          {NAV.map((n) => {
+          {isMobile && <PortalNavToggle label="Developer menu" open={navOpen} current={active} onToggle={() => setNavOpen(!navOpen)} />}
+          {(!isMobile || navOpen) && NAV.map((n) => {
             const on = n.label === active;
             return (
               <Link
@@ -52,12 +56,12 @@ export function DevPortalLayout({ children }: { children: ReactNode }) {
                 to={n.to}
                 style={{
                   display: 'block',
-                  width: isMobile ? 'auto' : '100%',
+                  width: '100%',
                   textAlign: 'left',
                   border: 0,
                   borderLeft: isMobile ? 0 : `2px solid ${on ? color.action : 'transparent'}`,
-                  padding: isMobile ? '9px 14px' : '10px 20px',
-                  borderRadius: isMobile ? 40 : 0,
+                  padding: isMobile ? '9px 13px' : '10px 20px',
+                  borderRadius: isMobile ? 6 : 0,
                   fontSize: 15.5,
                   whiteSpace: 'nowrap',
                   background: on ? '#FFFFFF' : 'transparent',
@@ -78,27 +82,29 @@ export function DevPortalLayout({ children }: { children: ReactNode }) {
 export function DevPortalHeader({ title }: { title: string }) {
   const navigate = useNavigate();
   return (
-    <div style={{ background: color.ink, color: color.sky, padding: '22px 28px', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-      <div>
-        <div style={{ fontSize: 11.5, letterSpacing: '.2em', color: color.edge }}>DEVELOPER PORTAL</div>
-        <div style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '-.012em', fontSize: 26, marginTop: 4 }}>{title}</div>
-      </div>
-      <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
-        <button onClick={() => navigate('/developer-portal/add-project')} style={{ border: 0, borderRadius: 40, padding: '11px 18px', background: color.sky, color: color.ink, fontSize: 15.5, fontWeight: 600, cursor: 'pointer' }}>
-          Add Project
-        </button>
-        {[
-          { label: 'Update Availability', to: '/developer-portal/projects' },
-          { label: 'View Leads', to: '/developer-portal/leads' },
-          { label: 'Company profile', to: '/developer-portal/company' },
-        ].map((b) => (
-          <button key={b.label} onClick={() => navigate(b.to)} style={{ border: '1px solid rgba(228,237,244,.35)', borderRadius: 40, padding: '11px 18px', background: 'transparent', color: color.sky, fontSize: 15.5, cursor: 'pointer' }}>
-            {b.label}
+    <div style={{ padding: '26px 28px 0' }}>
+      <div style={{ background: color.ink, borderRadius: 16, color: color.sky, padding: '22px 26px', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: 11.5, letterSpacing: '.2em', color: '#DCEAF3' }}>DEVELOPER PORTAL</div>
+          <div style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '-.012em', fontSize: 26, marginTop: 4 }}>{title}</div>
+        </div>
+        <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
+          <button onClick={() => navigate('/developer-portal/add-project')} style={{ border: 0, borderRadius: 40, padding: '11px 18px', background: '#DDB45E', color: color.ink, fontSize: 15.5, fontWeight: 600, cursor: 'pointer' }}>
+            Add Project
           </button>
-        ))}
+          {[
+            { label: 'Update Availability', to: '/developer-portal/projects' },
+            { label: 'View Leads', to: '/developer-portal/leads' },
+            { label: 'Company profile', to: '/developer-portal/company' },
+          ].map((b) => (
+            <button key={b.label} onClick={() => navigate(b.to)} style={{ border: '1px solid rgba(255,255,255,.45)', borderRadius: 40, padding: '11px 18px', background: 'rgba(255,255,255,.08)', color: '#fff', fontSize: 15.5, cursor: 'pointer' }}>
+              {b.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-export const devPanel = { background: '#fff', border: '1px solid rgba(32,90,135,.08)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' } as const;
+export const devPanel = { background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' } as const;

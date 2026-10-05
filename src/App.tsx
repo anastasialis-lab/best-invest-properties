@@ -32,12 +32,14 @@ import { PrivacyPolicyPage } from '@/pages/PrivacyPolicyPage';
 import { TermsOfUsePage } from '@/pages/TermsOfUsePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { PhotoSheet } from '@/components/PhotoSheet';
 import { Toast, Modal } from '@/components/Feedback';
 
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <ScrollToTop />
+      <PhotoSheet>
       <Routes>
         <Route path="/" element={<LandingPage />} />
 
@@ -80,6 +82,7 @@ export default function App() {
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </PhotoSheet>
 
       {/* One toast and one confirm dialog for the whole app, as in the prototype. */}
       <Toast />

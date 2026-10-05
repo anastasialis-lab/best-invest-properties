@@ -63,9 +63,9 @@ export const PROFILE = [
 ];
 
 export const SAVED = [
-  { name: 'Larnaca 1BR — Phase II', meta: '87/100 · 7.2%' },
-  { name: 'Málaga 2BR — Old town', meta: '85/100 · 7.0%' },
-  { name: 'Paphos 1BR — Sea gardens', meta: '89/100 · 7.4%' },
+  { name: 'Larnaca 1BR — Phase II', meta: '8/10 · 7.2%' },
+  { name: 'Málaga 2BR — Old town', meta: '8/10 · 7.0%' },
+  { name: 'Paphos 1BR — Sea gardens', meta: '9/10 · 7.4%' },
 ];
 
 export const ENQUIRIES = [
@@ -147,8 +147,8 @@ export const ENQ_ROWS = [
 
 export const DEV_VALUE = [
   { num: '01', title: 'Investor-ready audience', body: 'Our registered users state a budget, a target yield and a strategy before they see a single listing. Enquiries arrive already filtered against your price and completion date.' },
-  { num: '02', title: 'Analysis, not advertising', body: 'Your project is presented with an independent investment score. Buyers see the reasoning, which shortens the questions that usually come later in the sales cycle.' },
-  { num: '03', title: 'Two markets, one channel', body: 'Cyprus and Spain, with residential stock between €120k and €600k. We do not list every project, so listings carry weight.' },
+  { num: '02', title: 'Analysis, not advertising', body: 'Your project is presented with an additional independent investment score. Buyers see the reasoning, which shortens the questions that usually come later in the sales cycle.' },
+  { num: '03', title: 'One channel, growing reach', body: 'Starting with properties in Cyprus and Spain, with more countries planned. We select projects carefully, so listings carry weight.' },
   { num: '04', title: 'Your material stays yours', body: 'Renders, plans and specifications are published as developer information and labelled as such, separate from our own figures.' },
 ];
 
@@ -160,7 +160,7 @@ export const DEV_STEPS = [
 ];
 
 export const DEV_REQ = [
-  'Valid developer licence in Cyprus or Spain',
+  'Relevant developer licence or registration, where required in the project’s country.',
   'Building permit issued for the project',
   'Escrow or bank guarantee for off-plan payments',
   'Unit-level pricing and floor plans',

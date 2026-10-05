@@ -13,7 +13,7 @@ const CONTACT_FIELDS = [
   { label: 'Country of residence', type: 'text', ph: 'United Kingdom' },
 ];
 
-const panel = { background: '#fff', border: `1px solid ${line(0.07)}`, borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' } as const;
+const panel = { background: 'rgba(255,255,255,.8)', border: '1px solid rgba(255,255,255,.55)', borderRadius: 16, boxShadow: '0 12px 34px rgba(23,75,103,.07)' } as const;
 const select = { width: '100%', padding: '13px 14px', border: `1px solid ${line(0.14)}`, borderRadius: 10, background: '#fff', fontSize: 16.5, color: color.link } as const;
 
 export function AccountSettingsPage() {
@@ -31,7 +31,7 @@ export function AccountSettingsPage() {
   };
 
   return (
-    <div style={{ background: color.ground }}>
+    <div>
       <SiteHeader />
       <div style={{ padding: isMobile ? '20px 18px 40px' : '26px 28px 44px' }}>
         <button onClick={() => navigate('/dashboard')} style={{ border: 0, background: 'transparent', fontSize: 15.5, color: color.faint, cursor: 'pointer', padding: '0 0 12px' }}>

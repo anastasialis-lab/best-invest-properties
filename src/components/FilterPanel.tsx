@@ -138,7 +138,7 @@ export function FilterPanel({ onClose }: { onClose?: () => void }) {
             </button>
           )
         ) : (
-          <div style={{ background: color.ground, border: `1px dashed ${line(0.22)}`, borderRadius: 10, padding: '12px 13px' }}>
+          <div style={{ background: 'rgba(247,252,255,.62)', border: `1px dashed ${line(0.22)}`, borderRadius: 10, padding: '12px 13px' }}>
             <div style={{ fontSize: 14, lineHeight: 1.55, color: color.body, marginBottom: 9 }}>Sign in to save this search and get new matches by email.</div>
             <button onClick={() => navigate('/login')} style={{ border: `1px solid ${line(0.18)}`, borderRadius: 40, padding: '8px 14px', background: '#fff', color: color.link, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
               Sign in
